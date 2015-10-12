@@ -4,21 +4,37 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
     </dependencies>
     <scenes>
-        <!--Table View Controller-->
+        <!--To Do-->
         <scene sceneID="sEA-O9-nPm">
             <objects>
-                <tableViewController id="nnM-G7-h71" sceneMemberID="viewController">
+                <tableViewController id="nnM-G7-h71" customClass="ToDoListTableViewController" customModule="ClueList" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="Aaw-zQ-oB9">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="dhD-bG-OHf">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ToDoCell" textLabel="k8E-k1-HmU" detailTextLabel="Uz7-3r-Eet" style="IBUITableViewCellStyleSubtitle" id="dhD-bG-OHf">
                                 <rect key="frame" x="0.0" y="92" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="dhD-bG-OHf" id="RQ7-ww-N9P">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="k8E-k1-HmU">
+                                            <rect key="frame" x="15" y="5" width="32" height="20"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Uz7-3r-Eet">
+                                            <rect key="frame" x="15" y="25" width="41" height="14"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
                         </prototypes>
@@ -27,13 +43,13 @@
                             <outlet property="delegate" destination="nnM-G7-h71" id="TXX-dc-DlO"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="L5M-d8-MZi"/>
+                    <navigationItem key="navigationItem" title="To Do" id="L5M-d8-MZi"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f8h-IX-57N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1427" y="-27"/>
         </scene>
-        <!--Item 2-->
+        <!--Completed-->
         <scene sceneID="Kvc-yH-FJc">
             <objects>
                 <viewController id="q7E-va-4yt" sceneMemberID="viewController">
@@ -46,7 +62,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item 2" id="Ibi-w9-4fQ"/>
+                    <tabBarItem key="tabBarItem" title="Completed" id="Ibi-w9-4fQ"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V3S-Rb-a89" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -64,19 +80,19 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="q7E-va-4yt" kind="relationship" relationship="viewControllers" id="5Nm-Uu-cCT"/>
                         <segue destination="hGe-br-cZw" kind="relationship" relationship="viewControllers" id="WU8-YN-Igg"/>
+                        <segue destination="q7E-va-4yt" kind="relationship" relationship="viewControllers" id="5Nm-Uu-cCT"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mSj-Hn-Ba0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-223" y="399"/>
         </scene>
-        <!--Item-->
+        <!--To Do-->
         <scene sceneID="Zwc-QP-oyd">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hGe-br-cZw" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="A6G-gJ-ni1"/>
+                    <tabBarItem key="tabBarItem" title="To Do" id="A6G-gJ-ni1"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="e8x-Aw-r57">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
