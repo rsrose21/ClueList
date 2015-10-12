@@ -33,8 +33,14 @@ class ToDoListTableViewController: UITableViewController {
     //use the auto layout constraints to determine each cell's height
     //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
     func configureTableView() {
+        tableView.allowsSelection = false
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 160.0
+        
+        //differentiate background when cell is dragged
+        tableView.backgroundColor = UIColor.blackColor()
+        
+        tableView.registerClass(ToDoCellTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
     }
 
     // MARK: - Table view data source
@@ -49,13 +55,22 @@ class ToDoListTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
-            
+        
+        //prevent highlight from selecting cell when clicking to drag
+        cell.selectionStyle = .None
+        // Configure the cell for this indexPath
+        cell.updateFonts()
+      
         let item = toDoItems[indexPath.row] as ToDoItem
-        cell.titleLabel?.text = item.text
+        cell.titleLabel.text = item.text
         //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
         let formatter = NSDateFormatter();
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
-        cell.subtitleLabel?.text = formatter.stringFromDate(item.created)
+        cell.bodyLabel.text = formatter.stringFromDate(item.created)
+        
+        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+        cell.setNeedsUpdateConstraints()
+        cell.updateConstraintsIfNeeded()
         
         return cell
     }
