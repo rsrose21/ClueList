@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ToDoListTableViewController: UITableViewController {
+class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
 
     var toDoItems = [ToDoItem]()
     let cellIdentifier = "ToDoCell"
@@ -19,8 +19,8 @@ class ToDoListTableViewController: UITableViewController {
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        // display an Edit button in the navigation bar for this view controller.
+        navigationItem.rightBarButtonItem = self.editButtonItem()
         
         configureTableView()
         
@@ -72,28 +72,26 @@ class ToDoListTableViewController: UITableViewController {
         cell.setNeedsUpdateConstraints()
         cell.updateConstraintsIfNeeded()
         
+        cell.delegate = self
+        cell.toDoItem = item
+        
         return cell
     }
 
-    /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
-
-    /*
+    
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            toDoItemDeleted(indexPath.row)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
-    */
 
     /*
     // Override to support rearranging the table view.
@@ -109,6 +107,26 @@ class ToDoListTableViewController: UITableViewController {
         return true
     }
     */
+    
+    // MARK: - Table view delegate
+    
+    func toDoItemDeleted(index: NSInteger) {
+        // could removeAtIndex in the loop but keep it here for when indexOfObject works
+        toDoItems.removeAtIndex(index)
+        
+        // use the UITableView to animate the removal of this row
+        tableView.beginUpdates()
+        let indexPathForRow = NSIndexPath(forRow: index, inSection: 0)
+        tableView.deleteRowsAtIndexPaths([indexPathForRow], withRowAnimation: .Fade)
+        tableView.endUpdates()    
+    }
+    
+    func toDoItemRevealed(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        print(index)
+    }
 
     /*
     // MARK: - Navigation
