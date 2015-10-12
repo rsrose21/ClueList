@@ -11,6 +11,7 @@ import UIKit
 class ToDoListTableViewController: UITableViewController {
 
     var toDoItems = [ToDoItem]()
+    let cellIdentifier = "ToDoCell"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,9 +21,20 @@ class ToDoListTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        
+        configureTableView()
+        
+        // TODO: pull from CoreData
         loadSampleData()
         toDoItems = sampleData
         tableView.reloadData()
+    }
+    
+    //use the auto layout constraints to determine each cell's height
+    //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
+    func configureTableView() {
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 160.0
     }
 
     // MARK: - Table view data source
@@ -36,14 +48,14 @@ class ToDoListTableViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("ToDoCell", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
             
         let item = toDoItems[indexPath.row] as ToDoItem
-        cell.textLabel?.text = item.text
-        
+        cell.titleLabel?.text = item.text
+        //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
         let formatter = NSDateFormatter();
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
-        cell.detailTextLabel?.text = formatter.stringFromDate(item.created)
+        cell.subtitleLabel?.text = formatter.stringFromDate(item.created)
         
         return cell
     }

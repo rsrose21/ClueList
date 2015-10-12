@@ -21,7 +21,7 @@ func loadSampleData() {
     addToDoItem("feed the cat")
     addToDoItem("buy eggs")
     addToDoItem("watch WWDC videos")
-    addToDoItem("rule the Web")
+    addToDoItem("The top of the Eiffel Tower leans away from the sun, as the metal facing the sun heats up and expands. It can move as much as 7 inches.")
     addToDoItem("buy a new iPhone")
     addToDoItem("darn holes in socks")
     addToDoItem("write this tutorial")

@@ -16,6 +16,7 @@
 		3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3451BCBFCA1009E3FAF /* ToDoListTableViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3491BCC069F009E3FAF /* SampleData.swift */; settings = {ASSET_TAGS = (); }; };
+		3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		3D8FF3451BCBFCA1009E3FAF /* ToDoListTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListTableViewController.swift; sourceTree = "<group>"; };
 		3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoItem.swift; sourceTree = "<group>"; };
 		3D8FF3491BCC069F009E3FAF /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoCellTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				3D8FF3491BCC069F009E3FAF /* SampleData.swift */,
 				3D8FF3341BCBF15C009E3FAF /* Main.storyboard */,
 				3D8FF3451BCBFCA1009E3FAF /* ToDoListTableViewController.swift */,
+				3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */,
 				3D8FF33A1BCBF15C009E3FAF /* Assets.xcassets */,
 				3D8FF33C1BCBF15C009E3FAF /* LaunchScreen.storyboard */,
 				3D8FF33F1BCBF15C009E3FAF /* Info.plist */,
@@ -149,6 +152,7 @@
 				3D8FF3331BCBF15C009E3FAF /* ViewController.swift in Sources */,
 				3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */,
 				3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */,
+				3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */,
 				3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */,
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
@@ -299,6 +303,7 @@
 				3D8FF3441BCBF15C009E3FAF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
