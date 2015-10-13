@@ -127,6 +127,13 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         
         print(index)
     }
+    
+    func toDoItemShowClue(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        print(index)
+    }
 
     /*
     // MARK: - Navigation

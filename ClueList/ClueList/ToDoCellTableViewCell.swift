@@ -13,8 +13,10 @@ import PureLayout
 
 // A protocol that the TableViewCell uses to inform its delegate of state change
 protocol TableViewCellDelegate {
-    // indicates that the given item has been deleted
+    // indicates that the given item has been revealed
     func toDoItemRevealed(todoItem: ToDoItem)
+    // indicates that the given item's hint has been revealed
+    func toDoItemShowClue(todoItem: ToDoItem)
 }
 
 class ToDoCellTableViewCell: UITableViewCell {
@@ -24,13 +26,22 @@ class ToDoCellTableViewCell: UITableViewCell {
     let kLabelHorizontalInsets: CGFloat = 15.0
     let kLabelVerticalInsets: CGFloat = 10.0
     
+    //Defining fonts of size and type
+    let titleFont:UIFont = UIFont(name: "Helvetica Neue", size: 17)!
+    let boldFont:UIFont = UIFont(name: "HelveticaNeue-BoldItalic", size: 17)!
+    let bodyFont:UIFont = UIFont(name: "HelveticaNeue", size: 10)!
+    
     var originalCenter = CGPoint()
-    var revealOnDragRelease = false
+    var hintOnDragRelease = false, revealOnDragRelease = false
     
     // The object that acts as delegate for this cell.
     var delegate: TableViewCellDelegate?
     // The item that this cell renders.
-    var toDoItem: ToDoItem?
+    var toDoItem: ToDoItem? {
+        didSet {
+            print(toDoItem!.text)
+        }
+    }
     
     var didSetupConstraints = false
     
@@ -107,9 +118,36 @@ class ToDoCellTableViewCell: UITableViewCell {
     
     func updateFonts()
     {
-        titleLabel.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
-        bodyLabel.font = UIFont.preferredFontForTextStyle(UIFontTextStyleCaption2)
+        titleLabel.font = titleFont
+        bodyLabel.font = bodyFont
     }
+    
+    //highlight text in a UILabel: http://stackoverflow.com/questions/3586871/bold-non-bold-text-in-a-single-uilabel
+    func highlightText() -> NSMutableAttributedString {
+        //Making dictionaries of fonts that will be passed as an attribute
+        let textDict:NSDictionary = NSDictionary(object: titleFont, forKey: NSFontAttributeName)
+        
+        let text = "A nap should be about 15-30 minutes. If you nap longer than 30 minutes your body lapses into delta (or deep) sleep." as NSString
+        let text2 = "nap" as NSString
+        
+        var range: NSRange
+        var checker: NSString = ""
+        
+        let attributedString = NSMutableAttributedString(string: text as String, attributes: textDict as? [String : AnyObject])
+        
+        for (var i=0 ; i <= text.length - text2.length ; i++)
+        {
+            range = NSMakeRange(i, text2.length)
+            checker = text.substringWithRange(range)
+            if (text2 == checker) {
+                //highlight the found string: http://stackoverflow.com/questions/29165560/ios-swift-is-it-possible-to-change-the-font-style-of-a-certain-word-in-a-string
+                attributedString.setAttributes([NSFontAttributeName : boldFont, NSForegroundColorAttributeName : UIColor.redColor()], range: range)
+            }
+        }
+
+        return attributedString
+    }
+    
     
     //MARK: - horizontal pan gesture methods
     
@@ -124,24 +162,21 @@ class ToDoCellTableViewCell: UITableViewCell {
         if recognizer.state == .Changed {
             let translation = recognizer.translationInView(self)
             center = CGPointMake(originalCenter.x + translation.x, originalCenter.y)
-            // has the user dragged the item far enough to initiate a delete/complete?
-            revealOnDragRelease = frame.origin.x < -frame.size.width / 2.0
+            // has the user dragged the item far enough to initiate a hint/reveal?
+            hintOnDragRelease = frame.origin.x < -frame.size.width / 2.0
+            revealOnDragRelease = frame.origin.x > frame.size.width / 2.0
         }
         // 3
         if recognizer.state == .Ended {
-            // the frame this cell had before user dragged it
             let originalFrame = CGRect(x: 0, y: frame.origin.y,
                 width: bounds.size.width, height: bounds.size.height)
-            if !revealOnDragRelease {
-                // if the item is not being revealed, snap back to the original location
-                UIView.animateWithDuration(0.2, animations: {self.frame = originalFrame})
+            if hintOnDragRelease {
+                titleLabel.attributedText = highlightText()
+                print("a very good hello, hello".rangesOfString("hello"))
+            } else if revealOnDragRelease {
+                titleLabel.text = "reveal original text"
             }
-            if revealOnDragRelease {
-                if delegate != nil && toDoItem != nil {
-                    // notify the delegate that this item should be revealed
-                    delegate!.toDoItemRevealed(toDoItem!)
-                }
-            }
+            UIView.animateWithDuration(0.2, animations: {self.frame = originalFrame})
         }
     }
     
@@ -157,4 +192,31 @@ class ToDoCellTableViewCell: UITableViewCell {
         return false
     }
 
+}
+
+extension String {
+    func rangesOfString(findStr:String) -> [Range<String.Index>] {
+        var arr = [Range<String.Index>]()
+        var startInd = self.startIndex
+        // check first that the first character of search string exists
+        if self.characters.contains(findStr.characters.first!) {
+            // if so set this as the place to start searching
+            startInd = self.characters.indexOf(findStr.characters.first!)!
+        }
+        else {
+            // if not return empty array
+            return arr
+        }
+        var i = self.startIndex.distanceTo(startInd)
+        while i<=self.characters.count-findStr.characters.count {
+            if self[self.startIndex.advancedBy(i)..<self.startIndex.advancedBy(i+findStr.characters.count)] == findStr {
+                arr.append(Range(start:self.startIndex.advancedBy(i),end:self.startIndex.advancedBy(i+findStr.characters.count)))
+                i = i+findStr.characters.count
+            }
+            else {
+                i++
+            }
+        }
+        return arr
+    }
 }
