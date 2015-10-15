@@ -123,28 +123,17 @@ class ToDoCellTableViewCell: UITableViewCell {
     }
     
     //highlight text in a UILabel: http://stackoverflow.com/questions/3586871/bold-non-bold-text-in-a-single-uilabel
-    func highlightText() -> NSMutableAttributedString {
+    func highlightText(haystack: NSString, needle: NSString) -> NSMutableAttributedString {
         //Making dictionaries of fonts that will be passed as an attribute
         let textDict:NSDictionary = NSDictionary(object: titleFont, forKey: NSFontAttributeName)
         
-        let text = "A nap should be about 15-30 minutes. If you nap longer than 30 minutes your body lapses into delta (or deep) sleep." as NSString
-        let text2 = "nap" as NSString
-        
-        var range: NSRange
-        var checker: NSString = ""
-        
-        let attributedString = NSMutableAttributedString(string: text as String, attributes: textDict as? [String : AnyObject])
-        
-        for (var i=0 ; i <= text.length - text2.length ; i++)
-        {
-            range = NSMakeRange(i, text2.length)
-            checker = text.substringWithRange(range)
-            if (text2 == checker) {
-                //highlight the found string: http://stackoverflow.com/questions/29165560/ios-swift-is-it-possible-to-change-the-font-style-of-a-certain-word-in-a-string
-                attributedString.setAttributes([NSFontAttributeName : boldFont, NSForegroundColorAttributeName : UIColor.redColor()], range: range)
-            }
-        }
+        let attributedString = NSMutableAttributedString(string: haystack as String, attributes: textDict as? [String : AnyObject])
 
+        do {
+            try attributedString.highlightStrings(needle as String, fontName: "HelveticaNeue-BoldItalic", fontSize: 17)
+        } catch {
+            print(error)
+        }
         return attributedString
     }
     
@@ -171,10 +160,11 @@ class ToDoCellTableViewCell: UITableViewCell {
             let originalFrame = CGRect(x: 0, y: frame.origin.y,
                 width: bounds.size.width, height: bounds.size.height)
             if hintOnDragRelease {
-                titleLabel.attributedText = highlightText()
-                print("a very good hello, hello".rangesOfString("hello"))
+                //highlight the "clue" in the factoid for the user
+                titleLabel.attributedText = highlightText((toDoItem?.factoid)!, needle: (toDoItem?.clue)!)
             } else if revealOnDragRelease {
-                titleLabel.text = "reveal original text"
+                //reveal the original description
+                titleLabel.text = toDoItem?.text
             }
             UIView.animateWithDuration(0.2, animations: {self.frame = originalFrame})
         }
@@ -192,31 +182,4 @@ class ToDoCellTableViewCell: UITableViewCell {
         return false
     }
 
-}
-
-extension String {
-    func rangesOfString(findStr:String) -> [Range<String.Index>] {
-        var arr = [Range<String.Index>]()
-        var startInd = self.startIndex
-        // check first that the first character of search string exists
-        if self.characters.contains(findStr.characters.first!) {
-            // if so set this as the place to start searching
-            startInd = self.characters.indexOf(findStr.characters.first!)!
-        }
-        else {
-            // if not return empty array
-            return arr
-        }
-        var i = self.startIndex.distanceTo(startInd)
-        while i<=self.characters.count-findStr.characters.count {
-            if self[self.startIndex.advancedBy(i)..<self.startIndex.advancedBy(i+findStr.characters.count)] == findStr {
-                arr.append(Range(start:self.startIndex.advancedBy(i),end:self.startIndex.advancedBy(i+findStr.characters.count)))
-                i = i+findStr.characters.count
-            }
-            else {
-                i++
-            }
-        }
-        return arr
-    }
 }

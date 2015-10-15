@@ -62,7 +62,12 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.updateFonts()
       
         let item = toDoItems[indexPath.row] as ToDoItem
-        cell.titleLabel.text = item.text
+        if item.factoid != "" {
+            cell.titleLabel.text = item.factoid
+        } else {
+            cell.titleLabel.text = item.text
+        }
+        
         //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
         let formatter = NSDateFormatter();
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
