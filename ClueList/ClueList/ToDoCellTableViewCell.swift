@@ -43,6 +43,11 @@ class ToDoCellTableViewCell: UITableViewCell {
         }
     }
     
+    //labels that serve as contextual clues for our swipe left/right gestures
+    var tickLabel: UILabel!, clueLabel: UILabel!
+    
+    let kUICuesMargin: CGFloat = 10.0, kUICuesWidth: CGFloat = 50.0
+    
     var didSetupConstraints = false
     
     var titleLabel: UILabel = UILabel.newAutoLayoutView()
@@ -60,6 +65,15 @@ class ToDoCellTableViewCell: UITableViewCell {
         super.init(coder: aDecoder)
         
         setupViews()
+    }
+    
+    // utility method for creating the contextual cues
+    func createCueLabel() -> UILabel {
+        let label = UILabel(frame: CGRect.null)
+        label.textColor = UIColor.whiteColor()
+        label.font = UIFont.boldSystemFontOfSize(32.0)
+        label.backgroundColor = UIColor.clearColor()
+        return label
     }
     
     func setupViews()
@@ -83,6 +97,25 @@ class ToDoCellTableViewCell: UITableViewCell {
         let recognizer = UIPanGestureRecognizer(target: self, action: "handlePan:")
         recognizer.delegate = self
         addGestureRecognizer(recognizer)
+        
+        // tick and cross labels for context cues
+        tickLabel = createCueLabel()
+        tickLabel.text = "\u{2713}"
+        tickLabel.textAlignment = .Right
+        addSubview(tickLabel)
+        clueLabel = createCueLabel()
+        clueLabel.text = "?"
+        clueLabel.textAlignment = .Left
+        addSubview(clueLabel)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        //position our contextual clue labels off screen
+        tickLabel.frame = CGRect(x: -kUICuesWidth - kUICuesMargin, y: 0,
+            width: kUICuesWidth, height: bounds.size.height)
+        clueLabel.frame = CGRect(x: bounds.size.width + kUICuesMargin, y: 0,
+            width: kUICuesWidth, height: bounds.size.height)
     }
     
     override func updateConstraints()
@@ -154,6 +187,13 @@ class ToDoCellTableViewCell: UITableViewCell {
             // has the user dragged the item far enough to initiate a hint/reveal?
             hintOnDragRelease = frame.origin.x < -frame.size.width / 2.0
             revealOnDragRelease = frame.origin.x > frame.size.width / 2.0
+            // fade the contextual clues
+            let cueAlpha = fabs(frame.origin.x) / (frame.size.width / 2.0)
+            tickLabel.alpha = cueAlpha
+            clueLabel.alpha = cueAlpha
+            // indicate when the user has pulled the item far enough to invoke the given action
+            tickLabel.textColor = revealOnDragRelease ? UIColor.greenColor() : UIColor.whiteColor()
+            clueLabel.textColor = hintOnDragRelease ? UIColor.redColor() : UIColor.whiteColor()
         }
         // 3
         if recognizer.state == .Ended {
