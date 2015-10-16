@@ -98,22 +98,66 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         }    
     }
 
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
+        let editingOffset = 0.0 - editingCell.frame.origin.y as CGFloat
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            UIView.animateWithDuration(0.3, animations: {() in
+                cell.transform = CGAffineTransformMakeTranslation(0, editingOffset)
+                if cell !== editingCell {
+                    cell.alpha = 0.3
+                }
+            })
+        }
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
     
-    // MARK: - Table view delegate
+    func cellDidEndEditing(editCell: ToDoCellTableViewCell) {
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell: ToDoCellTableViewCell in visibleCells {
+            UIView.animateWithDuration(0.3, animations: {() in
+                cell.transform = CGAffineTransformIdentity
+                if cell !== editCell {
+                    cell.alpha = 1.0
+                }
+            })
+        }
+        if editCell.toDoItem!.text == "" {
+            toDoItemRemoved(editCell.toDoItem!)
+        } else {
+            editCell.titleLabel.hidden = false
+            editCell.bodyLabel.hidden = false
+            editCell.editLabel.hidden = true
+        }
+    }
+    
+    // MARK: - add, delete, edit methods
+    
+    func toDoItemAdded() {
+        let dictionary: [String: AnyObject?] = ["text": "", "clue": "", "factoid": ""]
+        let toDoItem = ToDoItem(dictionary: dictionary)
+        toDoItems.insert(toDoItem, atIndex: 0)
+        tableView.reloadData()
+        // enter edit mode
+        var editCell: ToDoCellTableViewCell
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            if (cell.toDoItem === toDoItem) {
+                editCell = cell
+                editCell.titleLabel.hidden = true
+                editCell.bodyLabel.hidden = true
+                editCell.editLabel.hidden = false
+                editCell.editLabel.becomeFirstResponder()
+                break
+            }
+        }
+    }
+    
+    func toDoItemRemoved(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        toDoItemDeleted(index)
+    }
     
     //Custom table cell delete: http://www.raywenderlich.com/77975/making-a-gesture-driven-to-do-list-app-like-clear-in-swift-part-2
     func toDoItemDeleted(index: NSInteger) {
@@ -166,7 +210,53 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         
         print(index)
     }
-
+    
+    // MARK: - UIScrollViewDelegate methods
+    
+    // a cell that is rendered as a placeholder to indicate where a new item is added
+    let placeHolderCell = ToDoCellTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "ToDoCell")
+    // indicates the state of this behavior
+    var pullDownInProgress = false
+    // table cell row heights are based on the cell's content so we use a static value here since we have no content
+    let rowHeight = 50.0 as CGFloat;
+    
+    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+        // this behavior starts when a user pulls down while at the top of the table
+        pullDownInProgress = scrollView.contentOffset.y <= 0.0
+        placeHolderCell.backgroundColor = UIColor.whiteColor()
+        if pullDownInProgress {
+            // add the placeholder
+            tableView.insertSubview(placeHolderCell, atIndex: 0)
+        }
+    }
+    
+    override func scrollViewDidScroll(scrollView: UIScrollView) {
+        let scrollViewContentOffsetY = scrollView.contentOffset.y
+        
+        if pullDownInProgress && scrollView.contentOffset.y <= 0.0 {
+            // maintain the location of the placeholder
+            placeHolderCell.frame = CGRect(x: 0, y: -rowHeight,
+                width: tableView.frame.size.width, height: rowHeight)
+            
+            placeHolderCell.titleLabel.text = -scrollViewContentOffsetY > rowHeight ?
+                "Release to add item" : "Pull to add item"
+            placeHolderCell.resetConstraints()
+            placeHolderCell.alpha = min(1.0, -scrollViewContentOffsetY / rowHeight)
+        } else {
+            pullDownInProgress = false
+        }
+    }
+    
+    override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // check whether the user pulled down far enough
+        if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
+            // add a new item
+            toDoItemAdded()
+        }
+        pullDownInProgress = false
+        placeHolderCell.removeFromSuperview()
+    }
+    
     /*
     // MARK: - Navigation
 

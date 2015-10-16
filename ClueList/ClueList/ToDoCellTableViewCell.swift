@@ -17,9 +17,13 @@ protocol TableViewCellDelegate {
     func toDoItemRevealed(todoItem: ToDoItem)
     // indicates that the given item's hint has been revealed
     func toDoItemShowClue(todoItem: ToDoItem)
+    // Indicates that the edit process has begun for the given cell
+    func cellDidBeginEditing(editingCell: ToDoCellTableViewCell)
+    // Indicates that the edit process has committed for the given cell
+    func cellDidEndEditing(editingCell: ToDoCellTableViewCell)
 }
 
-class ToDoCellTableViewCell: UITableViewCell {
+class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
 
     // The CGFloat type annotation is necessary for these constants because they are passed as arguments to bridged Objective-C methods,
     // and without making the type explicit these will be inferred to be type Double which is not compatible.
@@ -52,6 +56,7 @@ class ToDoCellTableViewCell: UITableViewCell {
     
     var titleLabel: UILabel = UILabel.newAutoLayoutView()
     var bodyLabel: UILabel = UILabel.newAutoLayoutView()
+    var editLabel: UITextField = UITextField()
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String!)
     {
@@ -78,6 +83,10 @@ class ToDoCellTableViewCell: UITableViewCell {
     
     func setupViews()
     {
+        editLabel.delegate = self
+        editLabel.contentVerticalAlignment = .Center
+        editLabel.hidden = true
+        
         titleLabel.lineBreakMode = .ByTruncatingTail
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
@@ -90,6 +99,7 @@ class ToDoCellTableViewCell: UITableViewCell {
         
         updateFonts()
         
+        contentView.addSubview(editLabel)
         contentView.addSubview(titleLabel)
         contentView.addSubview(bodyLabel)
         
@@ -136,6 +146,11 @@ class ToDoCellTableViewCell: UITableViewCell {
             titleLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
             titleLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
             
+            //we overlay the editLabel on top of the titleLabel so we set the constraints for both to be the same
+            editLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
+            editLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
+            editLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
+            
             // This constraint is an inequality so that if the cell is slightly taller than actually required, extra space will go here
             bodyLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: titleLabel, withOffset: 10.0, relation: .GreaterThanOrEqual)
             
@@ -152,7 +167,15 @@ class ToDoCellTableViewCell: UITableViewCell {
     func updateFonts()
     {
         titleLabel.font = titleFont
+        editLabel.font = titleFont
         bodyLabel.font = bodyFont
+    }
+    
+    func resetConstraints() {
+        didSetupConstraints = false
+        updateFonts()
+        setNeedsUpdateConstraints()
+        updateConstraintsIfNeeded()
     }
     
     //highlight text in a UILabel: http://stackoverflow.com/questions/3586871/bold-non-bold-text-in-a-single-uilabel
@@ -202,9 +225,13 @@ class ToDoCellTableViewCell: UITableViewCell {
             if hintOnDragRelease {
                 //highlight the "clue" in the factoid for the user
                 titleLabel.attributedText = highlightText((toDoItem?.factoid)!, needle: (toDoItem?.clue)!)
+                // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+                resetConstraints()
             } else if revealOnDragRelease {
                 //reveal the original description
-                titleLabel.text = toDoItem?.text
+                editLabel.text = toDoItem?.text
+                titleLabel.hidden = true
+                editLabel.hidden = false
             }
             UIView.animateWithDuration(0.2, animations: {self.frame = originalFrame})
         }
@@ -220,6 +247,37 @@ class ToDoCellTableViewCell: UITableViewCell {
             return false
         }
         return false
+    }
+    
+    // MARK: - UITextFieldDelegate methods
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        // close the keyboard on Enter
+        textField.resignFirstResponder()
+        return false
+    }
+    
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        // disable editing of completed to-do items
+        if toDoItem != nil {
+            return !toDoItem!.completed
+        }
+        return false
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        if toDoItem != nil {
+            toDoItem!.text = textField.text!
+        }
+        if delegate != nil {
+            delegate!.cellDidEndEditing(self)
+        }
+    }
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        if delegate != nil {
+            delegate!.cellDidBeginEditing(self)
+        }
     }
 
 }
