@@ -115,15 +115,42 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     
     // MARK: - Table view delegate
     
+    //Custom table cell delete: http://www.raywenderlich.com/77975/making-a-gesture-driven-to-do-list-app-like-clear-in-swift-part-2
     func toDoItemDeleted(index: NSInteger) {
         // could removeAtIndex in the loop but keep it here for when indexOfObject works
-        toDoItems.removeAtIndex(index)
+        let toDoItem = toDoItems.removeAtIndex(index)
+        
+        // loop over the visible cells to animate delete
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        let lastView = visibleCells[visibleCells.count - 1] as ToDoCellTableViewCell
+        var delay = 0.0
+        var startAnimating = false
+        for i in 0..<visibleCells.count {
+            let cell = visibleCells[i]
+            if startAnimating {
+                UIView.animateWithDuration(0.3, delay: delay, options: .CurveEaseInOut,
+                    animations: {() in
+                        cell.frame = CGRectOffset(cell.frame, 0.0,
+                            -cell.frame.size.height)},
+                    completion: {(finished: Bool) in
+                        if (cell == lastView) {
+                            self.tableView.reloadData()
+                        }
+                    }
+                )
+                delay += 0.03
+            }
+            if cell.toDoItem === toDoItem {
+                startAnimating = true
+                cell.hidden = true
+            }
+        }
         
         // use the UITableView to animate the removal of this row
         tableView.beginUpdates()
         let indexPathForRow = NSIndexPath(forRow: index, inSection: 0)
         tableView.deleteRowsAtIndexPaths([indexPathForRow], withRowAnimation: .Fade)
-        tableView.endUpdates()    
+        tableView.endUpdates()
     }
     
     func toDoItemRevealed(toDoItem: ToDoItem) {
