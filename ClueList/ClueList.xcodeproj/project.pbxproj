@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3030B5B96E381105C08F8399 /* Pods_ClueList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */; };
 		3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */; };
 		3D8FF3331BCBF15C009E3FAF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3321BCBF15C009E3FAF /* ViewController.swift */; };
 		3D8FF3361BCBF15C009E3FAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3D8FF3341BCBF15C009E3FAF /* Main.storyboard */; };
@@ -17,9 +18,11 @@
 		3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3491BCC069F009E3FAF /* SampleData.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */; settings = {ASSET_TAGS = (); }; };
+		3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ClueList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8FF32D1BCBF15C009E3FAF /* ClueList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClueList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D8FF3321BCBF15C009E3FAF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -32,6 +35,9 @@
 		3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoItem.swift; sourceTree = "<group>"; };
 		3D8FF3491BCC069F009E3FAF /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
 		3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoCellTableViewCell.swift; sourceTree = "<group>"; };
+		3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
+		72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.release.xcconfig"; sourceTree = "<group>"; };
+		A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3030B5B96E381105C08F8399 /* Pods_ClueList.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +57,8 @@
 			children = (
 				3D8FF32F1BCBF15C009E3FAF /* ClueList */,
 				3D8FF32E1BCBF15C009E3FAF /* Products */,
+				4ED3A724B0EE97C69DE78DED /* Pods */,
+				CFA3D95679215A343E7D69AC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,12 +80,30 @@
 				3D8FF3341BCBF15C009E3FAF /* Main.storyboard */,
 				3D8FF3451BCBFCA1009E3FAF /* ToDoListTableViewController.swift */,
 				3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */,
+				3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */,
 				3D8FF33A1BCBF15C009E3FAF /* Assets.xcassets */,
 				3D8FF33C1BCBF15C009E3FAF /* LaunchScreen.storyboard */,
 				3D8FF33F1BCBF15C009E3FAF /* Info.plist */,
 				3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */,
 			);
 			path = ClueList;
+			sourceTree = "<group>";
+		};
+		4ED3A724B0EE97C69DE78DED /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */,
+				72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		CFA3D95679215A343E7D69AC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -86,9 +113,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3D8FF3421BCBF15C009E3FAF /* Build configuration list for PBXNativeTarget "ClueList" */;
 			buildPhases = (
+				FFA04069CA8E62103A776A7A /* Check Pods Manifest.lock */,
 				3D8FF3291BCBF15C009E3FAF /* Sources */,
 				3D8FF32A1BCBF15C009E3FAF /* Frameworks */,
 				3D8FF32B1BCBF15C009E3FAF /* Resources */,
+				F342DB73C3F595846E2C74CB /* Embed Pods Frameworks */,
+				8F795BD35DAC2695F85FCE08 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -144,6 +174,54 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		8F795BD35DAC2695F85FCE08 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ClueList/Pods-ClueList-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F342DB73C3F595846E2C74CB /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ClueList/Pods-ClueList-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FFA04069CA8E62103A776A7A /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		3D8FF3291BCBF15C009E3FAF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -153,6 +231,7 @@
 				3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */,
 				3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */,
 				3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */,
+				3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */,
 				3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */,
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
@@ -264,6 +343,7 @@
 		};
 		3D8FF3431BCBF15C009E3FAF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ClueList/Info.plist;
@@ -275,6 +355,7 @@
 		};
 		3D8FF3441BCBF15C009E3FAF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ClueList/Info.plist;

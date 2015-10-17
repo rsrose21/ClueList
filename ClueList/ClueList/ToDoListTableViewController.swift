@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ToDoListTableViewController: UITableViewController {
+class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
 
     var toDoItems = [ToDoItem]()
     let cellIdentifier = "ToDoCell"
@@ -19,8 +19,8 @@ class ToDoListTableViewController: UITableViewController {
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        // display an Edit button in the navigation bar for this view controller.
+        navigationItem.rightBarButtonItem = self.editButtonItem()
         
         configureTableView()
         
@@ -33,8 +33,14 @@ class ToDoListTableViewController: UITableViewController {
     //use the auto layout constraints to determine each cell's height
     //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
     func configureTableView() {
+        tableView.allowsSelection = false
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 160.0
+        
+        //differentiate background when cell is dragged
+        tableView.backgroundColor = UIColor.blackColor()
+        
+        tableView.registerClass(ToDoCellTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
     }
 
     // MARK: - Table view data source
@@ -49,52 +55,208 @@ class ToDoListTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
-            
+        
+        //prevent highlight from selecting cell when clicking to drag
+        cell.selectionStyle = .None
+        // Configure the cell for this indexPath
+        cell.updateFonts()
+      
         let item = toDoItems[indexPath.row] as ToDoItem
-        cell.titleLabel?.text = item.text
+        if item.factoid != "" {
+            cell.titleLabel.text = item.factoid
+        } else {
+            cell.titleLabel.text = item.text
+        }
+        
         //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
         let formatter = NSDateFormatter();
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
-        cell.subtitleLabel?.text = formatter.stringFromDate(item.created)
+        cell.bodyLabel.text = formatter.stringFromDate(item.created)
+        
+        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+        cell.setNeedsUpdateConstraints()
+        cell.updateConstraintsIfNeeded()
+        
+        cell.delegate = self
+        cell.toDoItem = item
         
         return cell
     }
 
-    /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
-
-    /*
+    
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            toDoItemDeleted(indexPath.row)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
-    */
 
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
+        let editingOffset = 0.0 - editingCell.frame.origin.y as CGFloat
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            UIView.animateWithDuration(0.3, animations: {() in
+                cell.transform = CGAffineTransformMakeTranslation(0, editingOffset)
+                if cell !== editingCell {
+                    cell.alpha = 0.3
+                }
+            })
+        }
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
+    
+    func cellDidEndEditing(editCell: ToDoCellTableViewCell) {
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell: ToDoCellTableViewCell in visibleCells {
+            UIView.animateWithDuration(0.3, animations: {() in
+                cell.transform = CGAffineTransformIdentity
+                if cell !== editCell {
+                    cell.alpha = 1.0
+                }
+            })
+        }
+        if editCell.toDoItem!.text == "" {
+            toDoItemRemoved(editCell.toDoItem!)
+        } else {
+            editCell.titleLabel.hidden = false
+            editCell.bodyLabel.hidden = false
+            editCell.editLabel.hidden = true
+        }
     }
-    */
-
+    
+    // MARK: - add, delete, edit methods
+    
+    func toDoItemAdded() {
+        let dictionary: [String: AnyObject?] = ["text": "", "clue": "", "factoid": ""]
+        let toDoItem = ToDoItem(dictionary: dictionary)
+        toDoItems.insert(toDoItem, atIndex: 0)
+        tableView.reloadData()
+        // enter edit mode
+        var editCell: ToDoCellTableViewCell
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            if (cell.toDoItem === toDoItem) {
+                editCell = cell
+                editCell.titleLabel.hidden = true
+                editCell.bodyLabel.hidden = true
+                editCell.editLabel.hidden = false
+                editCell.editLabel.becomeFirstResponder()
+                break
+            }
+        }
+    }
+    
+    func toDoItemRemoved(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        toDoItemDeleted(index)
+    }
+    
+    //Custom table cell delete: http://www.raywenderlich.com/77975/making-a-gesture-driven-to-do-list-app-like-clear-in-swift-part-2
+    func toDoItemDeleted(index: NSInteger) {
+        // could removeAtIndex in the loop but keep it here for when indexOfObject works
+        let toDoItem = toDoItems.removeAtIndex(index)
+        
+        // loop over the visible cells to animate delete
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        let lastView = visibleCells[visibleCells.count - 1] as ToDoCellTableViewCell
+        var delay = 0.0
+        var startAnimating = false
+        for i in 0..<visibleCells.count {
+            let cell = visibleCells[i]
+            if startAnimating {
+                UIView.animateWithDuration(0.3, delay: delay, options: .CurveEaseInOut,
+                    animations: {() in
+                        cell.frame = CGRectOffset(cell.frame, 0.0,
+                            -cell.frame.size.height)},
+                    completion: {(finished: Bool) in
+                        if (cell == lastView) {
+                            self.tableView.reloadData()
+                        }
+                    }
+                )
+                delay += 0.03
+            }
+            if cell.toDoItem === toDoItem {
+                startAnimating = true
+                cell.hidden = true
+            }
+        }
+        
+        // use the UITableView to animate the removal of this row
+        tableView.beginUpdates()
+        let indexPathForRow = NSIndexPath(forRow: index, inSection: 0)
+        tableView.deleteRowsAtIndexPaths([indexPathForRow], withRowAnimation: .Fade)
+        tableView.endUpdates()
+    }
+    
+    func toDoItemRevealed(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        print(index)
+    }
+    
+    func toDoItemShowClue(toDoItem: ToDoItem) {
+        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
+        if index == NSNotFound { return }
+        
+        print(index)
+    }
+    
+    // MARK: - UIScrollViewDelegate methods
+    
+    // a cell that is rendered as a placeholder to indicate where a new item is added
+    let placeHolderCell = ToDoCellTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "ToDoCell")
+    // indicates the state of this behavior
+    var pullDownInProgress = false
+    // table cell row heights are based on the cell's content so we use a static value here since we have no content
+    let rowHeight = 50.0 as CGFloat;
+    
+    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+        // this behavior starts when a user pulls down while at the top of the table
+        pullDownInProgress = scrollView.contentOffset.y <= 0.0
+        placeHolderCell.backgroundColor = UIColor.whiteColor()
+        if pullDownInProgress {
+            // add the placeholder
+            tableView.insertSubview(placeHolderCell, atIndex: 0)
+        }
+    }
+    
+    override func scrollViewDidScroll(scrollView: UIScrollView) {
+        let scrollViewContentOffsetY = scrollView.contentOffset.y
+        
+        if pullDownInProgress && scrollView.contentOffset.y <= 0.0 {
+            // maintain the location of the placeholder
+            placeHolderCell.frame = CGRect(x: 0, y: -rowHeight,
+                width: tableView.frame.size.width, height: rowHeight)
+            
+            placeHolderCell.titleLabel.text = -scrollViewContentOffsetY > rowHeight ?
+                "Release to add item" : "Pull to add item"
+            placeHolderCell.resetConstraints()
+            placeHolderCell.alpha = min(1.0, -scrollViewContentOffsetY / rowHeight)
+        } else {
+            pullDownInProgress = false
+        }
+    }
+    
+    override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // check whether the user pulled down far enough
+        if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
+            // add a new item
+            toDoItemAdded()
+        }
+        pullDownInProgress = false
+        placeHolderCell.removeFromSuperview()
+    }
+    
     /*
     // MARK: - Navigation
 
