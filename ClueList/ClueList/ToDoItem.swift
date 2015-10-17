@@ -33,7 +33,11 @@ class ToDoItem: NSObject {
         id = NSUUID().UUIDString
         
         text = dictionary["text"] as! String
-        completed = false
+        if let completed = dictionary["completed"] as? Bool {
+            self.completed = completed
+        } else {
+            self.completed = false
+        }
         if let clue = dictionary["clue"] as? String {
             self.clue = clue
         } else {

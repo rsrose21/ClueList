@@ -20,7 +20,8 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         // self.clearsSelectionOnViewWillAppear = false
 
         // display an Edit button in the navigation bar for this view controller.
-        navigationItem.rightBarButtonItem = self.editButtonItem()
+        navigationItem.leftBarButtonItem = self.editButtonItem()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toDoItemAdded")
         
         configureTableView()
         
@@ -34,13 +35,31 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
     func configureTableView() {
         tableView.allowsSelection = false
+        
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 160.0
         
         //differentiate background when cell is dragged
-        tableView.backgroundColor = UIColor.blackColor()
+        //tableView.backgroundColor = UIColor.blackColor()
         
         tableView.registerClass(ToDoCellTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        //tableView.editing = true
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "contentSizeCategoryChanged:", name: UIContentSizeCategoryDidChangeNotification, object: nil)
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIContentSizeCategoryDidChangeNotification, object: nil)
+    }
+    
+    // This function will be called when the Dynamic Type user setting changes (from the system Settings app)
+    func contentSizeCategoryChanged(notification: NSNotification) {
+        tableView.reloadData()
     }
 
     // MARK: - Table view data source
@@ -62,16 +81,19 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.updateFonts()
       
         let item = toDoItems[indexPath.row] as ToDoItem
-        if item.factoid != "" {
-            cell.titleLabel.text = item.factoid
-        } else {
-            cell.titleLabel.text = item.text
-        }
         
         //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
         let formatter = NSDateFormatter();
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
         cell.bodyLabel.text = formatter.stringFromDate(item.created)
+        
+        if (cell.accessoryView == nil) {
+            // Only configure the Checkbox control once
+            let checkbox = layoutCheckbox(indexPath.row, color: UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
+            checkbox.selected = item.completed
+            //cell.accessoryView = checkbox
+            //cell.accessoryView?.opaque = false
+        }
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()
@@ -81,6 +103,28 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.toDoItem = item
         
         return cell
+    }
+    
+    func layoutCheckbox(row: Int, color: UIColor?) -> DOCheckbox {
+        let style: DOCheckboxStyle = .FilledRoundedSquare
+        let size: CGFloat = 50.0
+        let frame: CGFloat = 15.0
+        let checkBoxPosition = (size - frame) / 2
+        
+        let checkbox = DOCheckbox(frame: CGRectMake(25.0, 25.0, size, size), checkboxFrame: CGRectMake(checkBoxPosition, checkBoxPosition, frame, frame))
+        checkbox.setPresetStyle(style, baseColor: color)
+        checkbox.tag = row
+        checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        return checkbox
+    }
+    
+    override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        return .Delete
+    }
+    
+    override func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
     }
 
     // Override to support conditional editing of the table view.
@@ -197,18 +241,14 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         tableView.endUpdates()
     }
     
-    func toDoItemRevealed(toDoItem: ToDoItem) {
-        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
-        if index == NSNotFound { return }
-        
-        print(index)
-    }
-    
-    func toDoItemShowClue(toDoItem: ToDoItem) {
-        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
-        if index == NSNotFound { return }
-        
-        print(index)
+    func toggleToDoItem(sender: UIButton) {
+        //get hold of selected ToDoItem from the UIButton tag
+        let item = toDoItems[sender.tag] as ToDoItem
+        item.completed = !item.completed
+        //indicate to user this item has been updated
+        let indexPath = NSIndexPath(forRow: sender.tag, inSection: 0)
+        let cell = tableView.cellForRowAtIndexPath(indexPath) as! ToDoCellTableViewCell
+        cell.toggleCompleted(!item.completed)
     }
     
     // MARK: - UIScrollViewDelegate methods

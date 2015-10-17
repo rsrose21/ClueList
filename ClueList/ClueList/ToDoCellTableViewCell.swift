@@ -13,10 +13,6 @@ import PureLayout
 
 // A protocol that the TableViewCell uses to inform its delegate of state change
 protocol TableViewCellDelegate {
-    // indicates that the given item has been revealed
-    func toDoItemRevealed(todoItem: ToDoItem)
-    // indicates that the given item's hint has been revealed
-    func toDoItemShowClue(todoItem: ToDoItem)
     // Indicates that the edit process has begun for the given cell
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell)
     // Indicates that the edit process has committed for the given cell
@@ -38,12 +34,21 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
     var originalCenter = CGPoint()
     var hintOnDragRelease = false, revealOnDragRelease = false
     
+    var itemCompleteLayer = CALayer()
+    
     // The object that acts as delegate for this cell.
     var delegate: TableViewCellDelegate?
     // The item that this cell renders.
     var toDoItem: ToDoItem? {
         didSet {
-            print(toDoItem!.text)
+            let item = toDoItem!
+            print(item.text)
+            itemCompleteLayer.hidden = !item.completed
+            if item.factoid != "" {
+                titleLabel.text = item.factoid
+            } else {
+                titleLabel.text = item.text
+            }
         }
     }
     
@@ -103,6 +108,14 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         contentView.addSubview(titleLabel)
         contentView.addSubview(bodyLabel)
         
+        // add a layer that renders a green background when an item is complete
+        itemCompleteLayer = CALayer(layer: layer)
+        itemCompleteLayer.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0,
+            alpha: 1.0).CGColor
+        itemCompleteLayer.hidden = true
+        layer.insertSublayer(itemCompleteLayer, atIndex: 0)
+
+        
         // add a pan recognizer for handling cell dragging
         let recognizer = UIPanGestureRecognizer(target: self, action: "handlePan:")
         recognizer.delegate = self
@@ -119,6 +132,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         addSubview(clueLabel)
     }
     
+    let kLabelLeftMargin: CGFloat = 15.0
     override func layoutSubviews() {
         super.layoutSubviews()
         //position our contextual clue labels off screen
@@ -126,6 +140,21 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
             width: kUICuesWidth, height: bounds.size.height)
         clueLabel.frame = CGRect(x: bounds.size.width + kUICuesMargin, y: 0,
             width: kUICuesWidth, height: bounds.size.height)
+        
+        // ensure the itemCompleteLayer occupies the full bounds
+        itemCompleteLayer.frame = bounds
+        titleLabel.frame = CGRect(x: kLabelLeftMargin, y: 0,
+            width: bounds.size.width - kLabelLeftMargin,
+            height: bounds.size.height)
+        editLabel.frame = CGRect(x: kLabelLeftMargin, y: 0,
+            width: bounds.size.width - kLabelLeftMargin,
+            height: bounds.size.height)
+        
+        var contentFrame = self.contentView.frame;
+        contentFrame.origin.x = 35.0;
+        contentFrame.size.width = contentFrame.size.width - 35.0
+        self.contentView.frame = contentFrame;
+
     }
     
     override func updateConstraints()
@@ -193,6 +222,10 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         return attributedString
     }
     
+    //helper to indicate a table view cell item is completed/not completed
+    func toggleCompleted(completed: Bool) {
+        itemCompleteLayer.hidden = completed
+    }
     
     //MARK: - horizontal pan gesture methods
     
