@@ -47,11 +47,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
             } else {
                 titleLabel.text = item.text
             }
-            if item.completed {
-                background.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
-            } else {
-                background.backgroundColor = UIColor.clearColor()
-            }
+            toggleCompleted(item.completed)
             setNeedsLayout()
         }
     }
@@ -236,9 +232,24 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         return attributedString
     }
     
+    func strikeThrough(str: String, style: Int) -> NSAttributedString {
+        //http://stackoverflow.com/questions/13133014/uilabel-with-text-struck-through
+        let attributeString = NSAttributedString(string: str, attributes: [NSStrikethroughStyleAttributeName: style])
+        
+        return attributeString
+    }
+    
     //helper to indicate a table view cell item is completed/not completed
     func toggleCompleted(completed: Bool) {
-        background.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
+        if completed {
+            background.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
+            titleLabel.attributedText = strikeThrough(titleLabel.text!, style: NSUnderlineStyle.StyleSingle.rawValue)
+            editLabel.attributedText = strikeThrough(editLabel.text!, style: NSUnderlineStyle.StyleSingle.rawValue)
+        } else {
+            background.backgroundColor = UIColor.clearColor()
+            titleLabel.attributedText = strikeThrough(titleLabel.text!, style: NSUnderlineStyle.StyleNone.rawValue)
+            editLabel.attributedText = strikeThrough(editLabel.text!, style: NSUnderlineStyle.StyleNone.rawValue)
+        }
     }
     
     //MARK: - horizontal pan gesture methods

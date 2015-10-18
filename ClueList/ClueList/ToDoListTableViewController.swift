@@ -228,7 +228,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         //indicate to user this item has been updated
         let indexPath = NSIndexPath(forRow: sender.tag, inSection: 0)
         let cell = tableView.cellForRowAtIndexPath(indexPath) as! ToDoCellTableViewCell
-        cell.toggleCompleted(!item.completed)
+        cell.toggleCompleted(item.completed)
     }
     
     // MARK: - UIScrollViewDelegate methods
