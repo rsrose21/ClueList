@@ -47,6 +47,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
             } else {
                 titleLabel.text = item.text
             }
+            bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
             toggleCompleted(item.completed)
             setNeedsLayout()
         }

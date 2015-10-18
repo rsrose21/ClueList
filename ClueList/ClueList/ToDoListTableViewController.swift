@@ -80,11 +80,6 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
       
         let item = toDoItems[indexPath.row] as ToDoItem
         
-        //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
-        let formatter = NSDateFormatter();
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
-        cell.bodyLabel.text = formatter.stringFromDate(item.created)
-        
         cell.checkbox.selected = item.completed
         cell.checkbox.tag = indexPath.row
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
