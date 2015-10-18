@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3030B5B96E381105C08F8399 /* Pods_ClueList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */; };
 		3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */; settings = {ASSET_TAGS = (); }; };
+		3D76DC381BD3C31500BEC914 /* UIColorFromHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */; };
 		3D8FF3361BCBF15C009E3FAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3D8FF3341BCBF15C009E3FAF /* Main.storyboard */; };
 		3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */; };
@@ -24,6 +25,7 @@
 /* Begin PBXFileReference section */
 		3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ClueList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOCheckbox.swift; sourceTree = "<group>"; };
+		3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorFromHex.swift; sourceTree = "<group>"; };
 		3D8FF32D1BCBF15C009E3FAF /* ClueList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClueList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D8FF3351BCBF15C009E3FAF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -77,6 +79,15 @@
 			name = Views;
 			sourceTree = "<group>";
 		};
+		3D76DC361BD3C2E900BEC914 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */,
+				3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */,
+			);
+			name = Util;
+			sourceTree = "<group>";
+		};
 		3D8FF3241BCBF15C009E3FAF = {
 			isa = PBXGroup;
 			children = (
@@ -104,7 +115,7 @@
 				3D76DC2E1BD2CB6800BEC914 /* Models */,
 				3D8FF3491BCC069F009E3FAF /* SampleData.swift */,
 				3D8FF3341BCBF15C009E3FAF /* Main.storyboard */,
-				3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */,
+				3D76DC361BD3C2E900BEC914 /* Util */,
 				3D8FF33A1BCBF15C009E3FAF /* Assets.xcassets */,
 				3D8FF33C1BCBF15C009E3FAF /* LaunchScreen.storyboard */,
 				3D8FF33F1BCBF15C009E3FAF /* Info.plist */,
@@ -255,6 +266,7 @@
 				3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */,
 				3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */,
 				3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */,
+				3D76DC381BD3C31500BEC914 /* UIColorFromHex.swift in Sources */,
 				3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */,
 				3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */,
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,
