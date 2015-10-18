@@ -7,11 +7,26 @@
 //
 
 import UIKit
+import CoreData
 
-class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
+class ToDoListTableViewController: UITableViewController, TableViewCellDelegate, NSFetchedResultsControllerDelegate {
 
     var toDoItems = [ToDoItem]()
     let cellIdentifier = "ToDoCell"
+    
+    // Mark: CoreData properties
+    
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataManager.sharedInstance.managedObjectContext
+    }
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        let fetchRequest = NSFetchRequest(entityName: "ToDoItem")
+        fetchRequest.sortDescriptors = []
+        
+        let fetchResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        return fetchResultController
+        }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,9 +40,12 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         
         configureTableView()
         
-        // TODO: pull from CoreData
-        loadSampleData()
-        toDoItems = sampleData
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("An error occurred")
+        }
+        fetchedResultsController.delegate = self
         tableView.reloadData()
     }
     
@@ -65,20 +83,28 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        if let sections = fetchedResultsController.sections {
+            return sections.count
+        }
+        
+        return 0
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return toDoItems.count
+        if let sections = fetchedResultsController.sections {
+            let currentSection = sections[section]
+            return currentSection.numberOfObjects
+        }
+        
+        return 0
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
+        let item = fetchedResultsController.objectAtIndexPath(indexPath) as! ToDoItem
         
         // Configure the cell for this indexPath
         cell.updateFonts()
-      
-        let item = toDoItems[indexPath.row] as ToDoItem
         
         cell.checkbox.selected = item.completed
         cell.checkbox.tag = indexPath.row
@@ -92,6 +118,15 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.toDoItem = item
         
         return cell
+    }
+    
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if let sections = fetchedResultsController.sections {
+            let currentSection = sections[section]
+            return currentSection.name
+        }
+        
+        return nil
     }
     
     override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
@@ -152,8 +187,8 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     // MARK: - add, delete, edit methods
     
     func toDoItemAdded() {
-        let dictionary: [String: AnyObject?] = ["text": "", "clue": "", "factoid": ""]
-        let toDoItem = ToDoItem(dictionary: dictionary)
+        let dictionary: [String: AnyObject?] = ["text": ""]
+        let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         toDoItems.insert(toDoItem, atIndex: 0)
         tableView.reloadData()
         // enter edit mode

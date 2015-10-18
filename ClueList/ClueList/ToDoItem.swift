@@ -7,28 +7,53 @@
 //
 
 import UIKit
+import CoreData
 
-class ToDoItem: NSObject {
+//make ToDoItem available to Objective-C code
+@objc(ToDoItem)
+
+//make ToDoItem a subclass of NSManagedObject
+class ToDoItem: NSManagedObject {
     
-    var id: String
+    @NSManaged var id: String
     
     // A text description of this item.
-    var text: String
+    @NSManaged var text: String
     
     // A Boolean value that determines the completed state of this item.
-    var completed: Bool
+    @NSManaged var completed: Bool
     
     // The subject extracted from the description text used to find a related factoid
-    var clue: String
+    @NSManaged var clue: String
     
     // A short factoid displayed in place of text description based on keyword
-    var factoid: String
+    @NSManaged var factoid: String
     
     // The timestamp when the ToDoItem was created
-    var created: NSDate
+    @NSManaged var created: NSDate
+    
+    @NSManaged var factoids: [Factoid]
+    
+    // Include this standard Core Data init method.
+    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    }
     
     // Returns a ToDoItem initialized with the given text and default completed value.
-    init(dictionary: [String : AnyObject?]) {
+    init(dictionary: [String : AnyObject?], context: NSManagedObjectContext) {
+        
+        // Get the entity associated with the "Pin" type.  This is an object that contains
+        // the information from the VirtualTourist.xcdatamodeld file.
+        let entity =  NSEntityDescription.entityForName("ToDoItem", inManagedObjectContext: context)!
+        
+        // Now we can call an init method that we have inherited from NSManagedObject. Remember that
+        // the Pin class is a subclass of NSManagedObject. This inherited init method does the
+        // work of "inserting" our object into the context that was passed in as a parameter
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        
+        // After the Core Data work has been taken care of we can init the properties from the
+        // dictionary. This works in the same way that it did before we started on Core Data
+        
         //generate uid in swift: http://stackoverflow.com/questions/24428250/generate-uuid-in-xcode-swift
         id = NSUUID().UUIDString
         

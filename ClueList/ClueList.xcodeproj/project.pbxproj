@@ -11,6 +11,8 @@
 		3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */; settings = {ASSET_TAGS = (); }; };
 		3D76DC381BD3C31500BEC914 /* UIColorFromHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */; settings = {ASSET_TAGS = (); }; };
 		3D76DC3A1BD3CEB300BEC914 /* timeago.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC391BD3CEB300BEC914 /* timeago.swift */; settings = {ASSET_TAGS = (); }; };
+		3D76DC3C1BD41B2400BEC914 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC3B1BD41B2400BEC914 /* CoreDataManager.swift */; settings = {ASSET_TAGS = (); }; };
+		3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC3D1BD41BDB00BEC914 /* Factoid.swift */; settings = {ASSET_TAGS = (); }; };
 		3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */; };
 		3D8FF3361BCBF15C009E3FAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3D8FF3341BCBF15C009E3FAF /* Main.storyboard */; };
 		3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */; };
@@ -28,6 +30,8 @@
 		3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOCheckbox.swift; sourceTree = "<group>"; };
 		3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorFromHex.swift; sourceTree = "<group>"; };
 		3D76DC391BD3CEB300BEC914 /* timeago.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = timeago.swift; sourceTree = "<group>"; };
+		3D76DC3B1BD41B2400BEC914 /* CoreDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		3D76DC3D1BD41BDB00BEC914 /* Factoid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factoid.swift; sourceTree = "<group>"; };
 		3D8FF32D1BCBF15C009E3FAF /* ClueList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClueList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D8FF3351BCBF15C009E3FAF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -68,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */,
+				3D76DC3D1BD41BDB00BEC914 /* Factoid.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -113,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */,
+				3D76DC3B1BD41B2400BEC914 /* CoreDataManager.swift */,
 				3D76DC2F1BD2CBB100BEC914 /* Views */,
 				3D76DC2D1BD2CB5400BEC914 /* Controllers */,
 				3D76DC2E1BD2CB6800BEC914 /* Models */,
@@ -275,6 +281,8 @@
 				3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */,
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
+				3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */,
+				3D76DC3C1BD41B2400BEC914 /* CoreDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
