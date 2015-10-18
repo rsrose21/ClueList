@@ -16,7 +16,7 @@ import CoreData
 //make Factoid a subclass of NSManagedObject
 class Factoid: NSManagedObject {
     
-    @NSManaged var id: Int
+    @NSManaged var id: String
     
     // A text description of this item.
     @NSManaged var text: String
@@ -40,7 +40,8 @@ class Factoid: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         //set properties
-        id = dictionary["id"] as! Int
+        //generate uid in swift: http://stackoverflow.com/questions/24428250/generate-uuid-in-xcode-swift
+        id = NSUUID().UUIDString
         
         text = dictionary["text"] as! String
         

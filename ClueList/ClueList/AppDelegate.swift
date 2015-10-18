@@ -31,6 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //change status bar color
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent
         
+        let dataHelper = DataHelper()
+        dataHelper.seedDataStore()
+        dataHelper.printAllToDos()
+        
         return true
     }
 

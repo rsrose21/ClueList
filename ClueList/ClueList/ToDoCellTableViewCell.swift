@@ -42,8 +42,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
             let item = toDoItem!
             print(item.text)
             
-            if item.factoid != "" {
-                titleLabel.text = item.factoid
+            if let factoids = item.factoids as? [Factoid] {
+                let randomIndex = Int(arc4random_uniform(UInt32(factoids.count)))
+                titleLabel.text = factoids[randomIndex].text
             } else {
                 titleLabel.text = item.text
             }
@@ -283,7 +284,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
                 width: bounds.size.width, height: bounds.size.height)
             if hintOnDragRelease {
                 //highlight the "clue" in the factoid for the user
-                titleLabel.attributedText = highlightText((toDoItem?.factoid)!, needle: (toDoItem?.clue)!)
+                titleLabel.attributedText = highlightText((titleLabel.text)!, needle: (toDoItem?.clue)!)
                 // Make sure the constraints have been added to this cell, since it may have just been created from scratch
                 resetConstraints()
             } else if revealOnDragRelease {

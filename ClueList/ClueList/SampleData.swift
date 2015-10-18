@@ -15,6 +15,11 @@ class DataHelper {
         return CoreDataManager.sharedInstance.managedObjectContext
     }
     
+    func seedDataStore() {
+        seedToDos()
+        seedFactoids()
+    }
+    
     //add some default ToDos to start
     func seedToDos() {
         let todos = [
@@ -28,22 +33,50 @@ class DataHelper {
             newToDo.text = todo.text
             newToDo.clue = todo.clue
             newToDo.completed = todo.completed
+            newToDo.created = NSDate()
         }
         
         do {
             try sharedContext.save()
         } catch _ {
         }
-        /*
-        var params: [String: AnyObject?] = ["text": "feed the cat", "clue": "cat", "factoid": "Cats have over 20 muscles that control their ears."]
-        sampleData.append(ToDoItem(dictionary: params))
+    }
+    
+    func seedFactoids() {
+        // Grab ToDos
+        let toDoFetchRequest = NSFetchRequest(entityName: "ToDoItem")
+        let allToDos = (try! sharedContext.executeFetchRequest(toDoFetchRequest)) as! [ToDoItem]
         
-        params = ["text": "pick up milk", "clue": "milk", "factoid": "The average cow in the U.S. produces about 21,000 lbs. of milk per year", "completed": true]
-        sampleData.append(ToDoItem(dictionary: params))
+        let cat = allToDos.filter({ (s: ToDoItem) -> Bool in
+            return s.clue == "cat"
+        }).first
         
-        params = ["text": "buy eggs", "clue": "eggs", "factoid": "Americans consume 76.5 billion eggs per year"]
-        sampleData.append(ToDoItem(dictionary: params))
-        */
+        let cow = allToDos.filter({ (s: ToDoItem) -> Bool in
+            return s.clue == "milk"
+        }).first
+        
+        let egg = allToDos.filter({ (s: ToDoItem) -> Bool in
+            return s.clue == "eggs"
+        }).first
+        
+        let factoids = [
+            (text: "Cats have over 20 muscles that control their ears.", todo: cat!),
+            (text: "The average cow in the U.S. produces about 21,000 lbs. of milk per year.", todo: cow!),
+            (text: "Americans consume 76.5 billion eggs per year.", todo: egg!),
+            (text: "A group of cats is called a clowder.", todo: cat!),
+            (text: "Cats sleep 70% of their lives.", todo: cat!)
+        ]
+     
+        for item in factoids {
+            let newItem = NSEntityDescription.insertNewObjectForEntityForName("Factoid", inManagedObjectContext: sharedContext) as! Factoid
+            newItem.text = item.text
+            newItem.todo = item.todo
+        }
+        
+        do {
+            try sharedContext.save()
+        } catch _ {
+        }
     }
     
     func printAllToDos() {
@@ -56,6 +89,10 @@ class DataHelper {
         
         for todo in allToDos {
             print("ToDo: \(todo.text)\nClue: \(todo.clue) \n-------\n", terminator: "")
+            for item in todo.factoids {
+                print("> \(item.text)\n", terminator: "")
+            }
+            print("-------\n", terminator: "")
         }
     }
 }

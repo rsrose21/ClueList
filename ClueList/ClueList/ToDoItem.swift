@@ -27,12 +27,11 @@ class ToDoItem: NSManagedObject {
     @NSManaged var clue: String
     
     // A short factoid displayed in place of text description based on keyword
-    @NSManaged var factoid: String
+    @NSManaged var factoids: [Factoid]
     
     // The timestamp when the ToDoItem was created
     @NSManaged var created: NSDate
     
-    @NSManaged var factoids: [Factoid]
     
     // Include this standard Core Data init method.
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -67,11 +66,6 @@ class ToDoItem: NSManagedObject {
             self.clue = clue
         } else {
             self.clue = ""
-        }
-        if let factoid = dictionary["factoid"] as? String {
-            self.factoid = factoid
-        } else {
-            self.factoid = ""
         }
         created = NSDate()
     }
