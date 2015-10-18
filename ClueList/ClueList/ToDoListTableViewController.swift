@@ -75,8 +75,6 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         
-        //prevent highlight from selecting cell when clicking to drag
-        cell.selectionStyle = .None
         // Configure the cell for this indexPath
         cell.updateFonts()
       
@@ -87,13 +85,9 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ";
         cell.bodyLabel.text = formatter.stringFromDate(item.created)
         
-        if (cell.accessoryView == nil) {
-            // Only configure the Checkbox control once
-            let checkbox = layoutCheckbox(indexPath.row, color: UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
-            checkbox.selected = item.completed
-            //cell.accessoryView = checkbox
-            //cell.accessoryView?.opaque = false
-        }
+        cell.checkbox.selected = item.completed
+        cell.checkbox.tag = indexPath.row
+        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()
@@ -103,20 +97,6 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.toDoItem = item
         
         return cell
-    }
-    
-    func layoutCheckbox(row: Int, color: UIColor?) -> DOCheckbox {
-        let style: DOCheckboxStyle = .FilledRoundedSquare
-        let size: CGFloat = 50.0
-        let frame: CGFloat = 15.0
-        let checkBoxPosition = (size - frame) / 2
-        
-        let checkbox = DOCheckbox(frame: CGRectMake(25.0, 25.0, size, size), checkboxFrame: CGRectMake(checkBoxPosition, checkBoxPosition, frame, frame))
-        checkbox.setPresetStyle(style, baseColor: color)
-        checkbox.tag = row
-        checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        return checkbox
     }
     
     override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {

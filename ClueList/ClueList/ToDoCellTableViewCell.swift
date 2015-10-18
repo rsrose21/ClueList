@@ -23,7 +23,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
 
     // The CGFloat type annotation is necessary for these constants because they are passed as arguments to bridged Objective-C methods,
     // and without making the type explicit these will be inferred to be type Double which is not compatible.
-    let kLabelHorizontalInsets: CGFloat = 15.0
+    var kLabelHorizontalInsets: CGFloat = 40.0
     let kLabelVerticalInsets: CGFloat = 10.0
     
     //Defining fonts of size and type
@@ -34,8 +34,6 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
     var originalCenter = CGPoint()
     var hintOnDragRelease = false, revealOnDragRelease = false
     
-    var itemCompleteLayer = CALayer()
-    
     // The object that acts as delegate for this cell.
     var delegate: TableViewCellDelegate?
     // The item that this cell renders.
@@ -43,12 +41,18 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         didSet {
             let item = toDoItem!
             print(item.text)
-            itemCompleteLayer.hidden = !item.completed
+            
             if item.factoid != "" {
                 titleLabel.text = item.factoid
             } else {
                 titleLabel.text = item.text
             }
+            if item.completed {
+                background.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
+            } else {
+                background.backgroundColor = UIColor.clearColor()
+            }
+            setNeedsLayout()
         }
     }
     
@@ -59,9 +63,12 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     var didSetupConstraints = false
     
+    let padding: CGFloat = 5
+    var background: UIView!
     var titleLabel: UILabel = UILabel.newAutoLayoutView()
     var bodyLabel: UILabel = UILabel.newAutoLayoutView()
     var editLabel: UITextField = UITextField()
+    var checkbox: DOCheckbox!
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String!)
     {
@@ -88,34 +95,37 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     func setupViews()
     {
+        backgroundColor = UIColor.clearColor()
+        //prevent highlight from selecting cell when clicking to drag
+        selectionStyle = .None
+        
+        //this is the container we use for positioning elements within the cell
+        background = UIView(frame: CGRectZero)
+        background.alpha = 0.6
+        contentView.addSubview(background)
+        
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
         editLabel.hidden = true
+        contentView.addSubview(editLabel)
         
         titleLabel.lineBreakMode = .ByTruncatingTail
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
         titleLabel.textColor = UIColor.blackColor()
+        contentView.addSubview(titleLabel)
         
         bodyLabel.lineBreakMode = .ByTruncatingTail
         bodyLabel.numberOfLines = 1
         bodyLabel.textAlignment = .Left
         bodyLabel.textColor = UIColor.darkGrayColor()
-        
-        updateFonts()
-        
-        contentView.addSubview(editLabel)
-        contentView.addSubview(titleLabel)
         contentView.addSubview(bodyLabel)
         
-        // add a layer that renders a green background when an item is complete
-        itemCompleteLayer = CALayer(layer: layer)
-        itemCompleteLayer.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0,
-            alpha: 1.0).CGColor
-        itemCompleteLayer.hidden = true
-        layer.insertSublayer(itemCompleteLayer, atIndex: 0)
-
+        checkbox = layoutCheckbox(UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
+        contentView.addSubview(checkbox)
         
+        updateFonts()
+
         // add a pan recognizer for handling cell dragging
         let recognizer = UIPanGestureRecognizer(target: self, action: "handlePan:")
         recognizer.delegate = self
@@ -141,20 +151,24 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         clueLabel.frame = CGRect(x: bounds.size.width + kUICuesMargin, y: 0,
             width: kUICuesWidth, height: bounds.size.height)
         
-        // ensure the itemCompleteLayer occupies the full bounds
-        itemCompleteLayer.frame = bounds
-        titleLabel.frame = CGRect(x: kLabelLeftMargin, y: 0,
-            width: bounds.size.width - kLabelLeftMargin,
-            height: bounds.size.height)
-        editLabel.frame = CGRect(x: kLabelLeftMargin, y: 0,
-            width: bounds.size.width - kLabelLeftMargin,
-            height: bounds.size.height)
+        // ensure the background occupies the full bounds
+        background.frame = bounds
+        checkbox.frame = CGRectMake(padding, (frame.height - 25)/2, 25, 25)
+        titleLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10), frame.height - 35.0)
+        editLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10), frame.height - 35.0)
+        bodyLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, CGRectGetMaxY(titleLabel.frame), frame.width - (CGRectGetMaxX(checkbox.frame) + 10), 35.0)
+    }
+    
+    func layoutCheckbox(color: UIColor?) -> DOCheckbox {
+        let style: DOCheckboxStyle = .FilledRoundedSquare
+        let size: CGFloat = 25.0
+        let frame: CGFloat = 25.0
+        let checkBoxPosition = (size - frame) / 2
         
-        var contentFrame = self.contentView.frame;
-        contentFrame.origin.x = 35.0;
-        contentFrame.size.width = contentFrame.size.width - 35.0
-        self.contentView.frame = contentFrame;
-
+        let checkbox = DOCheckbox(frame: CGRectMake(25.0, 25.0, size, size), checkboxFrame: CGRectMake(checkBoxPosition, checkBoxPosition, frame, frame))
+        checkbox.setPresetStyle(style, baseColor: color)
+        
+        return checkbox
     }
     
     override func updateConstraints()
@@ -224,7 +238,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     //helper to indicate a table view cell item is completed/not completed
     func toggleCompleted(completed: Bool) {
-        itemCompleteLayer.hidden = completed
+        background.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
     }
     
     //MARK: - horizontal pan gesture methods
