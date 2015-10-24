@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //change status bar color
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent
         
+        //seed the Core Data database with sample ToDos
         let dataHelper = DataHelper()
         dataHelper.seedDataStore()
         dataHelper.printAllToDos()

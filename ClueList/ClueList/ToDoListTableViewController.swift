@@ -16,16 +16,21 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     
     // Mark: CoreData properties
     
+    var itemToDelete: ToDoItem?
+    
     var sharedContext: NSManagedObjectContext {
         return CoreDataManager.sharedInstance.managedObjectContext
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "ToDoItem")
-        fetchRequest.sortDescriptors = []
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "created", ascending: true)]
         
-        let fetchResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
-        return fetchResultController
+        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        frc.delegate = self
+        
+        return frc
         }()
     
     override func viewDidLoad() {
@@ -43,9 +48,9 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         do {
             try fetchedResultsController.performFetch()
         } catch {
-            print("An error occurred")
+            print("An error occurred trying to fetch stored data")
         }
-        fetchedResultsController.delegate = self
+        
         tableView.reloadData()
     }
     
@@ -129,8 +134,13 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         return nil
     }
     
+    //disable table view swipe to delete since we have a custom swipe action already
     override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        return .Delete
+        //only show delete button if in editing mode
+        if (self.tableView.editing) {
+            return .Delete
+        }
+        return .None
     }
     
     override func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -142,16 +152,6 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         return true
     }
     
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            toDoItemDeleted(indexPath.row)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
         let editingOffset = 0.0 - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
