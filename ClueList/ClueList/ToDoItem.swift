@@ -32,6 +32,15 @@ class ToDoItem: NSManagedObject {
     // The timestamp when the ToDoItem was created
     @NSManaged var created: NSDate
     
+    // The user assigned priority - used for tableview section sorting
+    @NSManaged var priority: NSNumber
+    
+    @NSManaged var metaData: ToDoMetaData
+    
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as! ToDoMetaData
+    }
     
     // Include this standard Core Data init method.
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {

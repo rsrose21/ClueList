@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8195" systemVersion="15A284" minimumToolsVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15B42" minimumToolsVersion="Automatic">
     <entity name="Factoid" representedClassName="Factoid" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
@@ -10,11 +10,25 @@
         <attribute name="completed" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="created" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="priority" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="factoids" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Factoid" inverseName="todo" inverseEntity="Factoid" syncable="YES"/>
+        <relationship name="metaData" maxCount="1" deletionRule="Cascade" destinationEntity="ToDoMetaData" inverseName="toDoItem" inverseEntity="ToDoMetaData" syncable="YES"/>
+    </entity>
+    <entity name="ToDoListConfiguration" representedClassName="ToDoListConfiguration" syncable="YES">
+        <attribute name="listModeValue" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <relationship name="toDoMetaData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDoMetaData" inverseName="listConfiguration" inverseEntity="ToDoMetaData" syncable="YES"/>
+    </entity>
+    <entity name="ToDoMetaData" representedClassName="ToDoMetaData" syncable="YES">
+        <attribute name="internalOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sectionIdentifier" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDoMetaData" inverseEntity="ToDoListConfiguration" syncable="YES"/>
+        <relationship name="toDoItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoItem" inverseName="metaData" inverseEntity="ToDoItem" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ToDoItem" positionX="-63" positionY="-18" width="128" height="135"/>
         <element name="Factoid" positionX="-54" positionY="27" width="128" height="90"/>
+        <element name="ToDoItem" positionX="-63" positionY="-18" width="128" height="165"/>
+        <element name="ToDoMetaData" positionX="-54" positionY="45" width="128" height="105"/>
+        <element name="ToDoListConfiguration" positionX="-45" positionY="54" width="128" height="75"/>
     </elements>
 </model>

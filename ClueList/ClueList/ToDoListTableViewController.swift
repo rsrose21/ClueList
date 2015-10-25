@@ -24,9 +24,12 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "ToDoItem")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "created", ascending: true)]
+        //sort results first by status, then date for tableView sections
+        let doneSortDescriptor = NSSortDescriptor(key: "completed", ascending: true)
+        let sortDescriptor = NSSortDescriptor(key: "created", ascending: true)
+        fetchRequest.sortDescriptors = [doneSortDescriptor, sortDescriptor]
         
-        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: "completed", cacheName: nil)
         
         frc.delegate = self
         
@@ -126,12 +129,18 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     }
     
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if let sections = fetchedResultsController.sections {
-            let currentSection = sections[section]
-            return currentSection.name
+        switch (section) {
+        case 0:
+            return "To Do"
+        case 1:
+            return "Completed"
+        default:
+            return nil
         }
-        
-        return nil
+    }
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50.0
     }
     
     //disable table view swipe to delete since we have a custom swipe action already
@@ -181,15 +190,16 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
             editCell.titleLabel.hidden = false
             editCell.bodyLabel.hidden = false
             editCell.editLabel.hidden = true
+            CoreDataManager.sharedInstance.saveContext()
         }
     }
     
     // MARK: - add, delete, edit methods
     
     func toDoItemAdded() {
-        let dictionary: [String: AnyObject?] = ["text": ""]
+        let dictionary: [String: AnyObject?] = ["text": "", "created": NSDate(), "completed": false]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
-        toDoItems.insert(toDoItem, atIndex: 0)
+        CoreDataManager.sharedInstance.saveContext()
         tableView.reloadData()
         // enter edit mode
         var editCell: ToDoCellTableViewCell
@@ -253,7 +263,8 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     
     func toggleToDoItem(sender: UIButton) {
         //get hold of selected ToDoItem from the UIButton tag
-        let item = toDoItems[sender.tag] as ToDoItem
+        let indexPathForRow = NSIndexPath(forRow: sender.tag, inSection: 0)
+        let item = fetchedResultsController.objectAtIndexPath(indexPathForRow) as! ToDoItem
         item.completed = !item.completed
         //indicate to user this item has been updated
         let indexPath = NSIndexPath(forRow: sender.tag, inSection: 0)
