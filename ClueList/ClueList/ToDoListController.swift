@@ -2,6 +2,7 @@
 //  ToDoListController.swift
 //  ClueList
 //  Acts as a man-in-the-middle by forwarding delegate calls and section information from its fetched results controller and modifying them along the way.
+//  http://www.iosnomad.com/blog/2014/8/6/swift-nsfetchedresultscontroller-trickery#showing-empty-sections=
 //
 //  Created by Ryan Rose on 10/25/15.
 //  Copyright © 2015 GE. All rights reserved.
@@ -99,6 +100,21 @@ class ToDoListController: NSObject {
         let indexPath = NSIndexPath(forRow: indexPath.row, inSection: section)
         let metaData = toDosController.objectAtIndexPath(indexPath) as! ToDoMetaData
         return metaData.toDo
+    }
+    
+    /** Used to get a single ToDo for a given id
+     - returns: ToDoItem
+     */
+    func toDoById(id: String) -> ToDoItem? {
+        // Grab ToDos
+        let toDoFetchRequest = NSFetchRequest(entityName: ToDoItem.entityName)
+        let allToDos = (try! managedObjectContext.executeFetchRequest(toDoFetchRequest)) as! [ToDoItem]
+        
+        let todo = allToDos.filter({ (s: ToDoItem) -> Bool in
+            return s.id == id
+        }).first
+        
+        return todo
     }
     
     /// Reloads all data internally, does not notify delegate of eventual changes in sections or rows

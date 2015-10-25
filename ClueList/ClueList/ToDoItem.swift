@@ -18,6 +18,8 @@ class ToDoItem: NSManagedObject {
         return "ToDoItem"
     }
     
+    let DEFAULT_PRIORITY = 1
+    
     @NSManaged var id: String
     
     // A text description of this item.
@@ -80,6 +82,24 @@ class ToDoItem: NSManagedObject {
         } else {
             self.clue = ""
         }
+        //set created timestamp to current date/time
         created = NSDate()
+        if let priority = dictionary["priority"] as? Int {
+            self.priority = selectedPriority(priority).rawValue
+        } else {
+            self.priority = selectedPriority(DEFAULT_PRIORITY).rawValue
+        }
+        //set the order for the table row
+        metaData.internalOrder = ToDoMetaData.maxInternalOrder(context)+1
+        metaData.updateSectionIdentifier()
+    }
+    
+    func selectedPriority(priority: Int) -> ToDoPriority {
+        switch priority {
+        case 0:  return .Low
+        case 1:  return .Medium
+        case 2:  return .High
+        default: return .Medium
+        }
     }
 }

@@ -21,7 +21,18 @@ enum DOCheckboxStyle : Int {
     case FilledCircle
 }
 
+// A protocol that the UIButton uses to inform its delegate of state change
+protocol UIButtonDelegate {
+    // indicates that the given item has been completed
+    func toDoItemCompleted(todoItem: ToDoItem)
+}
+
 class DOCheckbox: UIButton {
+    
+    // The object that acts as delegate for this button.
+    var delegate: UIButtonDelegate?
+    // The item that this button is associated with.
+    var toDoItem: ToDoItem?
     
     private var style: DOCheckboxStyle! = .Default
     private var baseColor: UIColor = UIColor.blackColor()
@@ -155,6 +166,10 @@ class DOCheckbox: UIButton {
     
     func toggleSelected(sender: AnyObject) {
         self.selected = !self.selected
+        if delegate != nil && toDoItem != nil {
+            // notify the delegate that this item was toggled
+            delegate!.toDoItemCompleted(toDoItem!)
+        }
     }
     
     func setPresetStyle(style: DOCheckboxStyle?, baseColor: UIColor?) {

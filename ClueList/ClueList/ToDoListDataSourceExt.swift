@@ -13,18 +13,18 @@ import CoreData
 extension ToDoListTableViewController {
     
     // MARK: TableView Delegate
-    
+    /*
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == UITableViewCellEditingStyle.Delete {
             let todo = fetchResultsController.objectAtIndexPath(indexPath) as! ToDoItem
             confirmDeleteForToDo(todo)
         }
     }
-    
+    */
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         //the delete icon was pressed, display the action sheet for delete confirmation
-        let todo = fetchResultsController.objectAtIndexPath(indexPath) as! ToDoItem
-        confirmDeleteForToDo(todo)
+        let toDo = toDoListController.toDoAtIndexPath(indexPath)
+        confirmDeleteForToDo(toDo!)
         
         return []
     }

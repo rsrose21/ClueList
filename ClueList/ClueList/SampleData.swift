@@ -30,6 +30,7 @@ class DataHelper {
         
         for todo in todos {
             let newToDo = NSEntityDescription.insertNewObjectForEntityForName(ToDoItem.entityName, inManagedObjectContext: sharedContext) as! ToDoItem
+            newToDo.id = NSUUID().UUIDString
             newToDo.text = todo.text
             newToDo.clue = todo.clue
             newToDo.completed = todo.completed

@@ -19,7 +19,7 @@ protocol TableViewCellDelegate {
     func cellDidEndEditing(editingCell: ToDoCellTableViewCell)
 }
 
-class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
+class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDelegate {
 
     // The CGFloat type annotation is necessary for these constants because they are passed as arguments to bridged Objective-C methods,
     // and without making the type explicit these will be inferred to be type Double which is not compatible.
@@ -41,13 +41,15 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         didSet {
             let item = toDoItem!
             print(item.text)
-            
+            /*
             if let factoids = item.factoids as? [Factoid] {
                 let randomIndex = Int(arc4random_uniform(UInt32(factoids.count)))
                 titleLabel.text = factoids[randomIndex].text
             } else {
                 titleLabel.text = item.text
             }
+            */
+            titleLabel.text = item.text
             bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
             toggleCompleted(item.completed)
             setNeedsLayout()
@@ -338,6 +340,13 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         if delegate != nil {
             delegate!.cellDidBeginEditing(self)
         }
+    }
+    
+    // MARK: - UIButtonDelegate methods
+    
+    func toDoItemCompleted(toDoItem: ToDoItem) {
+        //update cell to mark/unmark item completed status
+        toggleCompleted(!toDoItem.completed)
     }
 
 }

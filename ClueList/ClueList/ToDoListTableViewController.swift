@@ -11,7 +11,6 @@ import CoreData
 
 class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
 
-    var toDoItems = [ToDoItem]()
     let cellIdentifier = "ToDoCell"
     
     // Mark: CoreData properties
@@ -48,7 +47,9 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     
     var itemToDelete: ToDoItem?
     
-
+    private var tagId = 0
+    
+    private var editingToDo = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -115,9 +116,12 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
         cell.updateFonts()
-        
+        //configure the cell checkbox
+        cell.checkbox.delegate = cell
         cell.checkbox.selected = item.completed
-        cell.checkbox.tag = indexPath.row
+        cell.checkbox.toDoItem = item
+        //use the UIButton label to store the id for this ToDo
+        cell.checkbox.titleLabel!.text = item.id
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
@@ -161,7 +165,12 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50.0
+        //hide sections if currently editing a item
+        if editingToDo {
+            return 0.0
+        } else {
+            return 50.0
+        }
     }
     
     //disable table view swipe to delete since we have a custom swipe action already
@@ -183,6 +192,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     }
     
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
+        editingToDo = true
         let editingOffset = 0.0 - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
@@ -206,22 +216,28 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
             })
         }
         if editCell.toDoItem!.text == "" {
-            toDoItemRemoved(editCell.toDoItem!)
+            //toDoItemRemoved(editCell.toDoItem!)
         } else {
             editCell.titleLabel.hidden = false
             editCell.bodyLabel.hidden = false
             editCell.editLabel.hidden = true
             CoreDataManager.sharedInstance.saveContext()
         }
+        editingToDo = false
+        tableView.reloadData()
     }
     
     // MARK: - add, delete, edit methods
     
     func toDoItemAdded() {
-        let dictionary: [String: AnyObject?] = ["text": "", "created": NSDate(), "completed": false]
+        
+        editingToDo = true
+        let dictionary: [String: AnyObject?] = ["text": "Add To Do"]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
+        
         CoreDataManager.sharedInstance.saveContext()
         tableView.reloadData()
+        
         // enter edit mode
         var editCell: ToDoCellTableViewCell
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
@@ -236,7 +252,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
             }
         }
     }
-    
+    /*
     func toDoItemRemoved(toDoItem: ToDoItem) {
         let index = (toDoItems as NSArray).indexOfObject(toDoItem)
         if index == NSNotFound { return }
@@ -281,19 +297,15 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         tableView.deleteRowsAtIndexPaths([indexPathForRow], withRowAnimation: .Fade)
         tableView.endUpdates()
     }
-    
+    */
     func toggleToDoItem(sender: UIButton) {
-        //get hold of selected ToDoItem from the UIButton tag
-        let indexPath = NSIndexPath(forRow: sender.tag, inSection: 0)
-        if let item = toDoListController.toDoAtIndexPath(indexPath) {
+        //get the selected ToDoItem by it's id from the UIButton title
+        let id = sender.titleLabel!.text
+        if let item = toDoListController.toDoById(id!) {
+            //toggle the completed status
             item.completed = !item.completed.boolValue
             item.metaData.updateSectionIdentifier()
             try! item.managedObjectContext!.save()
-            
-            //indicate to user this item has been updated
-            let indexPathRow = NSIndexPath(forRow: sender.tag, inSection: 0)
-            let cell = tableView.cellForRowAtIndexPath(indexPathRow) as! ToDoCellTableViewCell
-            cell.toggleCompleted(item.completed)
         }
     }
     
