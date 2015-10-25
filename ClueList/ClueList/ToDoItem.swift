@@ -39,6 +39,7 @@ class ToDoItem: NSManagedObject {
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
+        //each todo has a mandatory relation with a meta data object, which is created upon insert
         metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as! ToDoMetaData
     }
     

@@ -18,9 +18,15 @@ enum ToDoPriority: Int {
 @objc(ToDoMetaData)
 class ToDoMetaData: NSManagedObject {
     
+    //Orders the todos within a section and is updated when the user reorders the list
     @NSManaged var internalOrder: NSNumber
+    
+    //Used to divide the todos into sections
+    //NSFetchedResultsController requires that the sections are sorted in the same order as the rows so they can be fetched in batches
     @NSManaged var sectionIdentifier: NSString
+    
     @NSManaged var toDo: ToDoItem
+    
     @NSManaged var listConfiguration: ToDoListConfiguration
     
     override func awakeFromInsert() {
@@ -32,6 +38,7 @@ class ToDoMetaData: NSManagedObject {
         sectionIdentifier = sectionForCurrentState().rawValue
     }
     
+    //Every time a property affecting a todo's displayed section changes (such as priority or completed status), the section identifier must be updated.
     func setSection(section: ToDoSection) {
         switch section {
         case .ToDo:
@@ -51,6 +58,7 @@ class ToDoMetaData: NSManagedObject {
         sectionIdentifier = section.rawValue
     }
     
+    //Manually trigger an update when doing drag 'n' drop or marking a todo as completed
     private func sectionForCurrentState() -> ToDoSection {
         if toDo.completed.boolValue {
             return .Done

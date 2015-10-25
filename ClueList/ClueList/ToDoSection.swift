@@ -1,6 +1,7 @@
 //
 //  ToDoSection.swift
 //  ClueList
+//  Maintains sort order of sections 
 //
 //  Created by Ryan Rose on 10/25/15.
 //  Copyright © 2015 GE. All rights reserved.

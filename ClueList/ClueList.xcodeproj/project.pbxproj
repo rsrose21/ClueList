@@ -28,6 +28,8 @@
 		3DBF14541BDD2A9E009D899E /* ToDoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14531BDD2A9E009D899E /* ToDoSection.swift */; };
 		3DBF14561BDD2B81009D899E /* ToDoMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14551BDD2B81009D899E /* ToDoMetaData.swift */; };
 		3DBF14581BDD2BEF009D899E /* ToDoListConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14571BDD2BEF009D899E /* ToDoListConfiguration.swift */; };
+		3DBF145A1BDD3900009D899E /* ToDoListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14591BDD3900009D899E /* ToDoListController.swift */; };
+		3DBF145C1BDD3C3F009D899E /* FetchControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF145B1BDD3C3F009D899E /* FetchControllerDelegate.swift */; };
 		3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +57,8 @@
 		3DBF14531BDD2A9E009D899E /* ToDoSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoSection.swift; sourceTree = "<group>"; };
 		3DBF14551BDD2B81009D899E /* ToDoMetaData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoMetaData.swift; sourceTree = "<group>"; };
 		3DBF14571BDD2BEF009D899E /* ToDoListConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListConfiguration.swift; sourceTree = "<group>"; };
+		3DBF14591BDD3900009D899E /* ToDoListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListController.swift; sourceTree = "<group>"; };
+		3DBF145B1BDD3C3F009D899E /* FetchControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchControllerDelegate.swift; sourceTree = "<group>"; };
 		3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
 		72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.release.xcconfig"; sourceTree = "<group>"; };
 		A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.debug.xcconfig"; sourceTree = "<group>"; };
@@ -77,6 +81,7 @@
 			children = (
 				3D8FF3451BCBFCA1009E3FAF /* ToDoListTableViewController.swift */,
 				3D76DC3F1BD4564900BEC914 /* ToDoListDataSourceExt.swift */,
+				3DBF14591BDD3900009D899E /* ToDoListController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -136,6 +141,7 @@
 			children = (
 				3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */,
 				3D76DC3B1BD41B2400BEC914 /* CoreDataManager.swift */,
+				3DBF145B1BDD3C3F009D899E /* FetchControllerDelegate.swift */,
 				3D76DC2F1BD2CBB100BEC914 /* Views */,
 				3D76DC2D1BD2CB5400BEC914 /* Controllers */,
 				3D76DC2E1BD2CB6800BEC914 /* Models */,
@@ -293,6 +299,7 @@
 				3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */,
 				3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */,
 				3D76DC3A1BD3CEB300BEC914 /* timeago.swift in Sources */,
+				3DBF145A1BDD3900009D899E /* ToDoListController.swift in Sources */,
 				3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */,
 				3D76DC401BD4564900BEC914 /* ToDoListDataSourceExt.swift in Sources */,
 				3DBF14581BDD2BEF009D899E /* ToDoListConfiguration.swift in Sources */,
@@ -305,6 +312,7 @@
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,
 				3D29CE161BDC46A400A02383 /* Constants.swift in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
+				3DBF145C1BDD3C3F009D899E /* FetchControllerDelegate.swift in Sources */,
 				3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */,
 				3D76DC3C1BD41B2400BEC914 /* CoreDataManager.swift in Sources */,
 			);

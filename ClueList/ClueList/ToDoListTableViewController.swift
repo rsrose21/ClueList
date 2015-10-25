@@ -9,32 +9,46 @@
 import UIKit
 import CoreData
 
-class ToDoListTableViewController: UITableViewController, TableViewCellDelegate, NSFetchedResultsControllerDelegate {
+class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
 
     var toDoItems = [ToDoItem]()
     let cellIdentifier = "ToDoCell"
     
     // Mark: CoreData properties
     
-    var itemToDelete: ToDoItem?
-    
     var sharedContext: NSManagedObjectContext {
         return CoreDataManager.sharedInstance.managedObjectContext
     }
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        let fetchRequest = NSFetchRequest(entityName: "ToDoItem")
-        //sort results first by status, then date for tableView sections
-        let doneSortDescriptor = NSSortDescriptor(key: "completed", ascending: true)
-        let sortDescriptor = NSSortDescriptor(key: "created", ascending: true)
-        fetchRequest.sortDescriptors = [doneSortDescriptor, sortDescriptor]
+    lazy var fetchControllerDelegate: FetchControllerDelegate = {
         
-        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: "completed", cacheName: nil)
+        let delegate = FetchControllerDelegate(tableView: self.tableView)
+        delegate.onUpdate = {
+            (indexPath: NSIndexPath?, object: AnyObject) in
+            self.configureCell(indexPath!, item: object as! ToDoItem)
+        }
         
-        frc.delegate = self
+        return delegate
+    }()
+    
+    lazy var toDoListController: ToDoListController = {
         
-        return frc
-        }()
+        let controller = ToDoListController(managedObjectContext: self.sharedContext)
+        controller.delegate = self.fetchControllerDelegate
+        
+        return controller
+    }()
+    
+    lazy var fetchResultsController: NSFetchedResultsController = {
+        
+        let controller = self.toDoListController.toDosController
+        
+        return controller
+    }()
+    
+    var itemToDelete: ToDoItem?
+    
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,14 +61,6 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toDoItemAdded")
         
         configureTableView()
-        
-        do {
-            try fetchedResultsController.performFetch()
-        } catch {
-            print("An error occurred trying to fetch stored data")
-        }
-        
-        tableView.reloadData()
     }
     
     //use the auto layout constraints to determine each cell's height
@@ -73,7 +79,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        //tableView.editing = true
+        //this can happen if the app font size was changed from phone settings
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "contentSizeCategoryChanged:", name: UIContentSizeCategoryDidChangeNotification, object: nil)
     }
     
@@ -91,26 +97,22 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        if let sections = fetchedResultsController.sections {
-            return sections.count
-        }
-        
-        return 0
+        return toDoListController.sections.count
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let sections = fetchedResultsController.sections {
-            let currentSection = sections[section]
-            return currentSection.numberOfObjects
-        }
-        
-        return 0
+        return toDoListController.sections[section].numberOfObjects
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
-        let item = fetchedResultsController.objectAtIndexPath(indexPath) as! ToDoItem
+        let item = toDoListController.toDoAtIndexPath(indexPath)
+        let cell = configureCell(indexPath, item: item!)
         
+        return cell
+    }
+    
+    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
         cell.updateFonts()
         
@@ -128,15 +130,34 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         return cell
     }
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch (section) {
-        case 0:
-            return "To Do"
-        case 1:
-            return "Completed"
-        default:
-            return nil
+    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        if sourceIndexPath == destinationIndexPath {
+            return
         }
+        
+        fetchControllerDelegate.ignoreNextUpdates = true // Don't let fetched results controller affect table view
+        let toDo = toDoListController.toDoAtIndexPath(sourceIndexPath)! // Trust that we will get a toDo back
+        
+        if sourceIndexPath.section != destinationIndexPath.section {
+            
+            let sectionInfo = toDoListController.sections[destinationIndexPath.section]
+            toDo.metaData.setSection(sectionInfo.section)
+            
+            // Update cell
+            NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
+                self.configureCell(destinationIndexPath, item: toDo)
+            }
+        }
+        
+        updateInternalOrderForToDo(toDo, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
+        
+        // Save
+        try! toDo.managedObjectContext!.save()
+    }
+
+    
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
+        return toDoListController.sections[section].name
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -263,13 +284,17 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
     
     func toggleToDoItem(sender: UIButton) {
         //get hold of selected ToDoItem from the UIButton tag
-        let indexPathForRow = NSIndexPath(forRow: sender.tag, inSection: 0)
-        let item = fetchedResultsController.objectAtIndexPath(indexPathForRow) as! ToDoItem
-        item.completed = !item.completed
-        //indicate to user this item has been updated
         let indexPath = NSIndexPath(forRow: sender.tag, inSection: 0)
-        let cell = tableView.cellForRowAtIndexPath(indexPath) as! ToDoCellTableViewCell
-        cell.toggleCompleted(item.completed)
+        if let item = toDoListController.toDoAtIndexPath(indexPath) {
+            item.completed = !item.completed.boolValue
+            item.metaData.updateSectionIdentifier()
+            try! item.managedObjectContext!.save()
+            
+            //indicate to user this item has been updated
+            let indexPathRow = NSIndexPath(forRow: sender.tag, inSection: 0)
+            let cell = tableView.cellForRowAtIndexPath(indexPathRow) as! ToDoCellTableViewCell
+            cell.toggleCompleted(item.completed)
+        }
     }
     
     // MARK: - UIScrollViewDelegate methods
@@ -316,6 +341,30 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate,
         }
         pullDownInProgress = false
         placeHolderCell.removeFromSuperview()
+    }
+    
+    private func updateInternalOrderForToDo(toDo: ToDoItem, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
+        
+        // Now update internal order to reflect new position
+        
+        // First get all toDos, in sorted order
+        var sortedToDos = toDoListController.fetchedToDos()
+        sortedToDos = sortedToDos.filter() {$0 != toDo} // Remove current toDo
+        
+        // Insert toDo at new place in array
+        var sortedIndex = destinationIndexPath.row
+        for sectionIndex in 0..<destinationIndexPath.section {
+            sortedIndex += toDoListController.sections[sectionIndex].numberOfObjects
+            if sectionIndex == sourceIndexPath.section {
+                sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
+            }
+        }
+        sortedToDos.insert(toDo, atIndex: sortedIndex)
+        
+        // Regenerate internal order for all toDos
+        for (index, toDo) in sortedToDos.enumerate() {
+            toDo.metaData.internalOrder = sortedToDos.count-index
+        }
     }
     
     /*
