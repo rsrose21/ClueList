@@ -29,11 +29,14 @@ class DataHelper {
         ]
         
         for todo in todos {
-            let newToDo = NSEntityDescription.insertNewObjectForEntityForName("ToDoItem", inManagedObjectContext: sharedContext) as! ToDoItem
+            let newToDo = NSEntityDescription.insertNewObjectForEntityForName(ToDoItem.entityName, inManagedObjectContext: sharedContext) as! ToDoItem
             newToDo.text = todo.text
             newToDo.clue = todo.clue
             newToDo.completed = todo.completed
+            newToDo.priority = ToDoPriority.Low.rawValue
             newToDo.created = NSDate()
+            newToDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
+            newToDo.metaData.updateSectionIdentifier()
         }
         
         do {

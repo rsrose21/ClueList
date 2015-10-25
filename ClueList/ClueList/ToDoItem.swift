@@ -14,6 +14,9 @@ import CoreData
 
 //make ToDoItem a subclass of NSManagedObject
 class ToDoItem: NSManagedObject {
+    class var entityName: String {
+        return "ToDoItem"
+    }
     
     @NSManaged var id: String
     

@@ -31,6 +31,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //change status bar color
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent
         
+        //set default list mode prior to any Core Data inserts
+        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+        
         //seed the Core Data database with sample ToDos
         let dataHelper = DataHelper()
         dataHelper.seedDataStore()

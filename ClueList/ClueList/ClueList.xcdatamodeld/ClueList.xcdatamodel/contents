@@ -13,7 +13,7 @@
         <attribute name="priority" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="factoids" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Factoid" inverseName="todo" inverseEntity="Factoid" syncable="YES"/>
-        <relationship name="metaData" maxCount="1" deletionRule="Cascade" destinationEntity="ToDoMetaData" inverseName="toDoItem" inverseEntity="ToDoMetaData" syncable="YES"/>
+        <relationship name="metaData" maxCount="1" deletionRule="Cascade" destinationEntity="ToDoMetaData" inverseName="toDo" inverseEntity="ToDoMetaData" syncable="YES"/>
     </entity>
     <entity name="ToDoListConfiguration" representedClassName="ToDoListConfiguration" syncable="YES">
         <attribute name="listModeValue" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
@@ -23,12 +23,12 @@
         <attribute name="internalOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="sectionIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDoMetaData" inverseEntity="ToDoListConfiguration" syncable="YES"/>
-        <relationship name="toDoItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoItem" inverseName="metaData" inverseEntity="ToDoItem" syncable="YES"/>
+        <relationship name="toDo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoItem" inverseName="metaData" inverseEntity="ToDoItem" syncable="YES"/>
     </entity>
     <elements>
         <element name="Factoid" positionX="-54" positionY="27" width="128" height="90"/>
         <element name="ToDoItem" positionX="-63" positionY="-18" width="128" height="165"/>
-        <element name="ToDoMetaData" positionX="-54" positionY="45" width="128" height="105"/>
         <element name="ToDoListConfiguration" positionX="-45" positionY="54" width="128" height="75"/>
+        <element name="ToDoMetaData" positionX="-54" positionY="45" width="128" height="105"/>
     </elements>
 </model>
