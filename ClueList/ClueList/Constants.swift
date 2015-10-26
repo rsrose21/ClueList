@@ -15,4 +15,7 @@ class Constants: NSObject {
         static let LOADING_DATA_FAILED: String = "Loading data has failed"
     }
     
+    struct Data {
+        static let SEED_DB: Bool = false
+    }
 }

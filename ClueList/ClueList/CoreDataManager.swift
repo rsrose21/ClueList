@@ -34,9 +34,12 @@ class CoreDataManager {
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("ClueList.sqlite")
         
-        do {
-            try NSFileManager.defaultManager().removeItemAtURL(url)
-        } catch _ {
+        //reset DB if we are seeding data for testing
+        if Constants.Data.SEED_DB {
+            do {
+                try NSFileManager.defaultManager().removeItemAtURL(url)
+            } catch _ {
+            }
         }
         
         var failureReason = "There was an error creating or loading the application's saved data."

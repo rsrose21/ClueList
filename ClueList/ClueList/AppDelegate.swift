@@ -34,11 +34,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //set default list mode prior to any Core Data inserts
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
         
-        //seed the Core Data database with sample ToDos
-        let dataHelper = DataHelper()
-        dataHelper.seedDataStore()
-        dataHelper.printAllToDos()
-        
+        if Constants.Data.SEED_DB {
+            //seed the Core Data database with sample ToDos
+            let dataHelper = DataHelper()
+            dataHelper.seedDataStore()
+            dataHelper.printAllToDos()
+        }
         return true
     }
 

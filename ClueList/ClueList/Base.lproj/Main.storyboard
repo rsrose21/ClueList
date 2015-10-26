@@ -36,11 +36,10 @@
             </objects>
             <point key="canvasLocation" x="1426.5" y="-27.5"/>
         </scene>
-        <!--To Do-->
+        <!--Navigation Controller-->
         <scene sceneID="Zwc-QP-oyd">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hGe-br-cZw" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="To Do" id="A6G-gJ-ni1"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="e8x-Aw-r57">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
