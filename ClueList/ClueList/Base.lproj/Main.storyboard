@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="hGe-br-cZw">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--To Do-->
@@ -31,10 +32,126 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="To Do" id="L5M-d8-MZi"/>
+                    <connections>
+                        <segue destination="nz8-ex-q12" kind="presentation" identifier="editToDo" id="uc4-Qh-ztc"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f8h-IX-57N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1426.5" y="-27.5"/>
+        </scene>
+        <!--Edit ToDo View Controller-->
+        <scene sceneID="gjz-aW-dX9">
+            <objects>
+                <viewController id="uYQ-yr-bTU" userLabel="Edit ToDo View Controller" customClass="EditToDoViewController" customModule="ClueList" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="RxY-38-brk"/>
+                        <viewControllerLayoutGuide type="bottom" id="cnR-tj-JeD"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Luf-E8-TLq">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="5Dm-mk-huR">
+                                <rect key="frame" x="56" y="145" width="220" height="29"/>
+                                <animations/>
+                                <segments>
+                                    <segment title="Low"/>
+                                    <segment title="Medium"/>
+                                    <segment title="High"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Priority" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="08M-g7-YDA">
+                                <rect key="frame" x="-42" y="-21" width="42" height="21"/>
+                                <animations/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="What to do?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Nez-ym-n44">
+                                <rect key="frame" x="-25" y="-30" width="97" height="30"/>
+                                <animations/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ue4-a1-ov6">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <animations/>
+                                <items>
+                                    <navigationItem title="Edit Task" id="cXp-QO-3lN"/>
+                                </items>
+                                <variation key="widthClass=compact" ambiguous="YES" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="44"/>
+                                </variation>
+                            </navigationBar>
+                        </subviews>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="Nez-ym-n44" secondAttribute="trailing" constant="80" id="3H1-ha-ZyL"/>
+                            <constraint firstItem="Nez-ym-n44" firstAttribute="leading" secondItem="Luf-E8-TLq" secondAttribute="leadingMargin" id="5Ml-zK-BBJ"/>
+                            <constraint firstItem="Nez-ym-n44" firstAttribute="top" secondItem="Ue4-a1-ov6" secondAttribute="bottom" constant="40" id="Ct1-5v-NGK"/>
+                            <constraint firstItem="08M-g7-YDA" firstAttribute="top" secondItem="Nez-ym-n44" secondAttribute="bottom" constant="2" id="YOl-U6-Dcc"/>
+                            <constraint firstItem="Nez-ym-n44" firstAttribute="centerX" secondItem="08M-g7-YDA" secondAttribute="centerX" id="b0f-7F-GRQ"/>
+                            <constraint firstItem="Nez-ym-n44" firstAttribute="top" secondItem="Luf-E8-TLq" secondAttribute="top" constant="84" id="yC6-hF-XV0"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="08M-g7-YDA"/>
+                                <exclude reference="Nez-ym-n44"/>
+                                <exclude reference="Ue4-a1-ov6"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="3H1-ha-ZyL"/>
+                                <exclude reference="5Ml-zK-BBJ"/>
+                                <exclude reference="Ct1-5v-NGK"/>
+                                <exclude reference="b0f-7F-GRQ"/>
+                                <exclude reference="yC6-hF-XV0"/>
+                                <exclude reference="YOl-U6-Dcc"/>
+                            </mask>
+                        </variation>
+                        <variation key="widthClass=compact">
+                            <mask key="subviews">
+                                <include reference="08M-g7-YDA"/>
+                                <include reference="Nez-ym-n44"/>
+                                <include reference="Ue4-a1-ov6"/>
+                            </mask>
+                            <mask key="constraints">
+                                <include reference="3H1-ha-ZyL"/>
+                                <include reference="5Ml-zK-BBJ"/>
+                                <include reference="Ct1-5v-NGK"/>
+                                <include reference="b0f-7F-GRQ"/>
+                                <include reference="yC6-hF-XV0"/>
+                                <include reference="YOl-U6-Dcc"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <navigationItem key="navigationItem" id="iEQ-Av-ygG"/>
+                    <connections>
+                        <outlet property="priorityControl" destination="5Dm-mk-huR" id="rL5-Nr-2Hd"/>
+                        <outlet property="textField" destination="Nez-ym-n44" id="wJV-kg-9Zc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hrx-Sj-6Ku" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1371" y="797"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="VC1-r2-f1e">
+            <objects>
+                <navigationController id="nz8-ex-q12" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="WLH-0A-dYL">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="uYQ-yr-bTU" kind="relationship" relationship="rootViewController" id="FTB-5S-0Oi"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="SZR-tL-bEY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="607" y="797"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Zwc-QP-oyd">

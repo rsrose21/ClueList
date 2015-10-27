@@ -124,6 +124,8 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         cell.checkbox.titleLabel!.text = item.id
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
         
+        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+        
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()
         cell.updateConstraintsIfNeeded()
@@ -189,6 +191,10 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
+    }
+    
+    override func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
+        self.performSegueWithIdentifier("editToDo", sender: indexPath)
     }
     
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
@@ -379,14 +385,18 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         }
     }
     
-    /*
+
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "editToDo" {
+            //get the selected ToDo by the passed index path
+            if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
+                //set selected ToDo for our view controller
+                controller.todo = object
+            }
+        }
     }
-    */
 
 }
