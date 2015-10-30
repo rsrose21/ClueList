@@ -19,7 +19,7 @@ protocol TableViewCellDelegate {
     func cellDidEndEditing(editingCell: ToDoCellTableViewCell)
 }
 
-class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
+class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDelegate {
 
     // The CGFloat type annotation is necessary for these constants because they are passed as arguments to bridged Objective-C methods,
     // and without making the type explicit these will be inferred to be type Double which is not compatible.
@@ -41,12 +41,14 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         didSet {
             let item = toDoItem!
             print(item.text)
-            
-            if item.factoid != "" {
-                titleLabel.text = item.factoid
+            //if we have some factoids then randomly select one to display as the To Do label
+            if item.factoids.count > 0 {
+                let randomIndex = Int(arc4random_uniform(UInt32(item.factoids.count)))
+                titleLabel.text = item.factoids[randomIndex].text
             } else {
                 titleLabel.text = item.text
             }
+  
             bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
             toggleCompleted(item.completed)
             setNeedsLayout()
@@ -110,6 +112,8 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
         titleLabel.textColor = UIColor.blackColor()
+        //titleLabel.layer.borderColor = UIColor.blackColor().CGColor
+        //titleLabel.layer.borderWidth = 3.0;
         contentView.addSubview(titleLabel)
         
         bodyLabel.lineBreakMode = .ByTruncatingTail
@@ -283,7 +287,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
                 width: bounds.size.width, height: bounds.size.height)
             if hintOnDragRelease {
                 //highlight the "clue" in the factoid for the user
-                titleLabel.attributedText = highlightText((toDoItem?.factoid)!, needle: (toDoItem?.clue)!)
+                titleLabel.attributedText = highlightText((titleLabel.text)!, needle: (toDoItem?.clue)!)
                 // Make sure the constraints have been added to this cell, since it may have just been created from scratch
                 resetConstraints()
             } else if revealOnDragRelease {
@@ -337,6 +341,13 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate {
         if delegate != nil {
             delegate!.cellDidBeginEditing(self)
         }
+    }
+    
+    // MARK: - UIButtonDelegate methods
+    
+    func toDoItemCompleted(toDoItem: ToDoItem) {
+        //update cell to mark/unmark item completed status
+        toggleCompleted(!toDoItem.completed)
     }
 
 }
