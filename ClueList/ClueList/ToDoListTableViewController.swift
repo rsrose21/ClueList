@@ -9,9 +9,13 @@
 import UIKit
 import CoreData
 
-class ToDoListTableViewController: UITableViewController, TableViewCellDelegate {
+class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate {
 
+    @IBOutlet weak var tableView: UITableView!
+    
     let cellIdentifier = "ToDoCell"
+    
+    let segueIdentifier = "editToDoItem"
     
     // Mark: CoreData properties
     
@@ -74,7 +78,8 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         
         //differentiate background when cell is dragged
         //tableView.backgroundColor = UIColor.blackColor()
-        
+        tableView.dataSource = self
+        tableView.delegate = self
         tableView.registerClass(ToDoCellTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
     }
     
@@ -94,18 +99,26 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     func contentSizeCategoryChanged(notification: NSNotification) {
         tableView.reloadData()
     }
+    
+    @IBAction func viewSimple(sender: AnyObject) {
+        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+    }
+    
+    @IBAction func viewPrioritized(sender: AnyObject) {
+        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Prioritized
+    }
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return toDoListController.sections.count
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return toDoListController.sections[section].numberOfObjects
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let item = toDoListController.toDoAtIndexPath(indexPath)
         let cell = configureCell(indexPath, item: item!)
         
@@ -136,7 +149,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         return cell
     }
     
-    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         if sourceIndexPath == destinationIndexPath {
             return
         }
@@ -162,11 +175,11 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     }
 
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
         return toDoListController.sections[section].name
     }
     
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         //hide sections if currently editing a item
         if editingToDo {
             return 0.0
@@ -176,7 +189,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     }
     
     //disable table view swipe to delete since we have a custom swipe action already
-    override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
         //only show delete button if in editing mode
         if (self.tableView.editing) {
             return .Delete
@@ -184,17 +197,17 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         return .None
     }
     
-    override func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
 
     // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
     
-    override func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
-        self.performSegueWithIdentifier("editToDo", sender: indexPath)
+    func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
+        self.performSegueWithIdentifier(segueIdentifier, sender: indexPath)
     }
     
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
@@ -324,7 +337,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     // table cell row heights are based on the cell's content so we use a static value here since we have no content
     let rowHeight = 50.0 as CGFloat;
     
-    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
         // this behavior starts when a user pulls down while at the top of the table
         pullDownInProgress = scrollView.contentOffset.y <= 0.0
         placeHolderCell.backgroundColor = UIColor.whiteColor()
@@ -334,7 +347,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         }
     }
     
-    override func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(scrollView: UIScrollView) {
         let scrollViewContentOffsetY = scrollView.contentOffset.y
         
         if pullDownInProgress && scrollView.contentOffset.y <= 0.0 {
@@ -351,7 +364,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
         }
     }
     
-    override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         // check whether the user pulled down far enough
         if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
             // add a new item
@@ -389,7 +402,7 @@ class ToDoListTableViewController: UITableViewController, TableViewCellDelegate 
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "editToDo" {
+        if segue.identifier == segueIdentifier {
             //get the selected ToDo by the passed index path
             if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
                 let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController

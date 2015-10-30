@@ -21,7 +21,7 @@ extension ToDoListTableViewController {
         }
     }
     */
-    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         //the delete icon was pressed, display the action sheet for delete confirmation
         let toDo = toDoListController.toDoAtIndexPath(indexPath)
         confirmDeleteForToDo(toDo!)
