@@ -120,19 +120,25 @@
                             <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="5Dm-mk-huR">
                                 <rect key="frame" x="56" y="145" width="220" height="29"/>
                                 <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="28" id="Ow7-zr-SVH"/>
+                                </constraints>
                                 <segments>
                                     <segment title="Low"/>
                                     <segment title="Medium"/>
                                     <segment title="High"/>
                                 </segments>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Ow7-zr-SVH"/>
+                                    </mask>
+                                </variation>
+                                <variation key="widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="Ow7-zr-SVH"/>
+                                    </mask>
+                                </variation>
                             </segmentedControl>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Priority" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="08M-g7-YDA">
-                                <rect key="frame" x="-42" y="-21" width="42" height="21"/>
-                                <animations/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="What to do?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Nez-ym-n44">
                                 <rect key="frame" x="-25" y="-30" width="97" height="30"/>
                                 <animations/>
@@ -149,45 +155,74 @@
                                     <rect key="frame" x="0.0" y="0.0" width="400" height="44"/>
                                 </variation>
                             </navigationBar>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Priority" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="08M-g7-YDA">
+                                <rect key="frame" x="-42" y="-21" width="42" height="21"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="mJe-bm-cQZ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="mJe-bm-cQZ"/>
+                                    </mask>
+                                </variation>
+                                <variation key="widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="mJe-bm-cQZ"/>
+                                    </mask>
+                                </variation>
+                            </label>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailingMargin" secondItem="Nez-ym-n44" secondAttribute="trailing" constant="80" id="3H1-ha-ZyL"/>
+                            <constraint firstItem="08M-g7-YDA" firstAttribute="centerX" secondItem="5Dm-mk-huR" secondAttribute="centerX" id="4Ik-Lc-04j"/>
                             <constraint firstItem="Nez-ym-n44" firstAttribute="leading" secondItem="Luf-E8-TLq" secondAttribute="leadingMargin" id="5Ml-zK-BBJ"/>
                             <constraint firstItem="Nez-ym-n44" firstAttribute="top" secondItem="Ue4-a1-ov6" secondAttribute="bottom" constant="40" id="Ct1-5v-NGK"/>
-                            <constraint firstItem="08M-g7-YDA" firstAttribute="top" secondItem="Nez-ym-n44" secondAttribute="bottom" constant="2" id="YOl-U6-Dcc"/>
-                            <constraint firstItem="Nez-ym-n44" firstAttribute="centerX" secondItem="08M-g7-YDA" secondAttribute="centerX" id="b0f-7F-GRQ"/>
+                            <constraint firstItem="5Dm-mk-huR" firstAttribute="leading" secondItem="Luf-E8-TLq" secondAttribute="leadingMargin" constant="60" id="OS8-1U-F00"/>
+                            <constraint firstItem="5Dm-mk-huR" firstAttribute="top" secondItem="08M-g7-YDA" secondAttribute="bottom" constant="21" id="RcM-Fv-Tea"/>
+                            <constraint firstItem="5Dm-mk-huR" firstAttribute="trailing" secondItem="Nez-ym-n44" secondAttribute="trailing" id="SzD-cc-ckA"/>
+                            <constraint firstItem="cnR-tj-JeD" firstAttribute="top" secondItem="5Dm-mk-huR" secondAttribute="bottom" constant="377" id="qFh-sA-6Dd"/>
                             <constraint firstItem="Nez-ym-n44" firstAttribute="top" secondItem="Luf-E8-TLq" secondAttribute="top" constant="84" id="yC6-hF-XV0"/>
                         </constraints>
                         <variation key="default">
                             <mask key="subviews">
-                                <exclude reference="08M-g7-YDA"/>
                                 <exclude reference="Nez-ym-n44"/>
                                 <exclude reference="Ue4-a1-ov6"/>
+                                <exclude reference="08M-g7-YDA"/>
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="3H1-ha-ZyL"/>
                                 <exclude reference="5Ml-zK-BBJ"/>
                                 <exclude reference="Ct1-5v-NGK"/>
-                                <exclude reference="b0f-7F-GRQ"/>
                                 <exclude reference="yC6-hF-XV0"/>
-                                <exclude reference="YOl-U6-Dcc"/>
+                                <exclude reference="OS8-1U-F00"/>
+                                <exclude reference="RcM-Fv-Tea"/>
+                                <exclude reference="SzD-cc-ckA"/>
+                                <exclude reference="4Ik-Lc-04j"/>
+                                <exclude reference="qFh-sA-6Dd"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
                             <mask key="subviews">
-                                <include reference="08M-g7-YDA"/>
                                 <include reference="Nez-ym-n44"/>
                                 <include reference="Ue4-a1-ov6"/>
+                                <include reference="08M-g7-YDA"/>
                             </mask>
                             <mask key="constraints">
                                 <include reference="3H1-ha-ZyL"/>
                                 <include reference="5Ml-zK-BBJ"/>
                                 <include reference="Ct1-5v-NGK"/>
-                                <include reference="b0f-7F-GRQ"/>
                                 <include reference="yC6-hF-XV0"/>
-                                <include reference="YOl-U6-Dcc"/>
+                                <include reference="OS8-1U-F00"/>
+                                <include reference="RcM-Fv-Tea"/>
+                                <include reference="SzD-cc-ckA"/>
+                                <include reference="4Ik-Lc-04j"/>
+                                <include reference="qFh-sA-6Dd"/>
                             </mask>
                         </variation>
                     </view>

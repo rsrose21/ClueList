@@ -25,7 +25,8 @@ class DataHelper {
         let todos = [
             (text: "feed the cat", clue: "cat", completed: false),
             (text: "pick up milk", clue: "milk", completed: true),
-            (text: "buy eggs", clue: "eggs", completed: false)
+            (text: "buy eggs", clue: "eggs", completed: false),
+            (text: "take out the trash", clue: "trash", completed: false)
         ]
         
         for todo in todos {

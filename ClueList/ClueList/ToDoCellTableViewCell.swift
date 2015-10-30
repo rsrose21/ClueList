@@ -41,15 +41,14 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         didSet {
             let item = toDoItem!
             print(item.text)
-            /*
-            if let factoids = item.factoids as? [Factoid] {
-                let randomIndex = Int(arc4random_uniform(UInt32(factoids.count)))
-                titleLabel.text = factoids[randomIndex].text
+            //if we have some factoids then randomly select one to display as the To Do label
+            if item.factoids.count > 0 {
+                let randomIndex = Int(arc4random_uniform(UInt32(item.factoids.count)))
+                titleLabel.text = item.factoids[randomIndex].text
             } else {
                 titleLabel.text = item.text
             }
-            */
-            titleLabel.text = item.text
+  
             bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
             toggleCompleted(item.completed)
             setNeedsLayout()
@@ -113,6 +112,8 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
         titleLabel.textColor = UIColor.blackColor()
+        //titleLabel.layer.borderColor = UIColor.blackColor().CGColor
+        //titleLabel.layer.borderWidth = 3.0;
         contentView.addSubview(titleLabel)
         
         bodyLabel.lineBreakMode = .ByTruncatingTail

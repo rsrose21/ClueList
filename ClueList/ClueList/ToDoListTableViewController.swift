@@ -100,6 +100,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         tableView.reloadData()
     }
     
+    // MARK: - Actions
+    
     @IBAction func viewSimple(sender: AnyObject) {
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
     }
