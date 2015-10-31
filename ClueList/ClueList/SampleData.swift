@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import SwiftyJSON
 
 class DataHelper {
     
@@ -17,7 +18,7 @@ class DataHelper {
     
     func seedDataStore() {
         seedToDos()
-        seedFactoids()
+        //seedFactoids()
     }
     
     //add some default ToDos to start
@@ -39,6 +40,28 @@ class DataHelper {
             newToDo.created = NSDate()
             newToDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
             newToDo.metaData.updateSectionIdentifier()
+            let dictionary: [String: AnyObject] = ["terms": todo.text]
+            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
+                if let error = result.error {
+                    print(error)
+                    //completionHandler(error)
+                    return
+                }
+  
+                for (_, subJson) in result["results"] {
+                    if let title = subJson["text"].string {
+                        let dictionary: [String: AnyObject?] = ["text": title]
+                        _ = Factoid(dictionary: dictionary, todo: newToDo, context: self.sharedContext)
+                        
+                        do {
+                            try self.sharedContext.save()
+                        } catch _ {
+                        }
+                    }
+                }
+                // success
+                //completionHandler(nil)
+            })
         }
         
         do {

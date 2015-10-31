@@ -127,6 +127,36 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         return cell
     }
     
+    private func getFactoids(todo: ToDoItem, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+        if todo.factoids.count > 0 {
+            completionHandler(result: todo, error: nil)
+        } else {
+            print("Requesting factoids for: \(todo.text)")
+            let dictionary: [String: AnyObject] = ["terms": todo.text]
+            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
+                if let error = result.error {
+                    print(error)
+                    completionHandler(result: nil, error: error)
+                    return
+                }
+                
+                for (_, subJson) in result["results"] {
+                    if let title = subJson["text"].string {
+                        let dictionary: [String: AnyObject?] = ["text": title]
+                        _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
+                        
+                        do {
+                            try self.sharedContext.save()
+                        } catch _ {
+                        }
+                    }
+                }
+                // success
+                completionHandler(result: todo, error: nil)
+            })
+        }
+    }
+    
     private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
@@ -140,6 +170,14 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
         
         cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+        getFactoids(item, completionHandler: { (result, error) in
+            if let e = error {
+                print(e)
+            }
+            // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+            cell.setNeedsUpdateConstraints()
+            cell.updateConstraintsIfNeeded()
+        })
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()

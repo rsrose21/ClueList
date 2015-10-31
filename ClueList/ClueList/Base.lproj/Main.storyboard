@@ -15,6 +15,7 @@
                         <viewControllerLayoutGuide type="bottom" id="mz0-IZ-4Fb"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="EsB-Xm-ssg">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vcF-UH-jfn">
@@ -45,6 +46,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="B4S-yZ-s5v" id="thR-h5-bc6">
+                                            <rect key="frame" x="0.0" y="0.0" width="240" height="82.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <animations/>
                                         </tableViewCellContentView>
@@ -117,7 +119,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="5Dm-mk-huR">
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="5Dm-mk-huR">
                                 <rect key="frame" x="56" y="145" width="220" height="29"/>
                                 <animations/>
                                 <constraints>
@@ -200,10 +202,10 @@
                                 <exclude reference="5Ml-zK-BBJ"/>
                                 <exclude reference="Ct1-5v-NGK"/>
                                 <exclude reference="yC6-hF-XV0"/>
+                                <exclude reference="4Ik-Lc-04j"/>
                                 <exclude reference="OS8-1U-F00"/>
                                 <exclude reference="RcM-Fv-Tea"/>
                                 <exclude reference="SzD-cc-ckA"/>
-                                <exclude reference="4Ik-Lc-04j"/>
                                 <exclude reference="qFh-sA-6Dd"/>
                             </mask>
                         </variation>
@@ -218,10 +220,10 @@
                                 <include reference="5Ml-zK-BBJ"/>
                                 <include reference="Ct1-5v-NGK"/>
                                 <include reference="yC6-hF-XV0"/>
+                                <include reference="4Ik-Lc-04j"/>
                                 <include reference="OS8-1U-F00"/>
                                 <include reference="RcM-Fv-Tea"/>
                                 <include reference="SzD-cc-ckA"/>
-                                <include reference="4Ik-Lc-04j"/>
                                 <include reference="qFh-sA-6Dd"/>
                             </mask>
                         </variation>

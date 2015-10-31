@@ -24,6 +24,8 @@
 		3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */; };
 		3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3491BCC069F009E3FAF /* SampleData.swift */; };
 		3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */; };
+		3DB81EB11BE42D7400C85808 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB81EB01BE42D7400C85808 /* NetworkClient.swift */; };
+		3DB81EB31BE44CD600C85808 /* ResponseJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB81EB21BE44CD600C85808 /* ResponseJSON.swift */; };
 		3DBAEAA61BDF095E00D91336 /* EditToDoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAEAA51BDF095E00D91336 /* EditToDoViewController.swift */; };
 		3DBF14521BDD2A75009D899E /* ControllerSectionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14511BDD2A75009D899E /* ControllerSectionInfo.swift */; };
 		3DBF14541BDD2A9E009D899E /* ToDoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14531BDD2A9E009D899E /* ToDoSection.swift */; };
@@ -54,6 +56,8 @@
 		3D8FF3471BCBFDE0009E3FAF /* ToDoItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoItem.swift; sourceTree = "<group>"; };
 		3D8FF3491BCC069F009E3FAF /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
 		3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoCellTableViewCell.swift; sourceTree = "<group>"; };
+		3DB81EB01BE42D7400C85808 /* NetworkClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
+		3DB81EB21BE44CD600C85808 /* ResponseJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseJSON.swift; sourceTree = "<group>"; };
 		3DBAEAA51BDF095E00D91336 /* EditToDoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditToDoViewController.swift; sourceTree = "<group>"; };
 		3DBF14511BDD2A75009D899E /* ControllerSectionInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerSectionInfo.swift; sourceTree = "<group>"; };
 		3DBF14531BDD2A9E009D899E /* ToDoSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoSection.swift; sourceTree = "<group>"; };
@@ -117,6 +121,7 @@
 				3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */,
 				3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */,
 				3D76DC391BD3CEB300BEC914 /* timeago.swift */,
+				3DB81EB21BE44CD600C85808 /* ResponseJSON.swift */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -156,6 +161,7 @@
 				3D8FF33F1BCBF15C009E3FAF /* Info.plist */,
 				3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */,
 				3D29CE151BDC46A400A02383 /* Constants.swift */,
+				3DB81EB01BE42D7400C85808 /* NetworkClient.swift */,
 			);
 			path = ClueList;
 			sourceTree = "<group>";
@@ -299,8 +305,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				3DBF14561BDD2B81009D899E /* ToDoMetaData.swift in Sources */,
+				3DB81EB31BE44CD600C85808 /* ResponseJSON.swift in Sources */,
 				3D8FF34A1BCC069F009E3FAF /* SampleData.swift in Sources */,
 				3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */,
+				3DB81EB11BE42D7400C85808 /* NetworkClient.swift in Sources */,
 				3D76DC3A1BD3CEB300BEC914 /* timeago.swift in Sources */,
 				3DBF145A1BDD3900009D899E /* ToDoListController.swift in Sources */,
 				3D8FF3521BCC29A5009E3FAF /* ToDoCellTableViewCell.swift in Sources */,
