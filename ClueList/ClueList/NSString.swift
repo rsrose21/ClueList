@@ -8,24 +8,24 @@
 
 import Foundation
 
-extension NSString {
-    
-    // encode a string to Base64: http://iosdevelopertips.com/swift-code/base64-encode-decode-swift.html
-    func encodeString(str: String) -> NSString {
-        let utf8str = str.dataUsingEncoding(NSUTF8StringEncoding)
+extension String {
+    func htmlDecoded()->String {
         
-        let base64Encoded = utf8str!.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0))
+        guard (self != "") else { return self }
         
-        return base64Encoded
+        var newStr = self
+        
+        let entities = [
+            "&quot;"    : "\"",
+            "&amp;"     : "&",
+            "&apos;"    : "'",
+            "&lt;"      : "<",
+            "&gt;"      : ">",
+        ]
+        
+        for (name,value) in entities {
+            newStr = newStr.stringByReplacingOccurrencesOfString(name, withString: value)
+        }
+        return newStr
     }
-    
-    // decode a Base64 encoded string: http://iosdevelopertips.com/swift-code/base64-encode-decode-swift.html
-    func decodeString(base64Encoded: String) -> NSString {
-        let data = NSData(base64EncodedString: base64Encoded, options: NSDataBase64DecodingOptions(rawValue: 0))
-        
-        let base64Decoded = NSString(data: data!, encoding: NSUTF8StringEncoding)
-        
-        return base64Decoded!
-    }
-    
 }

@@ -20,6 +20,9 @@ class ToDoItem: NSManagedObject {
     
     let DEFAULT_PRIORITY = 1
     
+    // current selected random factoid displayed for this ToDoItem
+    var factoid: String?
+    
     @NSManaged var id: String
     
     // A text description of this item.
@@ -103,12 +106,20 @@ class ToDoItem: NSManagedObject {
         }
     }
     
-    func getRandomFactoid() -> String {
+    func getRandomFactoid() -> String? {
+        //return the currently selected factoid if available
+        if let item = factoid {
+            return item
+        }
+        //select a random factoid from our saved array
         if factoids.count > 0 {
             let randomIndex = Int(arc4random_uniform(UInt32(factoids.count)))
-            return factoids[randomIndex].text
-        } else {
-            return ""
+            
+            //decode the Base64 encoded string from the API
+            factoid = factoids[randomIndex].text.htmlDecoded()
+            
+            return factoid!
         }
+        return nil
     }
 }

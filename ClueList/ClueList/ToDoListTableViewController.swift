@@ -224,13 +224,15 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
         editingToDo = true
         //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
-        let editingOffset = 40.0 - editingCell.frame.origin.y as CGFloat
+        let editingOffset = 20.0 - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
             UIView.animateWithDuration(0.3, animations: {() in
                 cell.transform = CGAffineTransformMakeTranslation(0, editingOffset)
                 if cell !== editingCell {
                     cell.alpha = 0.3
+                } else {
+                    //cell.layoutFrames()
                 }
             })
         }
@@ -276,10 +278,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         for cell in visibleCells {
             if (cell.toDoItem === toDoItem) {
                 editCell = cell
-                editCell.checkbox.hidden = true
-                editCell.titleLabel.hidden = true
-                editCell.bodyLabel.hidden = true
-                editCell.editLabel.hidden = false
+                editCell.editLabelOnly = true
+                //editCell.layoutFrames()
                 editCell.editLabel.becomeFirstResponder()
                 break
             }
@@ -316,11 +316,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // use the UITableView to animate the removal of this row
         tableView.beginUpdates()
         self.sharedContext.deleteObject(toDoItem)
-        do {
-            try self.sharedContext.save()
-        } catch {
-        }
+        CoreDataManager.sharedInstance.saveContext()
         tableView.endUpdates()
+        tableView.reloadData()
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -419,16 +417,20 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     completionHandler(result: nil, error: error)
                     return
                 }
+                //find the clue and save to ToDo (clue used for highlighting)
+                if let clue = result["clue"].string {
+                    todo.clue = clue
+                    
+                    CoreDataManager.sharedInstance.saveContext()
+                }
                 
+                //loop through factoid results and save with associated ToDoItem
                 for (_, subJson) in result["results"] {
                     if let title = subJson["text"].string {
                         let dictionary: [String: AnyObject?] = ["text": title]
                         _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
                         
-                        do {
-                            try self.sharedContext.save()
-                        } catch _ {
-                        }
+                        CoreDataManager.sharedInstance.saveContext()
                     }
                 }
                 // success
@@ -440,7 +442,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
-        cell.updateFonts()
+        
         //configure the cell checkbox
         cell.checkbox.delegate = cell
         cell.checkbox.selected = item.completed
@@ -457,6 +459,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 }
                 if item.factoids.count > 0 {
                     cell.titleLabel.text = item.getRandomFactoid()
+                    cell.checkbox.hidden = false
                     // content length has changed, update autolayout constraints
                     cell.resetConstraints()
                 }

@@ -44,8 +44,7 @@ class Factoid: NSManagedObject {
         id = NSUUID().UUIDString
         
         text = dictionary["text"] as! String
-        //decode the Base64 encoded string from the API
-        text.decodeString(text) as String
+
         print(text)
         self.todo = todo
     }
