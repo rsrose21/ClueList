@@ -27,10 +27,11 @@ class Constants: NSObject {
     
     struct UIFonts {
         static let BASE_FONT_SIZE: CGFloat = 12.0
-        static let HEADLINE_FONT_SIZE: CGFloat = 17.0
+        static let HEADLINE_FONT_SIZE: CGFloat = BASE_FONT_SIZE + 5
         
         static let BODY_FONT: String = "Helvetica Neue"
         static let HEADLINE_FONT: String = "Helvetica Neue"
+        static let HIGHLIGHT_FONT: String = "HelveticaNeue-BoldItalic"
     }
     
     struct UIColors {

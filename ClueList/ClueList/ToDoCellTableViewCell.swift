@@ -28,8 +28,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     
     //Defining fonts of size and type
     let titleFont:UIFont = UIFont(name: Constants.UIFonts.HEADLINE_FONT, size: Constants.UIFonts.HEADLINE_FONT_SIZE)!
-    let boldFont:UIFont = UIFont(name: "HelveticaNeue-BoldItalic", size: 17)!
-    let bodyFont:UIFont = UIFont(name: "HelveticaNeue", size: 10)!
+    let bodyFont:UIFont = UIFont(name: Constants.UIFonts.BODY_FONT, size: Constants.UIFonts.BASE_FONT_SIZE)!
     
     var originalCenter = CGPoint()
     var hintOnDragRelease = false, revealOnDragRelease = false
@@ -41,15 +40,21 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         didSet {
             let item = toDoItem!
             print(item.text)
-            //if we have some factoids then randomly select one to display as the To Do label
-            titleLabel.text = item.getRandomFactoid()
-            if titleLabel.text == "" {
-                //no factoids returned for this task, show the original task instead
-                titleLabel.text = item.text
+            if item.text == Constants.Messages.PLACEHOLDER_TEXT {
+                editLabelOnly = true
+            } else {
+                editLabelOnly = false
+                //if we have some factoids then randomly select one to display as the To Do label
+                titleLabel.text = item.getRandomFactoid()
+                if titleLabel.text == "" {
+                    //no factoids returned for this task, show the original task instead
+                    titleLabel.text = item.text
+                }
+                
+                bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
+                toggleCompleted(item.completed)
             }
-  
-            bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
-            toggleCompleted(item.completed)
+            
             setNeedsLayout()
         }
     }
@@ -67,6 +72,8 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     var bodyLabel: UILabel = UILabel.newAutoLayoutView()
     var editLabel: UITextField = UITextField()
     var checkbox: DOCheckbox!
+    
+    var editLabelOnly: Bool = false
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String!)
     {
@@ -105,63 +112,74 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
         editLabel.placeholder = Constants.Messages.PLACEHOLDER_TEXT
-        editLabel.hidden = true
+        editLabel.hidden = !editLabelOnly
         editLabel.layer.borderColor = UIColor.blackColor().CGColor
         editLabel.layer.borderWidth = 1.0;
         contentView.addSubview(editLabel)
         
-        titleLabel.lineBreakMode = .ByTruncatingTail
-        titleLabel.numberOfLines = 0
-        titleLabel.textAlignment = .Left
-        titleLabel.textColor = UIColor.blackColor()
-        //titleLabel.layer.borderColor = UIColor.blackColor().CGColor
-        //titleLabel.layer.borderWidth = 3.0;
-        titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
-        contentView.addSubview(titleLabel)
-        
-        bodyLabel.lineBreakMode = .ByTruncatingTail
-        bodyLabel.numberOfLines = 1
-        bodyLabel.textAlignment = .Left
-        bodyLabel.textColor = UIColor.darkGrayColor()
-        bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
-        contentView.addSubview(bodyLabel)
-        
-        checkbox = layoutCheckbox(UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
-        contentView.addSubview(checkbox)
-        
-        updateFonts()
+        if !editLabelOnly {
+            titleLabel.lineBreakMode = .ByTruncatingTail
+            titleLabel.numberOfLines = 0
+            titleLabel.textAlignment = .Left
+            titleLabel.textColor = UIColor.blackColor()
+            titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
+            contentView.addSubview(titleLabel)
+            
+            bodyLabel.lineBreakMode = .ByTruncatingTail
+            bodyLabel.numberOfLines = 1
+            bodyLabel.textAlignment = .Left
+            bodyLabel.textColor = UIColor.darkGrayColor()
+            bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
+            contentView.addSubview(bodyLabel)
+            
+            checkbox = layoutCheckbox(UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
+            contentView.addSubview(checkbox)
+            
+            // add a pan recognizer for handling cell dragging
+            let recognizer = UIPanGestureRecognizer(target: self, action: "handlePan:")
+            recognizer.delegate = self
+            addGestureRecognizer(recognizer)
+            
+            // tick and cross labels for context cues
+            tickLabel = createCueLabel()
+            tickLabel.text = "\u{2713}"
+            tickLabel.textAlignment = .Right
+            addSubview(tickLabel)
+            clueLabel = createCueLabel()
+            clueLabel.text = "?"
+            clueLabel.textAlignment = .Left
+            addSubview(clueLabel)
+        }
 
-        // add a pan recognizer for handling cell dragging
-        let recognizer = UIPanGestureRecognizer(target: self, action: "handlePan:")
-        recognizer.delegate = self
-        addGestureRecognizer(recognizer)
-        
-        // tick and cross labels for context cues
-        tickLabel = createCueLabel()
-        tickLabel.text = "\u{2713}"
-        tickLabel.textAlignment = .Right
-        addSubview(tickLabel)
-        clueLabel = createCueLabel()
-        clueLabel.text = "?"
-        clueLabel.textAlignment = .Left
-        addSubview(clueLabel)
+        updateFonts()
     }
     
     let kLabelLeftMargin: CGFloat = 15.0
     override func layoutSubviews() {
         super.layoutSubviews()
-        //position our contextual clue labels off screen
-        tickLabel.frame = CGRect(x: -kUICuesWidth - kUICuesMargin, y: 0,
-            width: kUICuesWidth, height: bounds.size.height)
-        clueLabel.frame = CGRect(x: bounds.size.width + kUICuesMargin, y: 0,
-            width: kUICuesWidth, height: bounds.size.height)
         
         // ensure the background occupies the full bounds
         background.frame = bounds
-        checkbox.frame = CGRectMake(padding, (frame.height - 25)/2, 25, 25)
-        titleLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, frame.height - 35.0)
-        editLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, frame.height - 35.0)
-        bodyLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, CGRectGetMaxY(titleLabel.frame), frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, 35.0)
+        //set up default dimensions
+        var marginLeft: CGFloat = 0.0
+        var width = frame.width
+        
+        if !editLabelOnly {
+            //position our contextual clue labels off screen
+            tickLabel.frame = CGRect(x: -kUICuesWidth - kUICuesMargin, y: 0,
+                width: kUICuesWidth, height: bounds.size.height)
+            clueLabel.frame = CGRect(x: bounds.size.width + kUICuesMargin, y: 0,
+                width: kUICuesWidth, height: bounds.size.height)
+            
+            marginLeft = CGRectGetMaxX(checkbox.frame) + 10
+            //give some room for the accessory button
+            width = (frame.width - marginLeft) - 40
+            
+            checkbox.frame = CGRectMake(padding, (frame.height - 25)/2, 25, 25)
+            titleLabel.frame = CGRectMake(marginLeft, 0, width, frame.height - 35.0)
+            bodyLabel.frame = CGRectMake(marginLeft, CGRectGetMaxY(titleLabel.frame), width, 35.0)
+        }
+        editLabel.frame = CGRectMake(marginLeft, 0, width, frame.height - 35.0)
     }
     
     func layoutCheckbox(color: UIColor?) -> DOCheckbox {
@@ -190,21 +208,23 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
                 self.bodyLabel.autoSetContentCompressionResistancePriorityForAxis(.Vertical)
             }
             
-            titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
-            titleLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
-            titleLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
+            if !editLabelOnly {
+                titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
+                titleLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
+                titleLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
+                
+                // This constraint is an inequality so that if the cell is slightly taller than actually required, extra space will go here
+                bodyLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: titleLabel, withOffset: 10.0, relation: .GreaterThanOrEqual)
+                
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: kLabelVerticalInsets)
+            }
             
             //we overlay the editLabel on top of the titleLabel so we set the constraints for both to be the same
             editLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
             editLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
             editLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
-            
-            // This constraint is an inequality so that if the cell is slightly taller than actually required, extra space will go here
-            bodyLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: titleLabel, withOffset: 10.0, relation: .GreaterThanOrEqual)
-            
-            bodyLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
-            bodyLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
-            bodyLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: kLabelVerticalInsets)
             
             didSetupConstraints = true
         }
@@ -214,9 +234,12 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     
     func updateFonts()
     {
-        titleLabel.font = titleFont
+        if !editLabelOnly {
+            titleLabel.font = titleFont
+            bodyLabel.font = bodyFont
+        }
         editLabel.font = titleFont
-        bodyLabel.font = bodyFont
+        
     }
     
     func resetConstraints() {
@@ -234,7 +257,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         let attributedString = NSMutableAttributedString(string: haystack as String, attributes: textDict as? [String : AnyObject])
 
         do {
-            try attributedString.highlightStrings(needle as String, fontName: "HelveticaNeue-BoldItalic", fontSize: 17)
+            try attributedString.highlightStrings(needle as String, fontName: Constants.UIFonts.HIGHLIGHT_FONT, fontSize: Constants.UIFonts.HEADLINE_FONT_SIZE)
         } catch {
             print(error)
         }

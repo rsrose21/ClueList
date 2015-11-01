@@ -333,6 +333,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
+    // method to mark/unmark a ToDo by tapping the checkbox control
     func toggleToDoItem(sender: UIButton) {
         //get the selected ToDoItem by it's id from the UIButton title
         let id = sender.titleLabel!.text
