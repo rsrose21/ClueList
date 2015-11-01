@@ -22,11 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Change navigation bar color: https://coderwall.com/p/dyqrfa/customize-navigation-bar-appearance-with-swift
         let navigationBarAppearace = UINavigationBar.appearance();
         
-        navigationBarAppearace.tintColor = UIColor(hexString: "#ffffffff")
-        navigationBarAppearace.barTintColor = UIColor(hexString: "#6F5499ff")
+        navigationBarAppearace.tintColor = UIColor(hexString: Constants.UIColors.WHITE)
+        navigationBarAppearace.barTintColor = UIColor(hexString: Constants.UIColors.NAVIGATION_BAR)
         
         // change navigation item title color
-        navigationBarAppearace.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.whiteColor()]
+        navigationBarAppearace.titleTextAttributes = [NSForegroundColorAttributeName: UIColor(hexString: Constants.UIColors.WHITE)!]
         
         //change status bar color
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent

@@ -155,70 +155,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         return cell
     }
     
-    private func getFactoids(todo: ToDoItem, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
-        if todo.factoids.count > 0 {
-            completionHandler(result: todo, error: nil)
-        } else {
-            print("Requesting factoids for: \(todo.text)")
-            let dictionary: [String: AnyObject] = ["terms": todo.text]
-            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
-                if let error = result.error {
-                    print(error)
-                    completionHandler(result: nil, error: error)
-                    return
-                }
-                
-                for (_, subJson) in result["results"] {
-                    if let title = subJson["text"].string {
-                        let dictionary: [String: AnyObject?] = ["text": title]
-                        _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
-                        
-                        do {
-                            try self.sharedContext.save()
-                        } catch _ {
-                        }
-                    }
-                }
-                // success
-                completionHandler(result: todo, error: nil)
-            })
-        }
-    }
-    
-    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
-        // Configure the cell for this indexPath
-        cell.updateFonts()
-        //configure the cell checkbox
-        cell.checkbox.delegate = cell
-        cell.checkbox.selected = item.completed
-        cell.checkbox.toDoItem = item
-        //use the UIButton label to store the id for this ToDo
-        cell.checkbox.titleLabel!.text = item.id
-        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
-        if !isEmpty(item.text) {
-            getFactoids(item, completionHandler: { (result, error) in
-                if let e = error {
-                    print(e)
-                }
-                // Make sure the constraints have been added to this cell, since it may have just been created from scratch
-                cell.setNeedsUpdateConstraints()
-                cell.updateConstraintsIfNeeded()
-            })
-        }
-        
-        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
-        cell.setNeedsUpdateConstraints()
-        cell.updateConstraintsIfNeeded()
-        
-        cell.delegate = self
-        cell.toDoItem = item
-        
-        return cell
-    }
-    
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         if sourceIndexPath == destinationIndexPath {
             return
@@ -243,9 +179,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // Save
         try! toDo.managedObjectContext!.save()
     }
-
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if editingToDo {
             return ""
         } else {
@@ -284,6 +219,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         self.performSegueWithIdentifier(segueIdentifier, sender: indexPath)
     }
     
+    // MARK: - UITextFieldDelegate delegate methods
+    
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
         editingToDo = true
         //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
@@ -298,14 +235,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             })
         }
         
-    }
-    
-    private func isEmpty(str: String) -> Bool {
-        if str == PLACEHOLDER_TEXT || str == "" {
-            return true
-        } else {
-            return false
-        }
     }
     
     func cellDidEndEditing(editCell: ToDoCellTableViewCell) {
@@ -461,6 +390,97 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         placeHolderCell.removeFromSuperview()
     }
     
+
+    // MARK: - Navigation
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == segueIdentifier {
+            //get the selected ToDo by the passed index path
+            if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
+                //set selected ToDo for our view controller
+                controller.todo = object
+            }
+        }
+    }
+    
+    // MARK: - Private methods
+    
+    private func getFactoids(todo: ToDoItem, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+        if todo.factoids.count > 0 {
+            completionHandler(result: todo, error: nil)
+        } else {
+            print("Requesting factoids for: \(todo.text)")
+            let dictionary: [String: AnyObject] = ["terms": todo.text]
+            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
+                if let error = result.error {
+                    print(error)
+                    completionHandler(result: nil, error: error)
+                    return
+                }
+                
+                for (_, subJson) in result["results"] {
+                    if let title = subJson["text"].string {
+                        let dictionary: [String: AnyObject?] = ["text": title]
+                        _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
+                        
+                        do {
+                            try self.sharedContext.save()
+                        } catch _ {
+                        }
+                    }
+                }
+                // success
+                completionHandler(result: todo, error: nil)
+            })
+        }
+    }
+    
+    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
+        // Configure the cell for this indexPath
+        cell.updateFonts()
+        //configure the cell checkbox
+        cell.checkbox.delegate = cell
+        cell.checkbox.selected = item.completed
+        cell.checkbox.toDoItem = item
+        //use the UIButton label to store the id for this ToDo
+        cell.checkbox.titleLabel!.text = item.id
+        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+        if !isEmpty(item.text) {
+            getFactoids(item, completionHandler: { (result, error) in
+                if let e = error {
+                    print(e)
+                }
+                if item.factoids.count > 0 {
+                    cell.titleLabel.text = item.getRandomFactoid()
+                    // content length has changed, update autolayout constraints
+                    cell.resetConstraints()
+                }
+            })
+        }
+        
+        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+        cell.setNeedsUpdateConstraints()
+        cell.updateConstraintsIfNeeded()
+        
+        cell.delegate = self
+        cell.toDoItem = item
+        
+        return cell
+    }
+    
+    // Helper to identify if textfield is empty or only contains default placeholder text as a value
+    private func isEmpty(str: String) -> Bool {
+        if str == Constants.Messages.PLACEHOLDER_TEXT || str == "" {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     private func updateInternalOrderForToDo(toDo: ToDoItem, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
         
         // Now update internal order to reflect new position
@@ -482,20 +502,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // Regenerate internal order for all toDos
         for (index, toDo) in sortedToDos.enumerate() {
             toDo.metaData.internalOrder = sortedToDos.count-index
-        }
-    }
-    
-
-    // MARK: - Navigation
-
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == segueIdentifier {
-            //get the selected ToDo by the passed index path
-            if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
-                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
-                //set selected ToDo for our view controller
-                controller.todo = object
-            }
         }
     }
 

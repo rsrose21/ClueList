@@ -27,11 +27,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     let kLabelVerticalInsets: CGFloat = 10.0
     
     //Defining fonts of size and type
-    let titleFont:UIFont = UIFont(name: "Helvetica Neue", size: 17)!
+    let titleFont:UIFont = UIFont(name: Constants.UIFonts.HEADLINE_FONT, size: Constants.UIFonts.HEADLINE_FONT_SIZE)!
     let boldFont:UIFont = UIFont(name: "HelveticaNeue-BoldItalic", size: 17)!
     let bodyFont:UIFont = UIFont(name: "HelveticaNeue", size: 10)!
-    
-    let PLACEHOLDER_TEXT = "Enter Task"
     
     var originalCenter = CGPoint()
     var hintOnDragRelease = false, revealOnDragRelease = false
@@ -44,10 +42,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             let item = toDoItem!
             print(item.text)
             //if we have some factoids then randomly select one to display as the To Do label
-            if item.factoids.count > 0 {
-                let randomIndex = Int(arc4random_uniform(UInt32(item.factoids.count)))
-                titleLabel.text = item.factoids[randomIndex].text
-            } else {
+            titleLabel.text = item.getRandomFactoid()
+            if titleLabel.text == "" {
+                //no factoids returned for this task, show the original task instead
                 titleLabel.text = item.text
             }
   
@@ -107,7 +104,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
-        editLabel.placeholder = PLACEHOLDER_TEXT
+        editLabel.placeholder = Constants.Messages.PLACEHOLDER_TEXT
         editLabel.hidden = true
         editLabel.layer.borderColor = UIColor.blackColor().CGColor
         editLabel.layer.borderWidth = 1.0;

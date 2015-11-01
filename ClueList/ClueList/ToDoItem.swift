@@ -102,4 +102,13 @@ class ToDoItem: NSManagedObject {
         default: return .Medium
         }
     }
+    
+    func getRandomFactoid() -> String {
+        if factoids.count > 0 {
+            let randomIndex = Int(arc4random_uniform(UInt32(factoids.count)))
+            return factoids[randomIndex].text
+        } else {
+            return ""
+        }
+    }
 }
