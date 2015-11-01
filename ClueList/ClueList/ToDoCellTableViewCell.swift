@@ -31,6 +31,8 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     let boldFont:UIFont = UIFont(name: "HelveticaNeue-BoldItalic", size: 17)!
     let bodyFont:UIFont = UIFont(name: "HelveticaNeue", size: 10)!
     
+    let PLACEHOLDER_TEXT = "Enter Task"
+    
     var originalCenter = CGPoint()
     var hintOnDragRelease = false, revealOnDragRelease = false
     
@@ -105,7 +107,10 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
+        editLabel.placeholder = PLACEHOLDER_TEXT
         editLabel.hidden = true
+        editLabel.layer.borderColor = UIColor.blackColor().CGColor
+        editLabel.layer.borderWidth = 1.0;
         contentView.addSubview(editLabel)
         
         titleLabel.lineBreakMode = .ByTruncatingTail
@@ -114,12 +119,14 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         titleLabel.textColor = UIColor.blackColor()
         //titleLabel.layer.borderColor = UIColor.blackColor().CGColor
         //titleLabel.layer.borderWidth = 3.0;
+        titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
         contentView.addSubview(titleLabel)
         
         bodyLabel.lineBreakMode = .ByTruncatingTail
         bodyLabel.numberOfLines = 1
         bodyLabel.textAlignment = .Left
         bodyLabel.textColor = UIColor.darkGrayColor()
+        bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
         contentView.addSubview(bodyLabel)
         
         checkbox = layoutCheckbox(UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
@@ -155,9 +162,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         // ensure the background occupies the full bounds
         background.frame = bounds
         checkbox.frame = CGRectMake(padding, (frame.height - 25)/2, 25, 25)
-        titleLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10), frame.height - 35.0)
-        editLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10), frame.height - 35.0)
-        bodyLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, CGRectGetMaxY(titleLabel.frame), frame.width - (CGRectGetMaxX(checkbox.frame) + 10), 35.0)
+        titleLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, frame.height - 35.0)
+        editLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, 0, frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, frame.height - 35.0)
+        bodyLabel.frame = CGRectMake(CGRectGetMaxX(checkbox.frame) + 10, CGRectGetMaxY(titleLabel.frame), frame.width - (CGRectGetMaxX(checkbox.frame) + 10) - 40, 35.0)
     }
     
     func layoutCheckbox(color: UIColor?) -> DOCheckbox {
