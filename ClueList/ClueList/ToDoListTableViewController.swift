@@ -84,8 +84,13 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // TODO: set this from NSKeyedArchiver
         tableView.allowsSelection = false
         
+        // Self-sizing table view cells in iOS 8 require that the rowHeight property of the table view be set to the constant UITableViewAutomaticDimension
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = 160.0
+        
+        // Self-sizing table view cells in iOS 8 are enabled when the estimatedRowHeight property of the table view is set to a non-zero value.
+        // Setting the estimated row height prevents the table view from calling tableView:heightForRowAtIndexPath: for every row in the table on first load;
+        // it will only be called as cells are about to scroll onscreen. This is a major performance optimization.
+        tableView.estimatedRowHeight = 44.0 // set this to whatever your "average" cell height is; it doesn't need to be very accurate
         
         //differentiate background when cell is dragged
         //tableView.backgroundColor = UIColor.blackColor()
@@ -301,24 +306,21 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                             -cell.frame.size.height)},
                     completion: {(finished: Bool) in
                         if (cell == lastView) {
+                            //we reached the end of the table cells, reload the tableview
                             self.tableView.reloadData()
                         }
                     }
                 )
                 delay += 0.03
             }
+            //remove the cell
             if cell.toDoItem === toDoItem {
                 startAnimating = true
                 cell.hidden = true
+                self.sharedContext.deleteObject(toDoItem)
+                CoreDataManager.sharedInstance.saveContext()
             }
         }
-        
-        // use the UITableView to animate the removal of this row
-        tableView.beginUpdates()
-        self.sharedContext.deleteObject(toDoItem)
-        CoreDataManager.sharedInstance.saveContext()
-        tableView.endUpdates()
-        tableView.reloadData()
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -442,7 +444,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
-        
+        cell.updateFonts()
         //configure the cell checkbox
         cell.checkbox.delegate = cell
         cell.checkbox.selected = item.completed

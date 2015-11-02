@@ -148,11 +148,16 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     let kLabelLeftMargin: CGFloat = 15.0
     override func layoutSubviews() {
         super.layoutSubviews()
-        print("layoutSubviews")
+        
         layoutFrames()
     }
     
+    var didSetupFrames = false
+    
     func layoutFrames() {
+        if didSetupFrames {
+            //return
+        }
         // ensure the background occupies the full bounds
         contentView.frame = bounds
         //set up default dimensions
@@ -187,16 +192,15 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             titleLabel.frame = CGRectMake(marginLeft, 0, width, height)
             bodyLabel.frame = CGRectMake(marginLeft, CGRectGetMaxY(titleLabel.frame), width, 35.0)
         } else {
+            //show textfield and hide checkbox and accessory button when editing
             editLabel.hidden = false
             checkbox.hidden = true
-            titleLabel.hidden = true
-            bodyLabel.hidden = true
             accessoryType = .None
-            print("only edit")
         }
         editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
         print("width: \(width) left: \(marginLeft) height: \(height)")
         editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE + 4)
+        didSetupFrames = true
     }
     
     func layoutCheckbox(color: UIColor?) -> DOCheckbox {
