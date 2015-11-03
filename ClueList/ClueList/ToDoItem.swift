@@ -122,4 +122,27 @@ class ToDoItem: NSManagedObject {
         }
         return nil
     }
+    
+    func refreshFactoid() -> String? {
+        var newFactoid: String
+        if let item = factoid {
+            //reset value so we get a new random factoid
+            factoid = nil
+            newFactoid = getRandomFactoid()!
+            //if we randomly selected the same factoid and there is more than one to choose, choose another
+            if factoids.count > 1 && newFactoid == item {
+                //repeat randomly selecting a factoid until we have a new one
+                repeat {
+                    factoid = nil
+                    newFactoid = getRandomFactoid()!
+                    print("new factoid repeat \(newFactoid)")
+                } while newFactoid == item
+            }
+        } else {
+            //nothing previously selected, choose a random factoid and select it
+            newFactoid = getRandomFactoid()!
+        }
+
+        return newFactoid
+    }
 }

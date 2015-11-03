@@ -348,7 +348,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - UIScrollViewDelegate methods
     
     // a cell that is rendered as a placeholder to indicate where a new item is added
-    let placeHolderCell = ToDoCellTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "ToDoCell")
+    let placeHolderCell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "PlaceHolderCell")
     // indicates the state of this behavior
     var pullDownInProgress = false
     // table cell row heights are based on the cell's content so we use a static value here since we have no content
@@ -372,9 +372,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             placeHolderCell.frame = CGRect(x: 0, y: -rowHeight,
                 width: tableView.frame.size.width, height: rowHeight)
             
-            placeHolderCell.titleLabel.text = -scrollViewContentOffsetY > rowHeight ?
-                "Release to add item" : "Pull to add item"
-            placeHolderCell.resetConstraints()
+            placeHolderCell.textLabel!.text = -scrollViewContentOffsetY > rowHeight ?
+                "Release to update" : "Pull to refresh"
+            
             placeHolderCell.alpha = min(1.0, -scrollViewContentOffsetY / rowHeight)
         } else {
             pullDownInProgress = false
@@ -385,13 +385,23 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // check whether the user pulled down far enough
         if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
             // add a new item
-            toDoItemAdded()
+            refreshFactoids()
         }
         pullDownInProgress = false
         placeHolderCell.removeFromSuperview()
     }
     
 
+    func refreshFactoids() {
+        //loop through the visible cells and select another random factoid to display
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            cell.titleLabel.text = cell.toDoItem!.refreshFactoid()
+        }
+        //force a reload since content length may have changed
+        tableView.reloadData()
+    }
+    
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
