@@ -198,7 +198,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             accessoryType = .None
         }
         editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
-        print("width: \(width) left: \(marginLeft) height: \(height)")
+        //print("width: \(width) left: \(marginLeft) height: \(height)")
         editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE + 4)
         didSetupFrames = true
     }
@@ -276,11 +276,15 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         let textDict:NSDictionary = NSDictionary(object: titleFont, forKey: NSFontAttributeName)
         
         let attributedString = NSMutableAttributedString(string: haystack as String, attributes: textDict as? [String : AnyObject])
-
-        do {
-            try attributedString.highlightStrings(needle as String, fontName: Constants.UIFonts.HIGHLIGHT_FONT, fontSize: Constants.UIFonts.HEADLINE_FONT_SIZE)
-        } catch {
-            print(error)
+        //the clue could be multiple words, so we break them up here for separate highlighting
+        let parts = needle.componentsSeparatedByString(" ")
+        //loop through each word and highlight them in subject
+        for word in parts {
+            do {
+                try attributedString.highlightStrings(word as String, fontName: Constants.UIFonts.HIGHLIGHT_FONT, fontSize: Constants.UIFonts.HEADLINE_FONT_SIZE)
+            } catch {
+                print(error)
+            }
         }
         return attributedString
     }

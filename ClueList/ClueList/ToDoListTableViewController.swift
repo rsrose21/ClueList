@@ -198,7 +198,19 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         if editingToDo {
             return 0.0
         } else {
-            return 25.0
+            return 35.0
+        }
+    }
+    
+    // UITableView Section Header customization: http://www.elicere.com/mobile/swift-blog-2-uitableview-section-header-color/
+    func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        //recast your view as a UITableViewHeaderFooterView
+        if let header = view as? UITableViewHeaderFooterView {
+            header.contentView.backgroundColor = UIColor.whiteColor() //make the background color white
+            header.textLabel!.textColor = UIColor(red: 0/255, green: 181/255, blue: 229/255, alpha: 1.0) //make the text color light blue
+            header.textLabel!.text = header.textLabel!.text!.uppercaseString
+            header.textLabel!.font = UIFont.boldSystemFontOfSize(18)
+            header.textLabel!.frame = header.frame
         }
     }
     
