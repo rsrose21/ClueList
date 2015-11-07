@@ -429,18 +429,19 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Private methods
     
-    private func getFactoids(todo: ToDoItem, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    private func getFactoids(todo: ToDoItem, completionHandler: (reload: Bool!, error: NSError?) -> Void) {
         if todo.factoids.count > 0 {
-            completionHandler(result: todo, error: nil)
+            completionHandler(reload: false, error: nil)
         } else {
             print("Requesting factoids for: \(todo.text)")
             let dictionary: [String: AnyObject] = ["terms": todo.text]
-            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
+            NetworkClient.sharedInstance().taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
                 if let error = result.error {
                     print(error)
-                    completionHandler(result: nil, error: error)
+                    completionHandler(reload: false, error: error)
                     return
                 }
+                print(result)
                 //find the clue and save to ToDo (clue used for highlighting)
                 if let clue = result["clue"].string {
                     todo.clue = clue
@@ -449,7 +450,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 }
                 
                 //loop through factoid results and save with associated ToDoItem
-                for (_, subJson) in result["results"] {
+                for (_, subJson) in result["items"] {
                     if let title = subJson["text"].string {
                         let dictionary: [String: AnyObject?] = ["text": title]
                         _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
@@ -458,7 +459,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     }
                 }
                 // success
-                completionHandler(result: todo, error: nil)
+                completionHandler(reload: true, error: nil)
             })
         }
     }
@@ -477,15 +478,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         
         cell.accessoryType = UITableViewCellAccessoryType.DetailButton
         if !isEmpty(item.text) {
-            getFactoids(item, completionHandler: { (result, error) in
+            getFactoids(item, completionHandler: { (reload, error) in
                 if let e = error {
                     print(e)
                 }
                 if item.factoids.count > 0 {
                     cell.titleLabel.text = item.getRandomFactoid()
                     cell.checkbox.hidden = false
-                    // content length has changed, update autolayout constraints
-                    cell.resetConstraints()
+                    // content has changed, update autolayout constraints
+                    if (reload != false) {
+                        // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                        self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
+                    }
                 }
             })
         }

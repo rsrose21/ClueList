@@ -131,12 +131,15 @@ class ToDoItem: NSManagedObject {
             newFactoid = getRandomFactoid()!
             //if we randomly selected the same factoid and there is more than one to choose, choose another
             if factoids.count > 1 && newFactoid == item {
-                //repeat randomly selecting a factoid until we have a new one
-                repeat {
-                    factoid = nil
-                    newFactoid = getRandomFactoid()!
-                    print("new factoid repeat \(newFactoid)")
-                } while newFactoid == item
+                factoid = nil
+                //iterate through factoids, exiting loop once we find a different factoid
+                for f in factoids {
+                    if (f != item) {
+                        factoid = f.text.htmlDecoded()
+
+                        return factoid
+                    }
+                }
             }
         } else {
             //nothing previously selected, choose a random factoid and select it

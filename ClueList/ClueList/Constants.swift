@@ -23,6 +23,7 @@ class Constants: NSObject {
     
     struct API {
         static let BASE_URL: String = "http://localhost:3000/api/"
+        static let ACCESS_TOKEN: String = "WFUCjekJtGlUj6jAifWpHBN1A6kepwo6cFOPeg1VDDhDTZWtpNBSCCILBxswi30Y"
     }
     
     struct UIFonts {

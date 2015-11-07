@@ -12,15 +12,17 @@ import SwiftyJSON
 class NetworkClient: NSObject {
     
     // Method for invoking GET requests on API
-    func taskForGETMethod(method: String, params: [String: AnyObject]?, completionHandler: (result: JSON!) -> Void) {
+    func taskForGETMethod(method: String, var params: [String: AnyObject]?, completionHandler: (result: JSON!) -> Void) {
         // Build URL, configure request
         let urlString = Constants.API.BASE_URL + method
+        params!["access_token"] = Constants.API.ACCESS_TOKEN
         
         Alamofire.request(.GET, urlString, parameters: params, encoding: ParameterEncoding.URL).responseJSON { response in
             switch response.result {
             case .Success(let data):
                 let json = JSON(data)
-                completionHandler(result: json)
+                //send parsed JSON back to completion handler
+                completionHandler(result: json["results"])
             case .Failure(let error):
                 print("Request failed with error: \(error)")
             }
