@@ -383,9 +383,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             // maintain the location of the placeholder
             placeHolderCell.frame = CGRect(x: 0, y: -rowHeight,
                 width: tableView.frame.size.width, height: rowHeight)
-            
+            placeHolderCell.textLabel!.textAlignment = .Center
             placeHolderCell.textLabel!.text = -scrollViewContentOffsetY > rowHeight ?
-                "Release to update" : "Pull to refresh"
+                "Release to update \u{2191}" : "Pull to refresh \u{2193}"
             
             placeHolderCell.alpha = min(1.0, -scrollViewContentOffsetY / rowHeight)
         } else {
