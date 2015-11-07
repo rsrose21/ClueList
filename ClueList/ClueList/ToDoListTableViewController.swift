@@ -17,6 +17,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     let segueIdentifier = "editToDoItem"
     
+    let PLACEHOLDER_TEXT = "Enter Task"
+    
     // Mark: CoreData properties
     
     var sharedContext: NSManagedObjectContext {
@@ -55,26 +57,40 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     private var editingToDo = false
     
+    private var edit = false
+    
+    private var editBarButtonItem: UIBarButtonItem!
+    private var doneBarButtonItem: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
+        // create a "Edit" and "Done" button
+        editBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "toggleEdit")
+        doneBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Done, target: self, action: "toggleEdit")
         // display an Edit button in the navigation bar for this view controller.
-        navigationItem.leftBarButtonItem = self.editButtonItem()
+        navigationItem.leftBarButtonItem = editBarButtonItem
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toDoItemAdded")
-        
+        title = "To Do"
         configureTableView()
     }
     
     //use the auto layout constraints to determine each cell's height
     //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
     func configureTableView() {
+        // TODO: set this from NSKeyedArchiver
         tableView.allowsSelection = false
         
+        // Self-sizing table view cells in iOS 8 require that the rowHeight property of the table view be set to the constant UITableViewAutomaticDimension
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = 160.0
+        
+        // Self-sizing table view cells in iOS 8 are enabled when the estimatedRowHeight property of the table view is set to a non-zero value.
+        // Setting the estimated row height prevents the table view from calling tableView:heightForRowAtIndexPath: for every row in the table on first load;
+        // it will only be called as cells are about to scroll onscreen. This is a major performance optimization.
+        tableView.estimatedRowHeight = 44.0 // set this to whatever your "average" cell height is; it doesn't need to be very accurate
         
         //differentiate background when cell is dragged
         //tableView.backgroundColor = UIColor.blackColor()
@@ -102,6 +118,23 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Actions
     
+    override func setEditing(editing: Bool, animated: Bool)  {
+        //toggle tableview editing and update toolbar button text
+        tableView.setEditing(editing, animated: animated)
+        navigationItem.leftBarButtonItem = editing ? doneBarButtonItem : editBarButtonItem
+    }
+    
+    func toggleEdit() {
+        edit = !edit
+        setEditing(edit, animated: true)
+        toDoListController.showsEmptySections = edit
+        //hide checkbox controls when editing
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            cell.checkbox.hidden = edit
+        }
+    }
+    
     @IBAction func viewSimple(sender: AnyObject) {
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
     }
@@ -123,30 +156,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let item = toDoListController.toDoAtIndexPath(indexPath)
         let cell = configureCell(indexPath, item: item!)
-        
-        return cell
-    }
-    
-    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
-        // Configure the cell for this indexPath
-        cell.updateFonts()
-        //configure the cell checkbox
-        cell.checkbox.delegate = cell
-        cell.checkbox.selected = item.completed
-        cell.checkbox.toDoItem = item
-        //use the UIButton label to store the id for this ToDo
-        cell.checkbox.titleLabel!.text = item.id
-        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
-        
-        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
-        cell.setNeedsUpdateConstraints()
-        cell.updateConstraintsIfNeeded()
-        
-        cell.delegate = self
-        cell.toDoItem = item
         
         return cell
     }
@@ -175,10 +184,13 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // Save
         try! toDo.managedObjectContext!.save()
     }
-
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
-        return toDoListController.sections[section].name
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if editingToDo {
+            return ""
+        } else {
+            return toDoListController.sections[section].name
+        }
     }
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -186,7 +198,19 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         if editingToDo {
             return 0.0
         } else {
-            return 50.0
+            return 35.0
+        }
+    }
+    
+    // UITableView Section Header customization: http://www.elicere.com/mobile/swift-blog-2-uitableview-section-header-color/
+    func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        //recast your view as a UITableViewHeaderFooterView
+        if let header = view as? UITableViewHeaderFooterView {
+            header.contentView.backgroundColor = UIColor.whiteColor() //make the background color white
+            header.textLabel!.textColor = UIColor(red: 0/255, green: 181/255, blue: 229/255, alpha: 1.0) //make the text color light blue
+            header.textLabel!.text = header.textLabel!.text!.uppercaseString
+            header.textLabel!.font = UIFont.boldSystemFontOfSize(18)
+            header.textLabel!.frame = header.frame
         }
     }
     
@@ -200,7 +224,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
+        return false
     }
 
     // Override to support conditional editing of the table view.
@@ -212,18 +236,24 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         self.performSegueWithIdentifier(segueIdentifier, sender: indexPath)
     }
     
+    // MARK: - UITextFieldDelegate delegate methods
+    
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
         editingToDo = true
-        let editingOffset = 0.0 - editingCell.frame.origin.y as CGFloat
+        //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+        let editingOffset = 20.0 - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
             UIView.animateWithDuration(0.3, animations: {() in
                 cell.transform = CGAffineTransformMakeTranslation(0, editingOffset)
                 if cell !== editingCell {
                     cell.alpha = 0.3
+                } else {
+                    //cell.layoutFrames()
                 }
             })
         }
+        
     }
     
     func cellDidEndEditing(editCell: ToDoCellTableViewCell) {
@@ -236,8 +266,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 }
             })
         }
-        if editCell.toDoItem!.text == "" {
-            //toDoItemRemoved(editCell.toDoItem!)
+        if isEmpty(editCell.toDoItem!.text) {
+            toDoItemRemoved(editCell.toDoItem!)
         } else {
             editCell.titleLabel.hidden = false
             editCell.bodyLabel.hidden = false
@@ -253,7 +283,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func toDoItemAdded() {
         
         editingToDo = true
-        let dictionary: [String: AnyObject?] = ["text": "Add To Do"]
+        let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         
         CoreDataManager.sharedInstance.saveContext()
@@ -265,27 +295,15 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         for cell in visibleCells {
             if (cell.toDoItem === toDoItem) {
                 editCell = cell
-                editCell.titleLabel.hidden = true
-                editCell.bodyLabel.hidden = true
-                editCell.editLabel.hidden = false
+                editCell.editLabelOnly = true
+                //editCell.layoutFrames()
                 editCell.editLabel.becomeFirstResponder()
                 break
             }
         }
     }
-    /*
-    func toDoItemRemoved(toDoItem: ToDoItem) {
-        let index = (toDoItems as NSArray).indexOfObject(toDoItem)
-        if index == NSNotFound { return }
-        
-        toDoItemDeleted(index)
-    }
     
-    //Custom table cell delete: http://www.raywenderlich.com/77975/making-a-gesture-driven-to-do-list-app-like-clear-in-swift-part-2
-    func toDoItemDeleted(index: NSInteger) {
-        // could removeAtIndex in the loop but keep it here for when indexOfObject works
-        let toDoItem = toDoItems.removeAtIndex(index)
-        
+    func toDoItemRemoved(toDoItem: ToDoItem) {
         // loop over the visible cells to animate delete
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         let lastView = visibleCells[visibleCells.count - 1] as ToDoCellTableViewCell
@@ -300,25 +318,34 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                             -cell.frame.size.height)},
                     completion: {(finished: Bool) in
                         if (cell == lastView) {
+                            //we reached the end of the table cells, reload the tableview
                             self.tableView.reloadData()
                         }
                     }
                 )
                 delay += 0.03
             }
+            //remove the cell
             if cell.toDoItem === toDoItem {
                 startAnimating = true
                 cell.hidden = true
+                self.sharedContext.deleteObject(toDoItem)
+                CoreDataManager.sharedInstance.saveContext()
             }
         }
-        
-        // use the UITableView to animate the removal of this row
-        tableView.beginUpdates()
-        let indexPathForRow = NSIndexPath(forRow: index, inSection: 0)
-        tableView.deleteRowsAtIndexPaths([indexPathForRow], withRowAnimation: .Fade)
-        tableView.endUpdates()
     }
-    */
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+        if let toDo = toDoListController.toDoAtIndexPath(indexPath) {
+            toDo.completed = !toDo.completed.boolValue
+            toDo.metaData.updateSectionIdentifier()
+            try! toDo.managedObjectContext!.save()
+        }
+    }
+    
+    // method to mark/unmark a ToDo by tapping the checkbox control
     func toggleToDoItem(sender: UIButton) {
         //get the selected ToDoItem by it's id from the UIButton title
         let id = sender.titleLabel!.text
@@ -333,7 +360,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - UIScrollViewDelegate methods
     
     // a cell that is rendered as a placeholder to indicate where a new item is added
-    let placeHolderCell = ToDoCellTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "ToDoCell")
+    let placeHolderCell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "PlaceHolderCell")
     // indicates the state of this behavior
     var pullDownInProgress = false
     // table cell row heights are based on the cell's content so we use a static value here since we have no content
@@ -357,9 +384,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             placeHolderCell.frame = CGRect(x: 0, y: -rowHeight,
                 width: tableView.frame.size.width, height: rowHeight)
             
-            placeHolderCell.titleLabel.text = -scrollViewContentOffsetY > rowHeight ?
-                "Release to add item" : "Pull to add item"
-            placeHolderCell.resetConstraints()
+            placeHolderCell.textLabel!.text = -scrollViewContentOffsetY > rowHeight ?
+                "Release to update" : "Pull to refresh"
+            
             placeHolderCell.alpha = min(1.0, -scrollViewContentOffsetY / rowHeight)
         } else {
             pullDownInProgress = false
@@ -370,10 +397,120 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // check whether the user pulled down far enough
         if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
             // add a new item
-            toDoItemAdded()
+            refreshFactoids()
         }
         pullDownInProgress = false
         placeHolderCell.removeFromSuperview()
+    }
+    
+
+    func refreshFactoids() {
+        //loop through the visible cells and select another random factoid to display
+        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        for cell in visibleCells {
+            cell.titleLabel.text = cell.toDoItem!.refreshFactoid()
+        }
+        //force a reload since content length may have changed
+        tableView.reloadData()
+    }
+    
+    // MARK: - Navigation
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == segueIdentifier {
+            //get the selected ToDo by the passed index path
+            if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
+                //set selected ToDo for our view controller
+                controller.todo = object
+            }
+        }
+    }
+    
+    // MARK: - Private methods
+    
+    private func getFactoids(todo: ToDoItem, completionHandler: (reload: Bool!, error: NSError?) -> Void) {
+        if todo.factoids.count > 0 {
+            completionHandler(reload: false, error: nil)
+        } else {
+            print("Requesting factoids for: \(todo.text)")
+            let dictionary: [String: AnyObject] = ["terms": todo.text]
+            NetworkClient.sharedInstance().taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
+                if let error = result.error {
+                    print(error)
+                    completionHandler(reload: false, error: error)
+                    return
+                }
+                print(result)
+                //find the clue and save to ToDo (clue used for highlighting)
+                if let clue = result["clue"].string {
+                    todo.clue = clue
+                    
+                    CoreDataManager.sharedInstance.saveContext()
+                }
+                
+                //loop through factoid results and save with associated ToDoItem
+                for (_, subJson) in result["items"] {
+                    if let title = subJson["text"].string {
+                        let dictionary: [String: AnyObject?] = ["text": title]
+                        _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
+                        
+                        CoreDataManager.sharedInstance.saveContext()
+                    }
+                }
+                // success
+                completionHandler(reload: true, error: nil)
+            })
+        }
+    }
+    
+    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
+        // Configure the cell for this indexPath
+        cell.updateFonts()
+        //configure the cell checkbox
+        cell.checkbox.delegate = cell
+        cell.checkbox.selected = item.completed
+        cell.checkbox.toDoItem = item
+        //use the UIButton label to store the id for this ToDo
+        cell.checkbox.titleLabel!.text = item.id
+        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+        if !isEmpty(item.text) {
+            getFactoids(item, completionHandler: { (reload, error) in
+                if let e = error {
+                    print(e)
+                }
+                if item.factoids.count > 0 {
+                    cell.titleLabel.text = item.getRandomFactoid()
+                    cell.checkbox.hidden = false
+                    // content has changed, update autolayout constraints
+                    if (reload != false) {
+                        // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                        self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
+                    }
+                }
+            })
+        }
+        
+        // Make sure the constraints have been added to this cell, since it may have just been created from scratch
+        cell.setNeedsUpdateConstraints()
+        cell.updateConstraintsIfNeeded()
+        
+        cell.delegate = self
+        cell.toDoItem = item
+        
+        return cell
+    }
+    
+    // Helper to identify if textfield is empty or only contains default placeholder text as a value
+    private func isEmpty(str: String) -> Bool {
+        if str == Constants.Messages.PLACEHOLDER_TEXT || str == "" {
+            return true
+        } else {
+            return false
+        }
     }
     
     private func updateInternalOrderForToDo(toDo: ToDoItem, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
@@ -397,20 +534,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         // Regenerate internal order for all toDos
         for (index, toDo) in sortedToDos.enumerate() {
             toDo.metaData.internalOrder = sortedToDos.count-index
-        }
-    }
-    
-
-    // MARK: - Navigation
-
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == segueIdentifier {
-            //get the selected ToDo by the passed index path
-            if let object = toDoListController.toDoAtIndexPath(sender as! NSIndexPath) {
-                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
-                //set selected ToDo for our view controller
-                controller.todo = object
-            }
         }
     }
 

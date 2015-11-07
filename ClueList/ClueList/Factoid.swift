@@ -44,7 +44,9 @@ class Factoid: NSManagedObject {
         id = NSUUID().UUIDString
         
         text = dictionary["text"] as! String
-        
+
+        print(text)
         self.todo = todo
     }
+    
 }

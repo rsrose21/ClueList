@@ -86,8 +86,10 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-ClueList/Alamofire.framework"
   install_framework "Pods-ClueList/PureLayout.framework"
+  install_framework "Pods-ClueList/SwiftyJSON.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-ClueList/Alamofire.framework"
   install_framework "Pods-ClueList/PureLayout.framework"
+  install_framework "Pods-ClueList/SwiftyJSON.framework"
 fi
