@@ -441,7 +441,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				INFOPLIST_FILE = ClueList/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.self.ClueList;
@@ -453,7 +453,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				INFOPLIST_FILE = ClueList/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.self.ClueList;
