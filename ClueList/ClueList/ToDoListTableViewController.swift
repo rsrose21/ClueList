@@ -435,7 +435,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             let dictionary: [String: AnyObject] = ["terms": todo.text]
             NetworkClient.sharedInstance().taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
                 if let error = result.error {
-                    print(error)
+                    print("getFactoids result error: \(error)")
                     completionHandler(reload: false, error: error)
                     return
                 }
@@ -452,7 +452,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     if let title = subJson["text"].string {
                         let dictionary: [String: AnyObject?] = ["text": title]
                         _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
-                        
+                        //persist factoids to db
                         CoreDataManager.sharedInstance.saveContext()
                     }
                 }
@@ -475,21 +475,39 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
         
         cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+        //make sure we have a valid ToDo
         if !isEmpty(item.text) {
-            getFactoids(item, completionHandler: { (reload, error) in
-                if let e = error {
-                    print(e)
-                }
-                if item.factoids.count > 0 {
-                    cell.titleLabel.text = item.getRandomFactoid()
-                    cell.checkbox.hidden = false
-                    // content has changed, update autolayout constraints
-                    if (reload != false) {
-                        // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
-                        self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
+            //do we have some cached factoids to display or do we need to request some?
+            if item.factoids.count > 0 {
+                cell.titleLabel.text = item.getRandomFactoid()
+                cell.checkbox.hidden = false
+            } else {
+                //create a loading indicator to display for each photo as it downloads from Flickr
+                let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+                cell.addSubview(activityIndicator)
+                activityIndicator.frame = cell.bounds
+                activityIndicator.startAnimating()
+                
+                getFactoids(item, completionHandler: { (reload, error) in
+                    //we have a API response - hide the activity indicator
+                    activityIndicator.removeFromSuperview()
+                    if let e = error {
+                        print("configure cell getFactoids error: \(e)")
                     }
-                }
-            })
+                    if item.factoids.count > 0 {
+                        cell.titleLabel.text = item.getRandomFactoid()
+                        cell.checkbox.hidden = false
+                        // content has changed, update autolayout constraints
+                        if (reload != false) {
+                            // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                            self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
+                        }
+                    }
+                })
+            }
+        } else {
+            //remove blank ToDoItem from db and tableview
+            toDoItemRemoved(item)
         }
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
