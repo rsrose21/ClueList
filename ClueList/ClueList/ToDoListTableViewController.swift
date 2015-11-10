@@ -198,7 +198,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         if editingToDo {
             return 0.0
         } else {
-            return 35.0
+            return 20.0
         }
     }
     
@@ -241,15 +241,13 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
         editingToDo = true
         //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
-        let editingOffset = 20.0 - editingCell.frame.origin.y as CGFloat
+        let editingOffset = tableView.contentOffset.y - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
             UIView.animateWithDuration(0.3, animations: {() in
                 cell.transform = CGAffineTransformMakeTranslation(0, editingOffset)
                 if cell !== editingCell {
                     cell.alpha = 0.3
-                } else {
-                    //cell.layoutFrames()
                 }
             })
         }
@@ -287,7 +285,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         
         CoreDataManager.sharedInstance.saveContext()
-        tableView.reloadData()
+        //tableView.reloadData()
         
         // enter edit mode
         var editCell: ToDoCellTableViewCell
@@ -296,7 +294,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             if (cell.toDoItem === toDoItem) {
                 editCell = cell
                 editCell.editLabelOnly = true
-                //editCell.layoutFrames()
+                //initiate cellDidBeginEditing
                 editCell.editLabel.becomeFirstResponder()
                 break
             }

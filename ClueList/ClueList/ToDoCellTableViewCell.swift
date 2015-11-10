@@ -106,22 +106,28 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
         editLabel.placeholder = Constants.Messages.PLACEHOLDER_TEXT
-        editLabel.layer.borderColor = UIColor.blackColor().CGColor
-        editLabel.layer.borderWidth = 1.0;
+        if Constants.UIColors.DEBUG_LAYERS {
+            editLabel.layer.borderColor = UIColor.blackColor().CGColor
+            editLabel.layer.borderWidth = 1.0;
+        }
         contentView.addSubview(editLabel)
         
         titleLabel.lineBreakMode = .ByTruncatingTail
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
-        titleLabel.textColor = UIColor.blackColor()
-        titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
+        if Constants.UIColors.DEBUG_LAYERS {
+            titleLabel.textColor = UIColor.blackColor()
+            titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
+        }
         contentView.addSubview(titleLabel)
         
         bodyLabel.lineBreakMode = .ByTruncatingTail
         bodyLabel.numberOfLines = 1
         bodyLabel.textAlignment = .Left
-        bodyLabel.textColor = UIColor.darkGrayColor()
-        bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
+        if Constants.UIColors.DEBUG_LAYERS {
+            bodyLabel.textColor = UIColor.darkGrayColor()
+            bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
+        }
         contentView.addSubview(bodyLabel)
         
         checkbox = layoutCheckbox(UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0))
@@ -197,8 +203,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             checkbox.hidden = true
             accessoryType = .None
         }
-        editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
-        //print("width: \(width) left: \(marginLeft) height: \(height)")
+        if Constants.UIColors.DEBUG_LAYERS {
+            editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
+        }
         editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE + 4)
         didSetupFrames = true
     }

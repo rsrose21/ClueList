@@ -38,5 +38,6 @@ class Constants: NSObject {
     struct UIColors {
         static let WHITE: String = "#ffffffff"
         static let NAVIGATION_BAR: String = "#6F5499ff"
+        static let DEBUG_LAYERS: Bool = false
     }
 }
