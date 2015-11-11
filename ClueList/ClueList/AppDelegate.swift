@@ -8,11 +8,14 @@
 
 import UIKit
 import CoreData
+import EventKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    //store event store object so we don't request if multiple times
+    var eventStore: EKEventStore?
 
     var sharedContext: NSManagedObjectContext {
         return CoreDataManager.sharedInstance.managedObjectContext
@@ -34,6 +37,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //set default list mode prior to any Core Data inserts
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
         
+        // register app to receive local notifications
+        application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil))  // types are UIUserNotificationType members
+        
         if Constants.Data.SEED_DB {
             //seed the Core Data database with sample ToDos
             let dataHelper = DataHelper()
@@ -51,5 +57,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         CoreDataManager.sharedInstance.saveContext()
     }
 
+    // notify our listener when the ToDo list should be refreshed on application state change
+    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification) {
+        NSNotificationCenter.defaultCenter().postNotificationName("TodoListShouldRefresh", object: self)
+    }
+
+    func applicationDidBecomeActive(application: UIApplication) {
+        NSNotificationCenter.defaultCenter().postNotificationName("TodoListShouldRefresh", object: self)
+    }
+    
+    func applicationWillResignActive(application: UIApplication) { // fired when user quits the application
+        var todoItems: [ToDoItem] = TodoList.sharedInstance.allItems() // retrieve list of all to-do items
+        var overdueItems = todoItems.filter({ (todoItem) -> Bool in
+            return todoItem.deadline.compare(NSDate()) != .OrderedDescending
+        })
+        UIApplication.sharedApplication().applicationIconBadgeNumber = overdueItems.count // set our badge number to number of overdue items
+    }
+    
 }
 

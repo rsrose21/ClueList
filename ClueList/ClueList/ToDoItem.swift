@@ -43,12 +43,32 @@ class ToDoItem: NSManagedObject {
     // The user assigned priority - used for tableview section sorting
     @NSManaged var priority: NSNumber
     
+    // The timestamp when the ToDoItem is due
+    @NSManaged var deadline: NSDate
+    
     @NSManaged var metaData: ToDoMetaData
+    
+    //convenience method that returns whether or not an item is overdue
+    var isOverdue: Bool {
+        return (NSDate().compare(self.deadline) == NSComparisonResult.OrderedDescending) // deadline is earlier than current date
+    }
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
         //each todo has a mandatory relation with a meta data object, which is created upon insert
         metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as! ToDoMetaData
+    }
+    
+    // remove any scheduled notifications for this ToDoItem when deleted
+    override func prepareForDeletion() {
+        super.prepareForDeletion()
+        print("remove scheduled notifications")
+        for notification in UIApplication.sharedApplication().scheduledLocalNotifications! { // loop through notifications...
+            if (notification.userInfo!["UUID"] as! String == self.id) { // ...and cancel the notification that corresponds to this TodoItem instance (matched by UUID)
+                UIApplication.sharedApplication().cancelLocalNotification(notification) // there should be a maximum of one match on UUID
+                break
+            }
+        }
     }
     
     // Include this standard Core Data init method.

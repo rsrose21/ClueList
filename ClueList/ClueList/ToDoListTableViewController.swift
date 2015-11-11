@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import EventKit
 
 class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate {
 
@@ -69,8 +70,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        // configure the toolbar
         toolbar.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
         if (ToDoListConfiguration.defaultConfiguration(sharedContext).listMode == .Simple) {
             simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
@@ -84,6 +84,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         navigationItem.leftBarButtonItem = editBarButtonItem
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toDoItemAdded")
         title = "To Do"
+        
         configureTableView()
     }
     
@@ -110,18 +111,21 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        //this can happen if the app font size was changed from phone settings
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "contentSizeCategoryChanged:", name: UIContentSizeCategoryDidChangeNotification, object: nil)
+        // this can happen if the app font size was changed from phone settings
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "refreshList:", name: UIContentSizeCategoryDidChangeNotification, object: nil)
+        // listen for refresh events in case ToDos become overdue
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "refreshList", name: "TodoListShouldRefresh", object: nil)
     }
     
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIContentSizeCategoryDidChangeNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "TodoListShouldRefresh", object: nil)
     }
     
     // This function will be called when the Dynamic Type user setting changes (from the system Settings app)
-    func contentSizeCategoryChanged(notification: NSNotification) {
+    func refreshList(notification: NSNotification) {
         tableView.reloadData()
     }
     
@@ -522,7 +526,11 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             //remove blank ToDoItem from db and tableview
             toDoItemRemoved(item)
         }
-        
+        if (item.isOverdue) { // the current time is later than the to-do item's deadline
+            cell.bodyLabel.textColor = UIColor.redColor()
+        } else {
+            cell.bodyLabel.textColor = UIColor.blackColor() // we need to reset this because a cell with red subtitle may be returned by dequeueReusableCellWithIdentifier:indexPath:
+        }
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()
         cell.updateConstraintsIfNeeded()

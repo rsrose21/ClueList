@@ -9,6 +9,7 @@
         <attribute name="clue" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="completed" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="created" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="deadline" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="priority" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
@@ -27,7 +28,7 @@
     </entity>
     <elements>
         <element name="Factoid" positionX="-54" positionY="27" width="128" height="90"/>
-        <element name="ToDoItem" positionX="-63" positionY="-18" width="128" height="165"/>
+        <element name="ToDoItem" positionX="-63" positionY="-18" width="128" height="180"/>
         <element name="ToDoListConfiguration" positionX="-45" positionY="54" width="128" height="75"/>
         <element name="ToDoMetaData" positionX="-54" positionY="45" width="128" height="105"/>
     </elements>

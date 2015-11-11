@@ -9,11 +9,16 @@
 import Foundation
 import UIKit
 import CoreData
+import EventKit
 
 class EditToDoViewController: UIViewController {
     
     @IBOutlet var textField: UITextField!
     @IBOutlet var priorityControl: UISegmentedControl!
+    @IBOutlet weak var reminder: UITextField!
+    @IBOutlet weak var myDatePicker: UIDatePicker!
+    
+    var appDelegate: AppDelegate?
     
     var sharedContext: NSManagedObjectContext {
         return CoreDataManager.sharedInstance.managedObjectContext
@@ -34,6 +39,63 @@ class EditToDoViewController: UIViewController {
         super.viewWillAppear(animated)
         textField.text = todo!.text
         textField.becomeFirstResponder()
+    }
+    
+    @IBAction func setReminder() {
+        
+        appDelegate = UIApplication.sharedApplication().delegate
+            as? AppDelegate
+        
+        //verify and/or ask for access to event store
+        if appDelegate!.eventStore == nil {
+            appDelegate!.eventStore = EKEventStore()
+            appDelegate!.eventStore!.requestAccessToEntityType(
+                EKEntityTypeReminder, completion: {(granted, error) in
+                    if !granted {
+                        print("Access to store not granted")
+                        print(error.localizedDescription)
+                    } else {
+                        print("Access granted")
+                    }
+            })
+        }
+        
+        if (appDelegate!.eventStore != nil) {
+            self.createReminder()
+        }
+    }
+    
+    func createReminder() {
+        
+        let reminder = EKReminder(eventStore: appDelegate!.eventStore!)
+        
+        reminder.title = reminder.text
+        reminder.calendar =
+            appDelegate!.eventStore!.defaultCalendarForNewReminders()
+        let date = myDatePicker.date
+        let alarm = EKAlarm(absoluteDate: date)
+        
+        reminder.addAlarm(alarm)
+        
+        var error: NSError?
+        appDelegate!.eventStore!.saveReminder(reminder,
+            commit: true, error: &error)
+        
+        if error != nil {
+            print("Reminder failed with error \(error?.localizedDescription)")
+        }
+    }
+    
+    func addNotification(item: ToDoItem) { // persist a representation of this todo item in NSUserDefaults
+        // create a corresponding local notification
+        let notification = UILocalNotification()
+        notification.alertBody = "Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification
+        notification.alertAction = "open" // text that is displayed after "slide to..." on the lock screen - defaults to "slide to view"
+        notification.fireDate = item.deadline // todo item due date (when notification will be fired)
+        notification.soundName = UILocalNotificationDefaultSoundName // play default sound
+        notification.userInfo = ["UUID": item.id, ] // assign a unique identifier to the notification so that we can retrieve it later
+        notification.category = "TODO_CATEGORY"
+        UIApplication.sharedApplication().scheduleLocalNotification(notification)
     }
     
     func cancelButtonPressed() {

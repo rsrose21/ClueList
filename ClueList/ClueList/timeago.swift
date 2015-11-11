@@ -14,7 +14,7 @@ func timeAgoSinceDate(date:NSDate, numericDates:Bool) -> String {
     let components:NSDateComponents = calendar.components([NSCalendarUnit.Minute , NSCalendarUnit.Hour , NSCalendarUnit.Day , NSCalendarUnit.WeekOfYear , NSCalendarUnit.Month , NSCalendarUnit.Year , NSCalendarUnit.Second], fromDate: earliest, toDate: latest, options: NSCalendarOptions())
     //Format date for display: http://www.brianjcoleman.com/tutorial-nsdate-in-swift/
     let formatter = NSDateFormatter();
-    formatter.dateFormat = "MM/dd/yy, HH:mm";
+    formatter.dateFormat = "MMM dd 'at' h:mm a" // example: "Jan 01 at 12:00 PM"
     
     if (components.weekOfYear >= 1){
         return formatter.stringFromDate(date)
