@@ -39,10 +39,52 @@ class ToDoList {
 
         
         // create a corresponding local notification
+        let notification = UILocalNotification()
+        notification.alertBody = "Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification
+        notification.alertAction = "open" // text that is displayed after "slide to..." on the lock screen - defaults to "slide to view"
+        notification.fireDate = item.deadline // todo item due date (when notification will be fired)
+        notification.soundName = UILocalNotificationDefaultSoundName // play default sound
+        notification.userInfo = ["UUID": item.id, ] // assign a unique identifier to the notification so that we can retrieve it later
+        notification.category = "TODO_CATEGORY"
+        UIApplication.sharedApplication().scheduleLocalNotification(notification)
         
+        setBadgeNumbers()
     }
     
     func removeItem(item: ToDoItem) {
+        for notification in UIApplication.sharedApplication().scheduledLocalNotifications! { // loop through notifications...
+            if (notification.userInfo!["UUID"] as! String == item.id) { // ...and cancel the notification that corresponds to this TodoItem instance (matched by UUID)
+                UIApplication.sharedApplication().cancelLocalNotification(notification) // there should be a maximum of one match on UUID
+                break
+            }
+        }
+        setBadgeNumbers()
+    }
+    
+    // schedule a reminder
+    func scheduleReminderforItem(item: ToDoItem) {
+        let notification = UILocalNotification() // create a new reminder notification
+        notification.alertBody = "Reminder: Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification
+        notification.alertAction = "open" // text that is displayed after "slide to..." on the lock screen - defaults to "slide to view"
+        notification.fireDate = NSDate().dateByAddingTimeInterval(30 * 60) // 30 minutes from current time
+        notification.soundName = UILocalNotificationDefaultSoundName // play default sound
+        notification.userInfo = ["title": item.text, "UUID": item.id] // assign a unique identifier to the notification that we can use to retrieve it later
+        notification.category = "TODO_CATEGORY"
         
+        UIApplication.sharedApplication().scheduleLocalNotification(notification)
+    }
+    
+    // automatically update badge numbers when ToDoItems become overdue: http://jamesonquave.com/blog/local-notifications-in-ios-8-with-swift-part-2/
+    func setBadgeNumbers() {
+        let notifications = UIApplication.sharedApplication().scheduledLocalNotifications! // all scheduled notifications
+        let todoItems: [ToDoItem] = self.allItems()
+        for notification in notifications {
+            let overdueItems = todoItems.filter({ (todoItem) -> Bool in // array of to-do items...
+                return (todoItem.deadline.compare(notification.fireDate!) != .OrderedDescending) // ...where item deadline is before or on notification fire date
+            })
+            UIApplication.sharedApplication().cancelLocalNotification(notification) // cancel old notification
+            notification.applicationIconBadgeNumber = overdueItems.count // set new badge number
+            UIApplication.sharedApplication().scheduleLocalNotification(notification) // reschedule notification
+        }
     }
 }

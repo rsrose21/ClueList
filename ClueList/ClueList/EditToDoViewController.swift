@@ -88,14 +88,7 @@ class EditToDoViewController: UIViewController {
     
     func addNotification(item: ToDoItem) { // persist a representation of this todo item in NSUserDefaults
         // create a corresponding local notification
-        let notification = UILocalNotification()
-        notification.alertBody = "Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification
-        notification.alertAction = "open" // text that is displayed after "slide to..." on the lock screen - defaults to "slide to view"
-        notification.fireDate = item.deadline // todo item due date (when notification will be fired)
-        notification.soundName = UILocalNotificationDefaultSoundName // play default sound
-        notification.userInfo = ["UUID": item.id, ] // assign a unique identifier to the notification so that we can retrieve it later
-        notification.category = "TODO_CATEGORY"
-        UIApplication.sharedApplication().scheduleLocalNotification(notification)
+        ToDoList.sharedInstance.addItem(item)
     }
     
     func cancelButtonPressed() {

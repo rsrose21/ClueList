@@ -63,12 +63,7 @@ class ToDoItem: NSManagedObject {
     override func prepareForDeletion() {
         super.prepareForDeletion()
         print("remove scheduled notifications")
-        for notification in UIApplication.sharedApplication().scheduledLocalNotifications! { // loop through notifications...
-            if (notification.userInfo!["UUID"] as! String == self.id) { // ...and cancel the notification that corresponds to this TodoItem instance (matched by UUID)
-                UIApplication.sharedApplication().cancelLocalNotification(notification) // there should be a maximum of one match on UUID
-                break
-            }
-        }
+        ToDoList.sharedInstance.removeItem(self)
     }
     
     // Include this standard Core Data init method.
@@ -92,8 +87,11 @@ class ToDoItem: NSManagedObject {
         // dictionary. This works in the same way that it did before we started on Core Data
         
         //generate uid in swift: http://stackoverflow.com/questions/24428250/generate-uuid-in-xcode-swift
-        id = NSUUID().UUIDString
-        
+        if let id = dictionary["id"] as? String {
+            self.id = id
+        } else {
+            self.id = NSUUID().UUIDString
+        }
         text = dictionary["text"] as! String
         if let completed = dictionary["completed"] as? Bool {
             self.completed = completed
