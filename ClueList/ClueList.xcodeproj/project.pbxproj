@@ -16,6 +16,7 @@
 		3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC3D1BD41BDB00BEC914 /* Factoid.swift */; };
 		3D76DC401BD4564900BEC914 /* ToDoListDataSourceExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC3F1BD4564900BEC914 /* ToDoListDataSourceExt.swift */; };
 		3D8D61AC1BF3A15800CEFDC4 /* ToDoList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8D61AB1BF3A15800CEFDC4 /* ToDoList.swift */; };
+		3D8D61AE1BF3BBDC00CEFDC4 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8D61AD1BF3BBDC00CEFDC4 /* UIViewExtensions.swift */; };
 		3D8FF3311BCBF15C009E3FAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */; };
 		3D8FF3361BCBF15C009E3FAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3D8FF3341BCBF15C009E3FAF /* Main.storyboard */; };
 		3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */; };
@@ -47,6 +48,7 @@
 		3D76DC3D1BD41BDB00BEC914 /* Factoid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factoid.swift; sourceTree = "<group>"; };
 		3D76DC3F1BD4564900BEC914 /* ToDoListDataSourceExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListDataSourceExt.swift; sourceTree = "<group>"; };
 		3D8D61AB1BF3A15800CEFDC4 /* ToDoList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoList.swift; sourceTree = "<group>"; };
+		3D8D61AD1BF3BBDC00CEFDC4 /* UIViewExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		3D8FF32D1BCBF15C009E3FAF /* ClueList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClueList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8FF3301BCBF15C009E3FAF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D8FF3351BCBF15C009E3FAF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 			children = (
 				3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */,
 				3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */,
+				3D8D61AD1BF3BBDC00CEFDC4 /* UIViewExtensions.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -328,6 +331,7 @@
 				3D29CE161BDC46A400A02383 /* Constants.swift in Sources */,
 				3D8D61AC1BF3A15800CEFDC4 /* ToDoList.swift in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
+				3D8D61AE1BF3BBDC00CEFDC4 /* UIViewExtensions.swift in Sources */,
 				3DBF145C1BDD3C3F009D899E /* FetchControllerDelegate.swift in Sources */,
 				3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */,
 				3D76DC3C1BD41B2400BEC914 /* CoreDataManager.swift in Sources */,
