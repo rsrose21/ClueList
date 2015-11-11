@@ -18,18 +18,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vcF-UH-jfn">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vcF-UH-jfn">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                 <animations/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="hRE-0a-9UW"/>
-                                    <barButtonItem title="Simple" id="lXs-NQ-9ae">
+                                    <barButtonItem title="SIMPLE" id="lXs-NQ-9ae">
+                                        <inset key="imageInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="5"/>
                                         <connections>
                                             <action selector="viewSimple:" destination="HJ3-4H-TxC" id="GBa-Ya-Azl"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="psA-8i-fBl"/>
-                                    <barButtonItem title="Prioritized" id="ztu-UJ-PtR">
+                                    <barButtonItem title="PRIORITIZED" id="ztu-UJ-PtR">
                                         <connections>
                                             <action selector="viewPrioritized:" destination="HJ3-4H-TxC" id="LbE-CN-Doj"/>
                                         </connections>
@@ -99,7 +100,10 @@
                     </view>
                     <navigationItem key="navigationItem" id="Wog-gf-F0c"/>
                     <connections>
+                        <outlet property="prioritizedBtn" destination="ztu-UJ-PtR" id="GiS-QK-6CS"/>
+                        <outlet property="simpleBtn" destination="lXs-NQ-9ae" id="JIw-mr-DfG"/>
                         <outlet property="tableView" destination="I8L-3n-GMt" id="HmZ-ZV-k9E"/>
+                        <outlet property="toolbar" destination="vcF-UH-jfn" id="xaX-MF-J0u"/>
                         <segue destination="nz8-ex-q12" kind="presentation" identifier="editToDoItem" id="kz6-CF-dK6"/>
                     </connections>
                 </viewController>

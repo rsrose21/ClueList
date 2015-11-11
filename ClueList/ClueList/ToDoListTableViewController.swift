@@ -13,6 +13,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
 
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var toolbar: UIToolbar!
+    @IBOutlet weak var simpleBtn: UIBarButtonItem!
+    @IBOutlet weak var prioritizedBtn: UIBarButtonItem!
+    
     let cellIdentifier = "ToDoCell"
     
     let segueIdentifier = "editToDoItem"
@@ -67,7 +71,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
-
+        toolbar.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
+        if (ToDoListConfiguration.defaultConfiguration(sharedContext).listMode == .Simple) {
+            simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
+        } else {
+            prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
+        }
         // create a "Edit" and "Done" button
         editBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "toggleEdit")
         doneBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Done, target: self, action: "toggleEdit")
@@ -93,7 +102,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         tableView.estimatedRowHeight = 44.0 // set this to whatever your "average" cell height is; it doesn't need to be very accurate
         
         //differentiate background when cell is dragged
-        //tableView.backgroundColor = UIColor.blackColor()
+        tableView.backgroundColor = UIColor(hexString: Constants.UIColors.TABLE_BG)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.registerClass(ToDoCellTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
@@ -136,10 +145,14 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     @IBAction func viewSimple(sender: AnyObject) {
+        prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
+        simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
     }
     
     @IBAction func viewPrioritized(sender: AnyObject) {
+        simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
+        prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Prioritized
     }
 
@@ -473,7 +486,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         //use the UIButton label to store the id for this ToDo
         cell.checkbox.titleLabel!.text = item.id
         cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
-        
+        cell.backgroundColor = UIColor.whiteColor()
         cell.accessoryType = UITableViewCellAccessoryType.DetailButton
         //make sure we have a valid ToDo
         if !isEmpty(item.text) {

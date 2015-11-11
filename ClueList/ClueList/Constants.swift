@@ -39,5 +39,8 @@ class Constants: NSObject {
         static let WHITE: String = "#ffffffff"
         static let NAVIGATION_BAR: String = "#6F5499ff"
         static let DEBUG_LAYERS: Bool = false
+        static let TABLE_BG: String = "#eeeeeeff"
+        static let TOOLBAR_ACTIVE: String = "#ff0000ff"
+        static let TOOLBAR_ITEM: String = "#A1A1A1ff"
     }
 }
