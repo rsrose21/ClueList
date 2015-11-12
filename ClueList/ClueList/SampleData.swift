@@ -41,7 +41,7 @@ class DataHelper {
             newToDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
             newToDo.metaData.updateSectionIdentifier()
             let dictionary: [String: AnyObject] = ["terms": todo.text]
-            NetworkClient.sharedInstance().taskForGETMethod("factoids", params: dictionary, completionHandler: { (result) in
+            NetworkClient.sharedInstance().taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
                 if let error = result.error {
                     print(error)
                     //completionHandler(error)

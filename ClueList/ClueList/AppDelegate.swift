@@ -73,7 +73,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(application: UIApplication) { // fired when user quits the application
         let todoItems: [ToDoItem] = ToDoList.sharedInstance.allItems() // retrieve list of all to-do items
         let overdueItems = todoItems.filter({ (todoItem) -> Bool in
-            return todoItem.deadline.compare(NSDate()) != .OrderedDescending
+            if (todoItem.deadline != nil) {
+                return todoItem.deadline!.compare(NSDate()) != .OrderedDescending
+            } else {
+                return false
+            }
         })
         UIApplication.sharedApplication().applicationIconBadgeNumber = overdueItems.count // set our badge number to number of overdue items
     }

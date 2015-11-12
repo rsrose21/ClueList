@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3030B5B96E381105C08F8399 /* Pods_ClueList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */; };
 		3D29CE161BDC46A400A02383 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D29CE151BDC46A400A02383 /* Constants.swift */; };
+		3D70EA321BF40B08006824CC /* Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D70EA311BF40B08006824CC /* Convenience.swift */; };
 		3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */; };
 		3D76DC381BD3C31500BEC914 /* UIColorFromHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */; };
 		3D76DC3A1BD3CEB300BEC914 /* timeago.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76DC391BD3CEB300BEC914 /* timeago.swift */; };
@@ -41,6 +42,7 @@
 /* Begin PBXFileReference section */
 		3BA1A01B99279F2C1526CF86 /* Pods_ClueList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ClueList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D29CE151BDC46A400A02383 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		3D70EA311BF40B08006824CC /* Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Convenience.swift; sourceTree = "<group>"; };
 		3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOCheckbox.swift; sourceTree = "<group>"; };
 		3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorFromHex.swift; sourceTree = "<group>"; };
 		3D76DC391BD3CEB300BEC914 /* timeago.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = timeago.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				3D8FF3371BCBF15C009E3FAF /* ClueList.xcdatamodeld */,
 				3D29CE151BDC46A400A02383 /* Constants.swift */,
 				3DB81EB01BE42D7400C85808 /* NetworkClient.swift */,
+				3D70EA311BF40B08006824CC /* Convenience.swift */,
 			);
 			path = ClueList;
 			sourceTree = "<group>";
@@ -325,6 +328,7 @@
 				3DBF14541BDD2A9E009D899E /* ToDoSection.swift in Sources */,
 				3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */,
 				3DBAEAA61BDF095E00D91336 /* EditToDoViewController.swift in Sources */,
+				3D70EA321BF40B08006824CC /* Convenience.swift in Sources */,
 				3DBF14521BDD2A75009D899E /* ControllerSectionInfo.swift in Sources */,
 				3D76DC331BD2D65300BEC914 /* DOCheckbox.swift in Sources */,
 				3D8FF3391BCBF15C009E3FAF /* ClueList.xcdatamodeld in Sources */,

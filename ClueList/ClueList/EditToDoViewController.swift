@@ -118,6 +118,7 @@ class EditToDoViewController: UIViewController {
         
     }
     
+    // creates reminder and adds it to the event store: http://www.techotopia.com/index.php/Using_iOS_8_Event_Kit_and_Swift_to_Create_Date_and_Location_Based_Reminders
     func createReminder(item: ToDoItem) {
         let reminder = EKReminder(eventStore: eventStore!)
         

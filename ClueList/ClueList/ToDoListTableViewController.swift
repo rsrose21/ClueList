@@ -125,7 +125,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     // This function will be called when the Dynamic Type user setting changes (from the system Settings app)
-    func refreshList(notification: NSNotification) {
+    func refreshList() {
         tableView.reloadData()
     }
     
@@ -282,14 +282,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             })
         }
         if isEmpty(editCell.toDoItem!.text) {
+            // if the user did not enter a ToDo then we need to delete it
             toDoItemRemoved(editCell.toDoItem!)
         } else {
             editCell.titleLabel.hidden = false
             editCell.bodyLabel.hidden = false
             editCell.editLabel.hidden = true
-            CoreDataManager.sharedInstance.saveContext()
+            try! editCell.toDoItem!.managedObjectContext!.save()
+            // get some factoids for this updated ToDoItem from the API
+            getFactoids(editCell)
         }
         editingToDo = false
+        editCell.toDoItem!.editing = false
         tableView.reloadData()
     }
     
@@ -300,14 +304,14 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         editingToDo = true
         let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
-        
-        CoreDataManager.sharedInstance.saveContext()
-        //tableView.reloadData()
+        toDoItem.editing = true
+        try! toDoItem.managedObjectContext!.save()
         
         // enter edit mode
         var editCell: ToDoCellTableViewCell
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
+            // find the toDoItem and initiate it's delegate
             if (cell.toDoItem === toDoItem) {
                 editCell = cell
                 editCell.editLabelOnly = true
@@ -356,7 +360,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         if let toDo = toDoListController.toDoAtIndexPath(indexPath) {
             toDo.completed = !toDo.completed.boolValue
             toDo.metaData.updateSectionIdentifier()
-            try! toDo.managedObjectContext!.save()
+            CoreDataManager.sharedInstance.saveContext()
         }
     }
     
@@ -368,7 +372,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             //toggle the completed status
             item.completed = !item.completed.boolValue
             item.metaData.updateSectionIdentifier()
-            try! item.managedObjectContext!.save()
+            CoreDataManager.sharedInstance.saveContext()
         }
     }
     
@@ -444,93 +448,69 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Private methods
     
-    private func getFactoids(todo: ToDoItem, completionHandler: (reload: Bool!, error: NSError?) -> Void) {
-        if todo.factoids.count > 0 {
-            completionHandler(reload: false, error: nil)
-        } else {
-            print("Requesting factoids for: \(todo.text)")
-            let dictionary: [String: AnyObject] = ["terms": todo.text]
-            NetworkClient.sharedInstance().taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
-                if let error = result.error {
-                    print("getFactoids result error: \(error)")
-                    completionHandler(reload: false, error: error)
-                    return
-                }
-                print(result)
-                //find the clue and save to ToDo (clue used for highlighting)
-                if let clue = result["clue"].string {
-                    todo.clue = clue
-                    
-                    CoreDataManager.sharedInstance.saveContext()
-                }
+    private func getFactoids(cell: ToDoCellTableViewCell) {
+        //create a loading indicator to display for each photo as it downloads from Flickr
+        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        cell.addSubview(activityIndicator)
+        activityIndicator.frame = cell.bounds
+        activityIndicator.startAnimating()
+        
+        let item = cell.toDoItem!
+        
+        NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
+            //we have a API response - hide the activity indicator
+            activityIndicator.removeFromSuperview()
+            if let e = error {
+                print("configure cell getFactoids error: \(e)")
+            }
+            if item.factoids.count > 0 {
+                cell.titleLabel.text = item.getRandomFactoid()
                 
-                //loop through factoid results and save with associated ToDoItem
-                for (_, subJson) in result["items"] {
-                    if let title = subJson["text"].string {
-                        let dictionary: [String: AnyObject?] = ["text": title]
-                        _ = Factoid(dictionary: dictionary, todo: todo, context: self.sharedContext)
-                        //persist factoids to db
-                        CoreDataManager.sharedInstance.saveContext()
-                    }
+                // content has changed, update autolayout constraints
+                if (reload != false) {
+                    // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                    let indexPath = self.tableView.indexPathForCell(cell)
+                    self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
                 }
-                // success
-                completionHandler(reload: true, error: nil)
-            })
-        }
+            }
+        })
     }
     
     private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
         cell.updateFonts()
-        //configure the cell checkbox
-        cell.checkbox.delegate = cell
-        cell.checkbox.selected = item.completed
-        cell.checkbox.toDoItem = item
-        //use the UIButton label to store the id for this ToDo
-        cell.checkbox.titleLabel!.text = item.id
-        cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
-        cell.backgroundColor = UIColor.whiteColor()
-        cell.accessoryType = UITableViewCellAccessoryType.DetailButton
-        //make sure we have a valid ToDo
-        if !isEmpty(item.text) {
-            //do we have some cached factoids to display or do we need to request some?
-            if item.factoids.count > 0 {
-                cell.titleLabel.text = item.getRandomFactoid()
-                cell.checkbox.hidden = false
+        
+        if (!item.editing) {
+            //configure the cell checkbox
+            cell.checkbox.delegate = cell
+            cell.checkbox.selected = item.completed
+            cell.checkbox.toDoItem = item
+            //use the UIButton label to store the id for this ToDo
+            cell.checkbox.titleLabel!.text = item.id
+            cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
+            cell.backgroundColor = UIColor.whiteColor()
+            cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+            cell.checkbox.hidden = false
+            //make sure we have a valid ToDo
+            if !isEmpty(item.text) {
+                //do we have some cached factoids to display or do we need to request some?
+                if item.factoids.count > 0 {
+                    cell.titleLabel.text = item.getRandomFactoid()
+                }
             } else {
-                //create a loading indicator to display for each photo as it downloads from Flickr
-                let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-                cell.addSubview(activityIndicator)
-                activityIndicator.frame = cell.bounds
-                activityIndicator.startAnimating()
-                
-                getFactoids(item, completionHandler: { (reload, error) in
-                    //we have a API response - hide the activity indicator
-                    activityIndicator.removeFromSuperview()
-                    if let e = error {
-                        print("configure cell getFactoids error: \(e)")
-                    }
-                    if item.factoids.count > 0 {
-                        cell.titleLabel.text = item.getRandomFactoid()
-                        cell.checkbox.hidden = false
-                        // content has changed, update autolayout constraints
-                        if (reload != false) {
-                            // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
-                            self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
-                        }
-                    }
-                })
+                //remove blank ToDoItem from db and tableview
+                toDoItemRemoved(item)
             }
-        } else {
-            //remove blank ToDoItem from db and tableview
-            toDoItemRemoved(item)
+            
+            //highlight overdue items if we have a reminder set
+            if (item.isOverdue) { // the current time is later than the to-do item's deadline
+                cell.bodyLabel.textColor = UIColor.redColor()
+            } else {
+                cell.bodyLabel.textColor = UIColor.blackColor() // we need to reset this because a cell with red subtitle may be returned by dequeueReusableCellWithIdentifier:indexPath:
+            }
         }
-        if (item.isOverdue) { // the current time is later than the to-do item's deadline
-            cell.bodyLabel.textColor = UIColor.redColor()
-        } else {
-            cell.bodyLabel.textColor = UIColor.blackColor() // we need to reset this because a cell with red subtitle may be returned by dequeueReusableCellWithIdentifier:indexPath:
-        }
+        
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch
         cell.setNeedsUpdateConstraints()
         cell.updateConstraintsIfNeeded()

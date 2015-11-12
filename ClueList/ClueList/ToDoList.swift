@@ -80,7 +80,11 @@ class ToDoList {
         let todoItems: [ToDoItem] = self.allItems()
         for notification in notifications {
             let overdueItems = todoItems.filter({ (todoItem) -> Bool in // array of to-do items...
-                return (todoItem.deadline.compare(notification.fireDate!) != .OrderedDescending) // ...where item deadline is before or on notification fire date
+                if (todoItem.deadline != nil) {
+                    return (todoItem.deadline!.compare(notification.fireDate!) != .OrderedDescending) // ...where item deadline is before or on notification fire date
+                } else {
+                    return false
+                }
             })
             UIApplication.sharedApplication().cancelLocalNotification(notification) // cancel old notification
             notification.applicationIconBadgeNumber = overdueItems.count // set new badge number

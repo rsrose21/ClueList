@@ -23,6 +23,8 @@ class ToDoItem: NSManagedObject {
     // current selected random factoid displayed for this ToDoItem
     var factoid: String?
     
+    var editing: Bool = false
+    
     @NSManaged var id: String
     
     // A text description of this item.
@@ -44,13 +46,17 @@ class ToDoItem: NSManagedObject {
     @NSManaged var priority: NSNumber
     
     // The timestamp when the ToDoItem is due
-    @NSManaged var deadline: NSDate
+    @NSManaged var deadline: NSDate?
     
     @NSManaged var metaData: ToDoMetaData
     
     //convenience method that returns whether or not an item is overdue
     var isOverdue: Bool {
-        return (NSDate().compare(self.deadline) == NSComparisonResult.OrderedDescending) // deadline is earlier than current date
+        if self.deadline != nil {
+            return (NSDate().compare(self.deadline!) == NSComparisonResult.OrderedDescending) // deadline is earlier than current date
+        } else {
+            return false
+        }
     }
     
     override func awakeFromInsert() {
@@ -62,7 +68,6 @@ class ToDoItem: NSManagedObject {
     // remove any scheduled notifications for this ToDoItem when deleted
     override func prepareForDeletion() {
         super.prepareForDeletion()
-        print("remove scheduled notifications")
         ToDoList.sharedInstance.removeItem(self)
     }
     
@@ -86,10 +91,11 @@ class ToDoItem: NSManagedObject {
         // After the Core Data work has been taken care of we can init the properties from the
         // dictionary. This works in the same way that it did before we started on Core Data
         
-        //generate uid in swift: http://stackoverflow.com/questions/24428250/generate-uuid-in-xcode-swift
+        // A id could be passed in from the notifications bar
         if let id = dictionary["id"] as? String {
             self.id = id
         } else {
+            // generate uid in swift: http://stackoverflow.com/questions/24428250/generate-uuid-in-xcode-swift
             self.id = NSUUID().UUIDString
         }
         text = dictionary["text"] as! String
@@ -105,6 +111,7 @@ class ToDoItem: NSManagedObject {
         }
         //set created timestamp to current date/time
         created = NSDate()
+        
         if let priority = dictionary["priority"] as? Int {
             self.priority = selectedPriority(priority).rawValue
         } else {
