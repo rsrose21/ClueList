@@ -15,8 +15,9 @@ class EditToDoViewController: UIViewController {
     
     @IBOutlet var textField: UITextField!
     @IBOutlet var priorityControl: UISegmentedControl!
-    @IBOutlet weak var reminder: UITextField!
     @IBOutlet weak var myDatePicker: UIDatePicker!
+    @IBOutlet weak var mySwitch: UISwitch!
+    @IBOutlet weak var dateControls: UIView!
     
     var appDelegate: AppDelegate?
     var eventStore: EKEventStore?
@@ -28,6 +29,8 @@ class EditToDoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // hide date controls until permission is granted to access EventKit
+        dateControls.hidden = true
         
         // update toolbar
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .Plain, target: self, action: "cancelButtonPressed")
@@ -40,6 +43,15 @@ class EditToDoViewController: UIViewController {
             appDelegate!.eventStore = EKEventStore()
         }
         eventStore = appDelegate!.eventStore
+        
+        mySwitch.addTarget(self, action: Selector("stateChanged:"), forControlEvents: UIControlEvents.ValueChanged)
+        
+        if (todo?.deadline != nil) {
+            mySwitch.setOn(true, animated:true)
+        } else {
+            mySwitch.setOn(false, animated:true)
+        }
+        myDatePicker.hidden = !mySwitch.on
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -48,6 +60,11 @@ class EditToDoViewController: UIViewController {
         textField.becomeFirstResponder()
         //ask user permission to access calendar to set reminders
         checkCalendarAuthorizationStatus()
+    }
+    
+    // show/hide date picker based on UISwitch state
+    func stateChanged(switchState: UISwitch) {
+        myDatePicker.hidden = !switchState.on
     }
     
     // MARK: EventKit Access: https://www.andrewcbancroft.com/2015/05/14/beginners-guide-to-eventkit-in-swift-requesting-permission/
@@ -61,7 +78,7 @@ class EditToDoViewController: UIViewController {
             requestAccessToCalendar()
         case EKAuthorizationStatus.Authorized:
             // we have permission, display the reminders controls
-            enableReminders()
+            dateControls.hidden = false
         case EKAuthorizationStatus.Restricted, EKAuthorizationStatus.Denied:
             // We need to help them give us permission
             needPermissionView()
@@ -74,7 +91,7 @@ class EditToDoViewController: UIViewController {
             
             if accessGranted == true {
                 dispatch_async(dispatch_get_main_queue(), {
-                    self.enableReminders()
+                    self.dateControls.hidden = false
                 })
             } else {
                 dispatch_async(dispatch_get_main_queue(), {
@@ -82,10 +99,6 @@ class EditToDoViewController: UIViewController {
                 })
             }
         })
-    }
-    
-    func enableReminders() {
-        
     }
     
     func needPermissionView() {
@@ -113,10 +126,6 @@ class EditToDoViewController: UIViewController {
         })
     }
     
-    @IBAction func setReminder() {
-        
-        
-    }
     
     // creates reminder and adds it to the event store: http://www.techotopia.com/index.php/Using_iOS_8_Event_Kit_and_Swift_to_Create_Date_and_Location_Based_Reminders
     func createReminder(item: ToDoItem) {
