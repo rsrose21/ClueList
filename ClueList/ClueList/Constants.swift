@@ -18,15 +18,15 @@ class Constants: NSObject {
     }
     
     struct Data {
-        static let SEED_DB: Bool = false
+        static let SEED_DB: Bool = true
     }
     
     struct API {
-        //static let BASE_URL: String = "https://cluelist-api.herokuapp.com/api/"
-        //static let ACCESS_TOKEN: String = "iwoPb0w0Lj5axSGon8ssVNYDEvAsA4o4CgpNIGhmv9BP2BzAX7ETDcAjqLo3AY6w"
+        static let BASE_URL: String = "https://cluelist-api.herokuapp.com/api/"
+        static let ACCESS_TOKEN: String = "iwoPb0w0Lj5axSGon8ssVNYDEvAsA4o4CgpNIGhmv9BP2BzAX7ETDcAjqLo3AY6w"
         
-        static let BASE_URL: String = "http://localhost:3000/api/"
-        static let ACCESS_TOKEN: String = "tY6apkFWNqaxiaUnyxmZi8gGccB1QiH0t2SFTbEHRoE60a1uSeswFLOSh0SKuhZX"
+        //static let BASE_URL: String = "http://localhost:3000/api/"
+        //static let ACCESS_TOKEN: String = "tY6apkFWNqaxiaUnyxmZi8gGccB1QiH0t2SFTbEHRoE60a1uSeswFLOSh0SKuhZX"
     }
     
     struct UIFonts {
@@ -45,5 +45,10 @@ class Constants: NSObject {
         static let TABLE_BG: String = "#eeeeeeff"
         static let TOOLBAR_ACTIVE: String = "#ff0000ff"
         static let TOOLBAR_ITEM: String = "#A1A1A1ff"
+    }
+    
+    struct UIDimensions {
+        
+        static let TABLE_SECTION_HEIGHT: CGFloat = 20.0
     }
 }

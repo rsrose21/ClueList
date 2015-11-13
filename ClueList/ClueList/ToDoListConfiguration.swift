@@ -40,7 +40,7 @@ class ToDoListConfiguration: NSManagedObject {
         case .Simple:
             return [.ToDo, .Done]
         case .Prioritized:
-            return [.HighPriority, .MediumPriority, .LowPriority, .Done]
+            return [.HighPriority, .MediumPriority, .LowPriority, .NoPriority, .Done]
         }
     }
 }

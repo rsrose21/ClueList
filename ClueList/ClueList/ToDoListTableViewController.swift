@@ -59,9 +59,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     var itemToDelete: ToDoItem?
     
     private var tagId = 0
-    
+    // flag to hide tableview sections when editing a cell
     private var editingToDo = false
-    
+    // flag to toggle tableview editing mode
     private var edit = false
     
     private var editBarButtonItem: UIBarButtonItem!
@@ -281,32 +281,34 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 }
             })
         }
+        // display table section headers again
+        editingToDo = false
         if isEmpty(editCell.toDoItem!.text) {
             // if the user did not enter a ToDo then we need to delete it
             toDoItemRemoved(editCell.toDoItem!)
         } else {
+            editCell.toDoItem!.editing = false
             editCell.titleLabel.hidden = false
             editCell.bodyLabel.hidden = false
             editCell.editLabel.hidden = true
             try! editCell.toDoItem!.managedObjectContext!.save()
             // get some factoids for this updated ToDoItem from the API
             getFactoids(editCell)
+            // reload the tableview
+            tableView.reloadData()
         }
-        editingToDo = false
-        editCell.toDoItem!.editing = false
-        tableView.reloadData()
     }
     
     // MARK: - add, delete, edit methods
     
     func toDoItemAdded() {
-        
+        // hide table section headers before animating table cells
         editingToDo = true
         let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         toDoItem.editing = true
         try! toDoItem.managedObjectContext!.save()
-        
+        tableView.reloadData()
         // enter edit mode
         var editCell: ToDoCellTableViewCell
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
@@ -315,7 +317,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             if (cell.toDoItem === toDoItem) {
                 editCell = cell
                 editCell.editLabelOnly = true
-                //initiate cellDidBeginEditing
+                // initiate cellDidBeginEditing
                 editCell.editLabel.becomeFirstResponder()
                 break
             }
@@ -449,29 +451,24 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - Private methods
     
     private func getFactoids(cell: ToDoCellTableViewCell) {
-        //create a loading indicator to display for each photo as it downloads from Flickr
-        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-        cell.addSubview(activityIndicator)
-        activityIndicator.frame = cell.bounds
-        activityIndicator.startAnimating()
-        
+        let indexPath = self.tableView.indexPathForCell(cell)
         let item = cell.toDoItem!
-        
+        item.requesting = true
+
         NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
             //we have a API response - hide the activity indicator
-            activityIndicator.removeFromSuperview()
+            item.requesting = false
             if let e = error {
                 print("configure cell getFactoids error: \(e)")
             }
+            // select a random factoid returned from API
             if item.factoids.count > 0 {
                 cell.titleLabel.text = item.getRandomFactoid()
-                
-                // content has changed, update autolayout constraints
-                if (reload != false) {
-                    // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
-                    let indexPath = self.tableView.indexPathForCell(cell)
-                    self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
-                }
+            }
+            // reload table cell to turn off activity indicator and update autolayout constraints if content was changed
+            if (reload != false) {
+                // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
             }
         })
     }
@@ -490,8 +487,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             cell.checkbox.titleLabel!.text = item.id
             cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
             cell.backgroundColor = UIColor.whiteColor()
-            cell.accessoryType = UITableViewCellAccessoryType.DetailButton
             cell.checkbox.hidden = false
+            
             //make sure we have a valid ToDo
             if !isEmpty(item.text) {
                 //do we have some cached factoids to display or do we need to request some?
@@ -509,6 +506,16 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             } else {
                 cell.bodyLabel.textColor = UIColor.blackColor() // we need to reset this because a cell with red subtitle may be returned by dequeueReusableCellWithIdentifier:indexPath:
             }
+        }
+        
+        // are we currently requesting factoids?
+        if item.requesting {
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            cell.accessoryView = indicator
+            indicator.startAnimating()
+        } else {
+            //indicator.stopAnimating()
+            cell.accessoryType = UITableViewCellAccessoryType.DetailButton
         }
         
         // Make sure the constraints have been added to this cell, since it may have just been created from scratch

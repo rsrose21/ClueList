@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 
 enum ToDoPriority: Int {
+    case None = 0
     case Low = 1
     case Medium = 2
     case High = 3
@@ -54,6 +55,9 @@ class ToDoMetaData: NSManagedObject {
         case .LowPriority:
             toDo.completed = false
             toDo.priority = ToDoPriority.Low.rawValue
+        case .NoPriority:
+            toDo.completed = false
+            toDo.priority = ToDoPriority.None.rawValue
         }
         sectionIdentifier = section.rawValue
     }
@@ -66,6 +70,7 @@ class ToDoMetaData: NSManagedObject {
             return .ToDo
         } else {
             switch ToDoPriority(rawValue: toDo.priority.integerValue)! {
+            case .None:     return .NoPriority
             case .Low:      return .LowPriority
             case .Medium:   return .MediumPriority
             case .High:     return .HighPriority

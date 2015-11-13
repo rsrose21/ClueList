@@ -15,6 +15,7 @@ enum ToDoSection: String {
     case MediumPriority = "12"
     case LowPriority = "13"
     case Done = "20"
+    case NoPriority = "5"
     
     var title: String {
         switch self {
@@ -23,6 +24,7 @@ enum ToDoSection: String {
         case HighPriority:      return "High priority"
         case MediumPriority:    return "Medium priority"
         case LowPriority:       return "Low priority"
+        case NoPriority:        return ""
         }
     }
 }

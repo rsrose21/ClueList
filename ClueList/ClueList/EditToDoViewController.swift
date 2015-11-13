@@ -131,7 +131,7 @@ class EditToDoViewController: UIViewController {
     func createReminder(item: ToDoItem) {
         let reminder = EKReminder(eventStore: eventStore!)
         
-        reminder.title = textField.text!
+        reminder.title = item.text
         reminder.calendar = eventStore!.defaultCalendarForNewReminders()
         let date = myDatePicker.date
         let alarm = EKAlarm(absoluteDate: date)
@@ -164,7 +164,7 @@ class EditToDoViewController: UIViewController {
             return
         }
         
-        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDoItem.entityName, inManagedObjectContext: sharedContext) as! ToDoItem
+        let toDo = todo as ToDoItem!
         toDo.text = title
         toDo.priority = toDo.selectedPriority(self.priorityControl.selectedSegmentIndex).rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
