@@ -35,9 +35,6 @@ class ToDoList {
     }
     
     func addItem(item: ToDoItem) {
-        // persist a representation of this todo item in NSUserDefaults
-
-        
         // create a corresponding local notification
         let notification = UILocalNotification()
         notification.alertBody = "Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification

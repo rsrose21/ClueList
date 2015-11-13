@@ -39,7 +39,10 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     var toDoItem: ToDoItem? {
         didSet {
             let item = toDoItem!
-            
+            // reset the cell label contents
+            titleLabel.text = nil
+            bodyLabel.text = nil
+            editLabel.text = nil
             if item.text == Constants.Messages.PLACEHOLDER_TEXT {
                 print("didSet \(item.id)")
                 editLabelOnly = true
@@ -51,8 +54,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
                     //no factoids returned for this task, show the original task instead
                     titleLabel.text = item.text
                 }
-                
-                bodyLabel.text = timeAgoSinceDate(item.created, numericDates: false)
+                if item.deadline != nil {
+                    bodyLabel.text = timeAgoSinceDate(item.deadline!, numericDates: false)
+                }
                 toggleCompleted(item.completed)
             }
             
@@ -106,7 +110,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         editLabel.delegate = self
         editLabel.contentVerticalAlignment = .Center
         editLabel.placeholder = Constants.Messages.PLACEHOLDER_TEXT
-        if Constants.UIColors.DEBUG_LAYERS {
+        if Constants.Data.DEBUG_LAYERS {
             editLabel.layer.borderColor = UIColor.blackColor().CGColor
             editLabel.layer.borderWidth = 1.0;
         }
@@ -115,7 +119,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         titleLabel.lineBreakMode = .ByTruncatingTail
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .Left
-        if Constants.UIColors.DEBUG_LAYERS {
+        if Constants.Data.DEBUG_LAYERS {
             titleLabel.textColor = UIColor.blackColor()
             titleLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
         }
@@ -124,7 +128,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         bodyLabel.lineBreakMode = .ByTruncatingTail
         bodyLabel.numberOfLines = 1
         bodyLabel.textAlignment = .Left
-        if Constants.UIColors.DEBUG_LAYERS {
+        if Constants.Data.DEBUG_LAYERS {
             bodyLabel.textColor = UIColor.darkGrayColor()
             bodyLabel.backgroundColor = UIColor(hexString: "#ccccccff")
         }
@@ -157,13 +161,9 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         
         layoutFrames()
     }
-    
-    var didSetupFrames = false
-    
+
     func layoutFrames() {
-        if didSetupFrames {
-            //return
-        }
+
         // ensure the background occupies the full bounds
         contentView.frame = bounds
         //set up default dimensions
@@ -188,7 +188,6 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
                 width = (frame.width - marginLeft) - buttonWidth
             } else {
                 //give some room for the move button
-                print("incl room for move button")
                 width = (frame.width - marginLeft) - (buttonWidth * 2)
             }
 
@@ -201,13 +200,14 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             //show textfield and hide checkbox and accessory button when editing
             editLabel.hidden = false
             checkbox.hidden = true
+            titleLabel.hidden = false
+            bodyLabel.hidden = false
             accessoryType = .None
         }
-        if Constants.UIColors.DEBUG_LAYERS {
+        if Constants.Data.DEBUG_LAYERS {
             editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
         }
         editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE + 4)
-        didSetupFrames = true
     }
     
     func layoutCheckbox(color: UIColor?) -> DOCheckbox {
@@ -229,7 +229,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             // As a fix, you can temporarily increase the size of the cell's contentView so that this does not occur using code similar to the line below.
             //      See here for further discussion: https://github.com/Alex311/TableCellWithAutoLayout/commit/bde387b27e33605eeac3465475d2f2ff9775f163#commitcomment-4633188
             //contentView.bounds = CGRect(x: 0.0, y: 0.0, width: 99999.0, height: 99999.0)
-            print("updateConstraints")
+            
             if !editLabelOnly {
                 // Prevent the two UILabels from being compressed below their intrinsic content height
                 NSLayoutConstraint.autoSetPriority(UILayoutPriorityRequired) {

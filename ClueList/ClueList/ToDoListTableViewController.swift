@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import EventKit
 
-class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate {
+class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate, EditToDoViewControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -56,6 +56,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         return controller
     }()
     
+    var detailViewController: EditToDoViewController? = nil
+    
     var itemToDelete: ToDoItem?
     
     private var tagId = 0
@@ -66,6 +68,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     private var editBarButtonItem: UIBarButtonItem!
     private var doneBarButtonItem: UIBarButtonItem!
+    
+    // MARK: Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,8 +86,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         doneBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Done, target: self, action: "toggleEdit")
         // display an Edit button in the navigation bar for this view controller.
         navigationItem.leftBarButtonItem = editBarButtonItem
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toDoItemAdded")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "addToDo")
         title = "To Do"
+        
+        self.detailViewController?.delegate = self
         
         configureTableView()
     }
@@ -285,30 +291,30 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         editingToDo = false
         if isEmpty(editCell.toDoItem!.text) {
             // if the user did not enter a ToDo then we need to delete it
-            toDoItemRemoved(editCell.toDoItem!)
+            removeToDo(editCell.toDoItem!)
         } else {
             editCell.toDoItem!.editing = false
-            editCell.titleLabel.hidden = false
-            editCell.bodyLabel.hidden = false
-            editCell.editLabel.hidden = true
+            // save any updates to the ToDo
             try! editCell.toDoItem!.managedObjectContext!.save()
             // get some factoids for this updated ToDoItem from the API
             getFactoids(editCell)
-            // reload the tableview
+            // refresh the tableview to show the activity indicator
             tableView.reloadData()
         }
     }
     
     // MARK: - add, delete, edit methods
     
-    func toDoItemAdded() {
+    func addToDo() {
         // hide table section headers before animating table cells
         editingToDo = true
         let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         toDoItem.editing = true
         try! toDoItem.managedObjectContext!.save()
+        // we added a new cell, refresh the table
         tableView.reloadData()
+        
         // enter edit mode
         var editCell: ToDoCellTableViewCell
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
@@ -324,7 +330,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
-    func toDoItemRemoved(toDoItem: ToDoItem) {
+    func removeToDo(toDoItem: ToDoItem) {
         // loop over the visible cells to animate delete
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         let lastView = visibleCells[visibleCells.count - 1] as ToDoCellTableViewCell
@@ -350,6 +356,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             if cell.toDoItem === toDoItem {
                 startAnimating = true
                 cell.hidden = true
+                // remove any notifications for this item if it's completed and was assigned a deadline
+                if toDoItem.deadline != nil {
+                    ToDoList.sharedInstance.removeItem(toDoItem)
+                }
                 self.sharedContext.deleteObject(toDoItem)
                 CoreDataManager.sharedInstance.saveContext()
             }
@@ -375,6 +385,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             item.completed = !item.completed.boolValue
             item.metaData.updateSectionIdentifier()
             CoreDataManager.sharedInstance.saveContext()
+            // remove any notifications for this item if it's completed and was assigned a deadline
+            if item.completed && item.deadline != nil {
+                ToDoList.sharedInstance.removeItem(item)
+            }
         }
     }
     
@@ -444,8 +458,14 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 let controller = (segue.destinationViewController as! UINavigationController).topViewController as! EditToDoViewController
                 //set selected ToDo for our view controller
                 controller.todo = object
+                controller.delegate = self
             }
         }
+    }
+    
+    func didSetReminder(item: ToDoItem) {
+        print("set reminder \(item.text)")
+        tableView.reloadData()
     }
     
     // MARK: - Private methods
@@ -497,7 +517,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 }
             } else {
                 //remove blank ToDoItem from db and tableview
-                toDoItemRemoved(item)
+                removeToDo(item)
             }
             
             //highlight overdue items if we have a reminder set

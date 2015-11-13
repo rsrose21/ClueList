@@ -11,6 +11,11 @@ import UIKit
 import CoreData
 import EventKit
 
+//protocol for the delegate
+protocol EditToDoViewControllerDelegate {
+    func didSetReminder(item: ToDoItem)
+}
+
 class EditToDoViewController: UIViewController {
     
     @IBOutlet var textField: UITextField!
@@ -26,6 +31,8 @@ class EditToDoViewController: UIViewController {
         return CoreDataManager.sharedInstance.managedObjectContext
     }
     var todo: ToDoItem?
+    
+    var delegate: EditToDoViewControllerDelegate! = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,7 +111,7 @@ class EditToDoViewController: UIViewController {
     func needPermissionView() {
         dispatch_async(dispatch_get_main_queue(), {
             // Create the alert controller
-            let alertController = UIAlertController(title: "Title", message: "Message", preferredStyle: .Alert)
+            let alertController = UIAlertController(title: "Alert", message: "This application needs access to your calendar in order to set reminders", preferredStyle: .Alert)
             
             // Create the actions
             let okAction = UIAlertAction(title: "Go to Settings", style: UIAlertActionStyle.Default) {
@@ -143,7 +150,9 @@ class EditToDoViewController: UIViewController {
                 try self.eventStore!.saveReminder(reminder, commit: true)
                 //set the deadline date to the reminder date
                 item.deadline = date
-                CoreDataManager.sharedInstance.saveContext()
+                try! item.managedObjectContext!.save()
+                // call the delegate method to update the parent tableview
+                self.delegate.didSetReminder(item)
                 // create a corresponding local notification
                 ToDoList.sharedInstance.addItem(item)
             } catch {
@@ -160,18 +169,18 @@ class EditToDoViewController: UIViewController {
     
     func saveButtonPressed() {
         guard let title = textField.text else {
-            presentViewController(UIAlertController(title: "Can't update Task", message: "Title can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
+            presentViewController(UIAlertController(title: "Can't update Task", message: "Task can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
             return
         }
         
         let toDo = todo as ToDoItem!
         toDo.text = title
+        createReminder(todo!)
         toDo.priority = toDo.selectedPriority(self.priorityControl.selectedSegmentIndex).rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
         toDo.metaData.updateSectionIdentifier()
         CoreDataManager.sharedInstance.saveContext()
-        
-        createReminder(todo!)
+        //try! toDo.managedObjectContext!.save()
         
         dismissViewControllerAnimated(true, completion: nil)
     }
