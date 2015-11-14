@@ -16,7 +16,7 @@ protocol EditToDoViewControllerDelegate {
     func didSetReminder(item: ToDoItem)
 }
 
-class EditToDoViewController: UIViewController {
+class EditToDoViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet var textField: UITextField!
     @IBOutlet var priorityControl: UISegmentedControl!
@@ -36,8 +36,8 @@ class EditToDoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // hide date controls until permission is granted to access EventKit
-        dateControls.hidden = true
+
+        textField.delegate = self
         
         // update toolbar
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .Plain, target: self, action: "cancelButtonPressed")
@@ -52,6 +52,14 @@ class EditToDoViewController: UIViewController {
         eventStore = appDelegate!.eventStore
         
         mySwitch.addTarget(self, action: Selector("stateChanged:"), forControlEvents: UIControlEvents.ValueChanged)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        textField.text = todo!.text
+        textField.becomeFirstResponder()
+        // hide date controls until permission is granted to access EventKit
+        dateControls.hidden = true
         
         if (todo?.deadline != nil) {
             mySwitch.setOn(true, animated:true)
@@ -59,12 +67,7 @@ class EditToDoViewController: UIViewController {
             mySwitch.setOn(false, animated:true)
         }
         myDatePicker.hidden = !mySwitch.on
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        textField.text = todo!.text
-        textField.becomeFirstResponder()
+        
         //ask user permission to access calendar to set reminders
         checkCalendarAuthorizationStatus()
     }
@@ -183,6 +186,23 @@ class EditToDoViewController: UIViewController {
         //try! toDo.managedObjectContext!.save()
         
         dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: UITextField Delegates
+    
+    /**
+     * Called when 'return' key pressed. return NO to ignore.
+     */
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    /**
+     * Called when the user click on the view (outside the UITextField).
+     */
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        textField.resignFirstResponder()
     }
     
 }

@@ -60,9 +60,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     var itemToDelete: ToDoItem?
     
+    // keeps a reference to the active cell currently edited
+    var activeCell: ToDoCellTableViewCell?
+    
     private var tagId = 0
     // flag to hide tableview sections when editing a cell
-    private var editingToDo = false
+    private var hideSectionHeaders = false
     // flag to toggle tableview editing mode
     private var edit = false
     
@@ -90,6 +93,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         title = "To Do"
         
         self.detailViewController?.delegate = self
+        
+        // Looks for single or multiple taps.
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+        view.addGestureRecognizer(tap)
         
         configureTableView()
     }
@@ -209,7 +216,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if editingToDo {
+        if hideSectionHeaders {
             return ""
         } else {
             return toDoListController.sections[section].name
@@ -218,7 +225,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         //hide sections if currently editing a item
-        if editingToDo {
+        if hideSectionHeaders {
             return 0.0
         } else {
             return 20.0
@@ -262,7 +269,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - UITextFieldDelegate delegate methods
     
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
-        editingToDo = true
+        hideSectionHeaders = true
+        activeCell = editingCell
         //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
         let editingOffset = tableView.contentOffset.y - editingCell.frame.origin.y as CGFloat
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
@@ -278,6 +286,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func cellDidEndEditing(editCell: ToDoCellTableViewCell) {
+        activeCell = nil
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell: ToDoCellTableViewCell in visibleCells {
             UIView.animateWithDuration(0.3, animations: {() in
@@ -288,7 +297,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             })
         }
         // display table section headers again
-        editingToDo = false
+        hideSectionHeaders = false
         if isEmpty(editCell.toDoItem!.text) {
             // if the user did not enter a ToDo then we need to delete it
             removeToDo(editCell.toDoItem!)
@@ -303,11 +312,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
+    // called from the tap gesture recognizer to close any active textfields and hide the keyboard
+    func dismissKeyboard() {
+        // causes the view (or one of its embedded text fields) to resign the first responder status.
+        activeCell!.editLabel.resignFirstResponder()
+    }
+    
     // MARK: - add, delete, edit methods
     
     func addToDo() {
-        // hide table section headers before animating table cells
-        editingToDo = true
+        // hide table section headers before adding and animating table cells
+        hideSectionHeaders = true
+        
         let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         toDoItem.editing = true
@@ -474,16 +490,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         let indexPath = self.tableView.indexPathForCell(cell)
         let item = cell.toDoItem!
         item.requesting = true
-
+        
         NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
             //we have a API response - hide the activity indicator
             item.requesting = false
             if let e = error {
                 print("configure cell getFactoids error: \(e)")
             }
+            
             // select a random factoid returned from API
             if item.factoids.count > 0 {
                 cell.titleLabel.text = item.getRandomFactoid()
+                cell.titleLabel.hidden = false
             }
             // reload table cell to turn off activity indicator and update autolayout constraints if content was changed
             if (reload != false) {
