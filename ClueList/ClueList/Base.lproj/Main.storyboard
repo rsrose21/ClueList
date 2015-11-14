@@ -130,7 +130,7 @@
                                         <animations/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="22" id="QMC-aD-8VE"/>
-                                            <constraint firstAttribute="width" constant="55" id="TpK-vN-K3p"/>
+                                            <constraint firstAttribute="width" constant="360" id="cuK-TC-mx3"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -138,14 +138,13 @@
                                         <variation key="default">
                                             <mask key="constraints">
                                                 <exclude reference="QMC-aD-8VE"/>
-                                                <exclude reference="TpK-vN-K3p"/>
+                                                <exclude reference="cuK-TC-mx3"/>
                                             </mask>
                                         </variation>
-                                        <variation key="widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="20" y="20" width="360" height="22"/>
+                                        <variation key="widthClass=compact">
                                             <mask key="constraints">
                                                 <include reference="QMC-aD-8VE"/>
-                                                <include reference="TpK-vN-K3p"/>
+                                                <include reference="cuK-TC-mx3"/>
                                             </mask>
                                         </variation>
                                     </label>
@@ -153,6 +152,7 @@
                                         <rect key="frame" x="20" y="20" width="220" height="29"/>
                                         <animations/>
                                         <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="220" id="Jna-ol-lj3"/>
                                             <constraint firstAttribute="width" constant="220" id="v6G-dY-K1g"/>
                                         </constraints>
                                         <segments>
@@ -163,11 +163,13 @@
                                         </segments>
                                         <variation key="default">
                                             <mask key="constraints">
+                                                <exclude reference="Jna-ol-lj3"/>
                                                 <exclude reference="v6G-dY-K1g"/>
                                             </mask>
                                         </variation>
                                         <variation key="widthClass=compact">
                                             <mask key="constraints">
+                                                <include reference="Jna-ol-lj3"/>
                                                 <include reference="v6G-dY-K1g"/>
                                             </mask>
                                         </variation>
@@ -204,8 +206,7 @@
                                         <exclude reference="rYQ-4I-QqS"/>
                                     </mask>
                                 </variation>
-                                <variation key="widthClass=compact" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="136" width="389" height="101"/>
+                                <variation key="widthClass=compact">
                                     <mask key="subviews">
                                         <include reference="08M-g7-YDA"/>
                                     </mask>

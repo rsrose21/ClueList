@@ -68,6 +68,8 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
         }
         myDatePicker.hidden = !mySwitch.on
         
+        priorityControl.selectedSegmentIndex = todo!.priority as Int
+        
         //ask user permission to access calendar to set reminders
         checkCalendarAuthorizationStatus()
     }
@@ -181,7 +183,6 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
         toDo.metaData.updateSectionIdentifier()
         CoreDataManager.sharedInstance.saveContext()
-        //try! toDo.managedObjectContext!.save()
         
         dismissViewControllerAnimated(true, completion: nil)
     }
