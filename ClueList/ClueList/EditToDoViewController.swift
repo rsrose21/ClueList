@@ -156,8 +156,6 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
                 try! item.managedObjectContext!.save()
                 // call the delegate method to update the parent tableview
                 self.delegate.didSetReminder(item)
-                // create a corresponding local notification
-                ToDoList.sharedInstance.addItem(item)
             } catch {
                 let nserror = error as NSError
                 NSLog("Reminder failed with error \(nserror), \(nserror.userInfo)")

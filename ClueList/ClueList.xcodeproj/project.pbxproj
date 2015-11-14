@@ -36,6 +36,8 @@
 		3DBF145A1BDD3900009D899E /* ToDoListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF14591BDD3900009D899E /* ToDoListController.swift */; };
 		3DBF145C1BDD3C3F009D899E /* FetchControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBF145B1BDD3C3F009D899E /* FetchControllerDelegate.swift */; };
 		3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */; };
+		3DDF6CEC1BF7CFEF0034DB87 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDF6CEB1BF7CFEF0034DB87 /* Reachability.swift */; };
+		3DDF6CEE1BF7D86D0034DB87 /* HRToast+UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDF6CED1BF7D86D0034DB87 /* HRToast+UIView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +72,8 @@
 		3DBF14591BDD3900009D899E /* ToDoListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListController.swift; sourceTree = "<group>"; };
 		3DBF145B1BDD3C3F009D899E /* FetchControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchControllerDelegate.swift; sourceTree = "<group>"; };
 		3DD186141BD043B4000BAAD2 /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
+		3DDF6CEB1BF7CFEF0034DB87 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		3DDF6CED1BF7D86D0034DB87 /* HRToast+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "HRToast+UIView.swift"; sourceTree = "<group>"; };
 		72CBDD3E06D53D331B701235 /* Pods-ClueList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.release.xcconfig"; sourceTree = "<group>"; };
 		A5018CFBD2B0DB74D5D31191 /* Pods-ClueList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClueList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ClueList/Pods-ClueList.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -114,6 +118,7 @@
 		3D76DC2F1BD2CBB100BEC914 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3DDF6CED1BF7D86D0034DB87 /* HRToast+UIView.swift */,
 				3D8FF3511BCC29A5009E3FAF /* ToDoCellTableViewCell.swift */,
 				3D76DC321BD2D65300BEC914 /* DOCheckbox.swift */,
 			);
@@ -127,6 +132,7 @@
 				3DB04AD81BE688F5002EE5E3 /* NSString.swift */,
 				3D76DC371BD3C31500BEC914 /* UIColorFromHex.swift */,
 				3D76DC391BD3CEB300BEC914 /* timeago.swift */,
+				3DDF6CEB1BF7CFEF0034DB87 /* Reachability.swift */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -322,6 +328,7 @@
 				3DBF14581BDD2BEF009D899E /* ToDoListConfiguration.swift in Sources */,
 				3DD186151BD043B4000BAAD2 /* NSMutableAttributedString.swift in Sources */,
 				3D76DC381BD3C31500BEC914 /* UIColorFromHex.swift in Sources */,
+				3DDF6CEC1BF7CFEF0034DB87 /* Reachability.swift in Sources */,
 				3DBF14541BDD2A9E009D899E /* ToDoSection.swift in Sources */,
 				3D8FF3481BCBFDE0009E3FAF /* ToDoItem.swift in Sources */,
 				3DBAEAA61BDF095E00D91336 /* EditToDoViewController.swift in Sources */,
@@ -332,6 +339,7 @@
 				3D29CE161BDC46A400A02383 /* Constants.swift in Sources */,
 				3D8D61AC1BF3A15800CEFDC4 /* ToDoList.swift in Sources */,
 				3D8FF3461BCBFCA1009E3FAF /* ToDoListTableViewController.swift in Sources */,
+				3DDF6CEE1BF7D86D0034DB87 /* HRToast+UIView.swift in Sources */,
 				3DBF145C1BDD3C3F009D899E /* FetchControllerDelegate.swift in Sources */,
 				3D76DC3E1BD41BDB00BEC914 /* Factoid.swift in Sources */,
 				3D76DC3C1BD41B2400BEC914 /* CoreDataManager.swift in Sources */,

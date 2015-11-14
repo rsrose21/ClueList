@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import EventKit
 
-class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate, EditToDoViewControllerDelegate {
+class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TableViewCellDelegate, EditToDoViewControllerDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -58,14 +58,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     var detailViewController: EditToDoViewController? = nil
     
-    var itemToDelete: ToDoItem?
-    
     // keeps a reference to the active cell currently edited
     var activeCell: ToDoCellTableViewCell?
     
     private var tagId = 0
     // flag to hide tableview sections when editing a cell
-    private var hideSectionHeaders = false
+    var hideSectionHeaders = false
     // flag to toggle tableview editing mode
     private var edit = false
     
@@ -94,10 +92,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         
         self.detailViewController?.delegate = self
         
-        // Looks for single or multiple taps.
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
-        view.addGestureRecognizer(tap)
-        
+        // Looks for single taps
+        let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+        tapGesture.delegate=self
+        tapGesture.numberOfTapsRequired = 1
+        view.addGestureRecognizer(tapGesture)
+
         configureTableView()
     }
     
@@ -172,98 +172,23 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
         ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Prioritized
     }
+    
+    // MARK: - UIGestureRecognizerDelegate methods
 
-    // MARK: - Table view data source
-
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return toDoListController.sections.count
-    }
-
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return toDoListController.sections[section].numberOfObjects
-    }
-
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let item = toDoListController.toDoAtIndexPath(indexPath)
-        let cell = configureCell(indexPath, item: item!)
-        
-        return cell
-    }
-    
-    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        if sourceIndexPath == destinationIndexPath {
-            return
-        }
-        
-        fetchControllerDelegate.ignoreNextUpdates = true // Don't let fetched results controller affect table view
-        let toDo = toDoListController.toDoAtIndexPath(sourceIndexPath)! // Trust that we will get a toDo back
-        
-        if sourceIndexPath.section != destinationIndexPath.section {
-            
-            let sectionInfo = toDoListController.sections[destinationIndexPath.section]
-            toDo.metaData.setSection(sectionInfo.section)
-            
-            // Update cell
-            NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
-                self.configureCell(destinationIndexPath, item: toDo)
-            }
-        }
-        
-        updateInternalOrderForToDo(toDo, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
-        
-        // Save
-        try! toDo.managedObjectContext!.save()
-    }
-    
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if hideSectionHeaders {
-            return ""
-        } else {
-            return toDoListController.sections[section].name
+    // called from the tap gesture recognizer to close any active textfields and hide the keyboard
+    func dismissKeyboard() {
+        // causes the view (or one of its embedded text fields) to resign the first responder status.
+        if activeCell != nil {
+            activeCell!.editLabel.resignFirstResponder()
         }
     }
     
-    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        //hide sections if currently editing a item
-        if hideSectionHeaders {
-            return 0.0
-        } else {
-            return 20.0
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+        // don't override the tap action if the target is a tableview control button
+        if NSStringFromClass(touch.view!.classForCoder) == "UITableViewCellEditControl"{
+            return false
         }
-    }
-    
-    // UITableView Section Header customization: http://www.elicere.com/mobile/swift-blog-2-uitableview-section-header-color/
-    func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        //recast your view as a UITableViewHeaderFooterView
-        if let header = view as? UITableViewHeaderFooterView {
-            header.contentView.backgroundColor = UIColor.whiteColor() //make the background color white
-            header.textLabel!.textColor = UIColor(red: 0/255, green: 181/255, blue: 229/255, alpha: 1.0) //make the text color light blue
-            header.textLabel!.text = header.textLabel!.text!.uppercaseString
-            header.textLabel!.font = UIFont.boldSystemFontOfSize(18)
-            header.textLabel!.frame = header.frame
-        }
-    }
-    
-    //disable table view swipe to delete since we have a custom swipe action already
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        //only show delete button if in editing mode
-        if (self.tableView.editing) {
-            return .Delete
-        }
-        return .None
-    }
-    
-    func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return false
-    }
-
-    // Override to support conditional editing of the table view.
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
-    }
-    
-    func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
-        self.performSegueWithIdentifier(segueIdentifier, sender: indexPath)
     }
     
     // MARK: - UITextFieldDelegate delegate methods
@@ -309,86 +234,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             getFactoids(editCell)
             // refresh the tableview to show the activity indicator
             tableView.reloadData()
-        }
-    }
-    
-    // called from the tap gesture recognizer to close any active textfields and hide the keyboard
-    func dismissKeyboard() {
-        // causes the view (or one of its embedded text fields) to resign the first responder status.
-        activeCell!.editLabel.resignFirstResponder()
-    }
-    
-    // MARK: - add, delete, edit methods
-    
-    func addToDo() {
-        // hide table section headers before adding and animating table cells
-        hideSectionHeaders = true
-        
-        let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
-        let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
-        toDoItem.editing = true
-        try! toDoItem.managedObjectContext!.save()
-        // we added a new cell, refresh the table
-        tableView.reloadData()
-        
-        // enter edit mode
-        var editCell: ToDoCellTableViewCell
-        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
-        for cell in visibleCells {
-            // find the toDoItem and initiate it's delegate
-            if (cell.toDoItem === toDoItem) {
-                editCell = cell
-                editCell.editLabelOnly = true
-                // initiate cellDidBeginEditing
-                editCell.editLabel.becomeFirstResponder()
-                break
-            }
-        }
-    }
-    
-    func removeToDo(toDoItem: ToDoItem) {
-        // loop over the visible cells to animate delete
-        let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
-        let lastView = visibleCells[visibleCells.count - 1] as ToDoCellTableViewCell
-        var delay = 0.0
-        var startAnimating = false
-        for i in 0..<visibleCells.count {
-            let cell = visibleCells[i]
-            if startAnimating {
-                UIView.animateWithDuration(0.3, delay: delay, options: .CurveEaseInOut,
-                    animations: {() in
-                        cell.frame = CGRectOffset(cell.frame, 0.0,
-                            -cell.frame.size.height)},
-                    completion: {(finished: Bool) in
-                        if (cell == lastView) {
-                            //we reached the end of the table cells, reload the tableview
-                            self.tableView.reloadData()
-                        }
-                    }
-                )
-                delay += 0.03
-            }
-            //remove the cell
-            if cell.toDoItem === toDoItem {
-                startAnimating = true
-                cell.hidden = true
-                // remove any notifications for this item if it's completed and was assigned a deadline
-                if toDoItem.deadline != nil {
-                    ToDoList.sharedInstance.removeItem(toDoItem)
-                }
-                self.sharedContext.deleteObject(toDoItem)
-                CoreDataManager.sharedInstance.saveContext()
-            }
-        }
-    }
-    
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
-        if let toDo = toDoListController.toDoAtIndexPath(indexPath) {
-            toDo.completed = !toDo.completed.boolValue
-            toDo.metaData.updateSectionIdentifier()
-            CoreDataManager.sharedInstance.saveContext()
         }
     }
     
@@ -454,7 +299,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         placeHolderCell.removeFromSuperview()
     }
     
-
     func refreshFactoids() {
         //loop through the visible cells and select another random factoid to display
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
@@ -479,39 +323,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
+    // MARK: - EditToDoViewControllerDelegate methods
+    
     func didSetReminder(item: ToDoItem) {
-        print("set reminder \(item.text)")
+        // create a corresponding local notification
+        ToDoList.sharedInstance.addItem(item)
+        // refresh the tableview
         tableView.reloadData()
     }
     
-    // MARK: - Private methods
+    // MARK: - Helper methods
     
-    private func getFactoids(cell: ToDoCellTableViewCell) {
-        let indexPath = self.tableView.indexPathForCell(cell)
-        let item = cell.toDoItem!
-        item.requesting = true
-        
-        NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
-            //we have a API response - hide the activity indicator
-            item.requesting = false
-            if let e = error {
-                print("configure cell getFactoids error: \(e)")
-            }
-            
-            // select a random factoid returned from API
-            if item.factoids.count > 0 {
-                cell.titleLabel.text = item.getRandomFactoid()
-                cell.titleLabel.hidden = false
-            }
-            // reload table cell to turn off activity indicator and update autolayout constraints if content was changed
-            if (reload != false) {
-                // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
-                self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
-            }
-        })
-    }
-    
-    private func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
+    func configureCell(indexPath: NSIndexPath, item: ToDoItem) -> ToDoCellTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! ToDoCellTableViewCell
         // Configure the cell for this indexPath
         cell.updateFonts()
@@ -525,7 +348,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             cell.checkbox.titleLabel!.text = item.id
             cell.checkbox.addTarget(self, action: "toggleToDoItem:", forControlEvents: UIControlEvents.TouchUpInside)
             cell.backgroundColor = UIColor.whiteColor()
-            cell.checkbox.hidden = false
             
             //make sure we have a valid ToDo
             if !isEmpty(item.text) {
@@ -567,7 +389,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     // Helper to identify if textfield is empty or only contains default placeholder text as a value
-    private func isEmpty(str: String) -> Bool {
+    func isEmpty(str: String) -> Bool {
         if str == Constants.Messages.PLACEHOLDER_TEXT || str == "" {
             return true
         } else {
@@ -575,28 +397,41 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
-    private func updateInternalOrderForToDo(toDo: ToDoItem, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
-        
-        // Now update internal order to reflect new position
-        
-        // First get all toDos, in sorted order
-        var sortedToDos = toDoListController.fetchedToDos()
-        sortedToDos = sortedToDos.filter() {$0 != toDo} // Remove current toDo
-        
-        // Insert toDo at new place in array
-        var sortedIndex = destinationIndexPath.row
-        for sectionIndex in 0..<destinationIndexPath.section {
-            sortedIndex += toDoListController.sections[sectionIndex].numberOfObjects
-            if sectionIndex == sourceIndexPath.section {
-                sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
-            }
-        }
-        sortedToDos.insert(toDo, atIndex: sortedIndex)
-        
-        // Regenerate internal order for all toDos
-        for (index, toDo) in sortedToDos.enumerate() {
-            toDo.metaData.internalOrder = sortedToDos.count-index
+    // MARK: - Private methods
+    
+    private func getFactoids(cell: ToDoCellTableViewCell) {
+        // first test to see if we have a network connection before requesting data from the API
+        if Reachability.isConnectedToNetwork() == true {
+            let indexPath = self.tableView.indexPathForCell(cell)
+            let item = cell.toDoItem!
+            item.requesting = true
+            
+            NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
+                //we have a API response - hide the activity indicator
+                item.requesting = false
+                if let e = error {
+                    // display a toast message instead of a UIAlert in case mutliple requests fail resulting in multiple alerts the user needs to dismiss
+                    let title = "API Error", message = "Unable to download factoids"
+                    self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: title)
+                    print("configure cell getFactoids error: \(e)")
+                }
+                
+                // select a random factoid returned from API
+                if item.factoids.count > 0 {
+                    cell.titleLabel.text = item.getRandomFactoid()
+                    cell.titleLabel.hidden = false
+                }
+                // reload table cell to turn off activity indicator and update autolayout constraints if content was changed
+                if (reload != false) {
+                    // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
+                    self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
+                }
+            })
+        } else {
+            let title = "No Internet Connection", message = "Make sure your device is connected to the internet."
+            self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: title)
         }
     }
-
+    
+    
 }
