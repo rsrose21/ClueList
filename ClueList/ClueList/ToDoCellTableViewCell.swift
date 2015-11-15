@@ -21,11 +21,6 @@ protocol TableViewCellDelegate {
 
 class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDelegate {
 
-    // The CGFloat type annotation is necessary for these constants because they are passed as arguments to bridged Objective-C methods,
-    // and without making the type explicit these will be inferred to be type Double which is not compatible.
-    var kLabelHorizontalInsets: CGFloat = 40.0
-    let kLabelVerticalInsets: CGFloat = 10.0
-    
     //Defining fonts of size and type
     let titleFont:UIFont = UIFont(name: Constants.UIFonts.HEADLINE_FONT, size: Constants.UIFonts.HEADLINE_FONT_SIZE)!
     let bodyFont:UIFont = UIFont(name: Constants.UIFonts.BODY_FONT, size: Constants.UIFonts.BASE_FONT_SIZE)!
@@ -44,7 +39,6 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             bodyLabel.text = nil
             editLabel.text = nil
             if item.text == Constants.Messages.PLACEHOLDER_TEXT {
-                print("didSet \(item.id)")
                 editLabelOnly = true
             } else {
                 editLabelOnly = false
@@ -55,7 +49,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
                     titleLabel.text = item.text
                 }
                 if item.deadline != nil {
-                    bodyLabel.text = timeAgoSinceDate(item.deadline!, numericDates: false)
+                    bodyLabel.text = "Due " + timeAgoSinceDate(item.deadline!, numericDates: false)
                 }
                 toggleCompleted(item.completed)
             }
@@ -207,7 +201,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
         if Constants.Data.DEBUG_LAYERS {
             editLabel.backgroundColor = UIColor(hexString: "#eeeeeeff")
         }
-        editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE + 4)
+        editLabel.frame = CGRectMake(marginLeft, 0, width, Constants.UIFonts.HEADLINE_FONT_SIZE)
     }
     
     func layoutCheckbox(color: UIColor?) -> DOCheckbox {
@@ -236,23 +230,23 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
                     self.titleLabel.autoSetContentCompressionResistancePriorityForAxis(.Vertical)
                     self.bodyLabel.autoSetContentCompressionResistancePriorityForAxis(.Vertical)
                 }
-                titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
-                titleLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
-                titleLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
+                titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_TOP)
+                titleLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_LEFT)
+                titleLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_RIGHT)
                 
                 // This constraint is an inequality so that if the cell is slightly taller than actually required, extra space will go here
-                bodyLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: titleLabel, withOffset: 10.0, relation: .GreaterThanOrEqual)
+                bodyLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: titleLabel, withOffset: 0.0, relation: .GreaterThanOrEqual)
                 
-                bodyLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
-                bodyLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
-                bodyLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: kLabelVerticalInsets)
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_LEFT)
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_RIGHT)
+                bodyLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_BOTTOM)
             }
             
             //we overlay the editLabel on top of the titleLabel so we set the constraints for both to be the same
-            editLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: kLabelVerticalInsets)
-            editLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: kLabelHorizontalInsets)
-            editLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: kLabelHorizontalInsets)
-            editLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: kLabelVerticalInsets)
+            editLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_TOP)
+            editLabel.autoPinEdgeToSuperviewEdge(.Leading, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_LEFT)
+            editLabel.autoPinEdgeToSuperviewEdge(.Trailing, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_RIGHT)
+            editLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: Constants.UIDimensions.TABLE_CELL_PADDING_BOTTOM)
             
             didSetupConstraints = true
         }
@@ -298,7 +292,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     
     func strikeThrough(str: String, style: Int) -> NSAttributedString {
         //http://stackoverflow.com/questions/13133014/uilabel-with-text-struck-through
-        let attributeString = NSAttributedString(string: str, attributes: [NSStrikethroughStyleAttributeName: style])
+        let attributeString = NSAttributedString(string: str, attributes: [NSStrikethroughStyleAttributeName: style, NSStrikethroughColorAttributeName: UIColor.redColor()])
         
         return attributeString
     }
@@ -306,15 +300,18 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
     //helper to indicate a table view cell item is completed/not completed
     func toggleCompleted(completed: Bool) {
         if completed {
-            contentView.backgroundColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1.0)
+            // fade completed cell
             contentView.alpha = 0.6
             titleLabel.attributedText = strikeThrough(titleLabel.text!, style: NSUnderlineStyle.StyleSingle.rawValue)
             editLabel.attributedText = strikeThrough(editLabel.text!, style: NSUnderlineStyle.StyleSingle.rawValue)
+            // hide due date for completed items
+            bodyLabel.hidden = true
         } else {
-            contentView.backgroundColor = UIColor.clearColor()
+            // make cell opaque
             contentView.alpha = 1.0
             titleLabel.attributedText = strikeThrough(titleLabel.text!, style: NSUnderlineStyle.StyleNone.rawValue)
             editLabel.attributedText = strikeThrough(editLabel.text!, style: NSUnderlineStyle.StyleNone.rawValue)
+            bodyLabel.hidden = false
         }
     }
     

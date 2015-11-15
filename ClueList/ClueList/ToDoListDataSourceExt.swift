@@ -67,7 +67,7 @@ extension ToDoListTableViewController {
         if hideSectionHeaders {
             return 0.0
         } else {
-            return 20.0
+            return Constants.UIDimensions.TABLE_SECTION_HEIGHT
         }
     }
     
