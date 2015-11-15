@@ -160,10 +160,32 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
                 self.delegate.didSetReminder(item)
             } catch {
                 let nserror = error as NSError
-                NSLog("Reminder failed with error \(nserror), \(nserror.userInfo)")
-                abort()
+                NSLog("Unable to add reminder: \(nserror), \(nserror.userInfo)")
             }
         }
+    }
+    
+    // removes a individual reminder from the event store: https://gist.github.com/mchirico/d072c4e38bda61040f91
+    func removeReminder(item: ToDoItem) {
+        // This lists every reminder
+        let predicate = eventStore!.predicateForRemindersInCalendars([])
+        eventStore!.fetchRemindersMatchingPredicate(predicate) { reminders in
+            for reminder in reminders! {
+                if reminder.title == item.text {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        do {
+                            try self.eventStore!.removeReminder(reminder, commit: true)
+                            // clear the deadline in the ToDoItem
+                            item.deadline = nil
+                            try! item.managedObjectContext!.save()
+                            // call the delegate method to update the parent tableview
+                            self.delegate.didSetReminder(item)
+                        } catch {
+                            let nserror = error as NSError
+                            NSLog("Unable to remove reminder: \(nserror), \(nserror.userInfo)")
+                        }
+                }
+            }}
     }
     
     func cancelButtonPressed() {
@@ -178,7 +200,14 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
         
         let toDo = todo as ToDoItem!
         toDo.text = title
-        createReminder(todo!)
+        if mySwitch.on {
+            createReminder(todo!)
+        } else {
+            // were any previous reminders set for this toDo?
+            if toDo.deadline != nil {
+                removeReminder(toDo)
+            }
+        }
         toDo.priority = toDo.selectedPriority(self.priorityControl.selectedSegmentIndex).rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
         toDo.metaData.updateSectionIdentifier()

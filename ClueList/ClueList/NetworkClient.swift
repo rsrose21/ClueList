@@ -26,9 +26,16 @@ class NetworkClient: NSObject {
                     completionHandler(result: json["results"])
                 case .Failure(let error):
                     print("Request failed with error: \(error)")
+                    let json = JSON(self.formatError(error))
+                    completionHandler(result: json)
                 }
             }
         }
+    }
+    
+    func formatError(error: NSError) -> AnyObject {
+        let dataReadyToReturn: NSData = ("{\"error\": \"" + error.description + "\"}").dataUsingEncoding(NSUTF8StringEncoding)!
+        return dataReadyToReturn
     }
     
     // MARK: - Shared Instance

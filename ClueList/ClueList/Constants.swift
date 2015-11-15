@@ -20,6 +20,7 @@ class Constants: NSObject {
     struct Data {
         static let SEED_DB: Bool = false
         static let DEBUG_LAYERS: Bool = false
+        static let APP_STATE: String = "listMode"
     }
     
     struct API {

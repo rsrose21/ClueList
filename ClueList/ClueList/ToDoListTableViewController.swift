@@ -161,16 +161,26 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
+    func toggleListMode(mode: ToDoListMode) {
+        if mode == ToDoListMode.Simple {
+            prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
+            simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
+        } else {
+            simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
+            prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
+        }
+        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = mode
+        // save the selected state
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setInteger(mode.rawValue as Int, forKey: Constants.Data.APP_STATE)
+    }
+    
     @IBAction func viewSimple(sender: AnyObject) {
-        prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
-        simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
-        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+        toggleListMode(.Simple)
     }
     
     @IBAction func viewPrioritized(sender: AnyObject) {
-        simpleBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ITEM)
-        prioritizedBtn.tintColor = UIColor(hexString: Constants.UIColors.TOOLBAR_ACTIVE)
-        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Prioritized
+        toggleListMode(.Prioritized)
     }
     
     // MARK: - UIGestureRecognizerDelegate methods
@@ -184,17 +194,19 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+        //print(NSStringFromClass(touch.view!.classForCoder))
         // don't override the tap action if the target is a tableview control button
         if NSStringFromClass(touch.view!.classForCoder) == "UITableViewCellEditControl"{
             return false
         }
+
         return true
     }
     
     // MARK: - UITextFieldDelegate delegate methods
     
     func cellDidBeginEditing(editingCell: ToDoCellTableViewCell) {
-        hideSectionHeaders = true
+        // set a reference to the current active cell
         activeCell = editingCell
         //ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
         let editingOffset = tableView.contentOffset.y - editingCell.frame.origin.y as CGFloat
@@ -326,8 +338,13 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - EditToDoViewControllerDelegate methods
     
     func didSetReminder(item: ToDoItem) {
-        // create a corresponding local notification
-        ToDoList.sharedInstance.addItem(item)
+        // add or remove local notifications for any reminders
+        if item.deadline != nil {
+            // create a corresponding local notification
+            ToDoList.sharedInstance.addItem(item)
+        } else {
+            ToDoList.sharedInstance.removeItem(item)
+        }
         // refresh the tableview
         tableView.reloadData()
     }
