@@ -25,7 +25,7 @@ enum ToDoSection: String {
         case HighPriority:      return "High priority"
         case MediumPriority:    return "Medium priority"
         case LowPriority:       return "Low priority"
-        case NoPriority:        return ""
+        case NoPriority:        return "Not prioritized"
         }
     }
 }

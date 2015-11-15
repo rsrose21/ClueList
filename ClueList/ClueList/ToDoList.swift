@@ -70,6 +70,9 @@ class ToDoList {
         notification.category = "TODO_CATEGORY"
         
         UIApplication.sharedApplication().scheduleLocalNotification(notification)
+        // update the ToDoItem's extended deadline
+        item.deadline = notification.fireDate
+        CoreDataManager.sharedInstance.saveContext()
     }
     
     // automatically update badge numbers when ToDoItems become overdue: http://jamesonquave.com/blog/local-notifications-in-ios-8-with-swift-part-2/

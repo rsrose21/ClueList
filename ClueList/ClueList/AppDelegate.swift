@@ -97,6 +97,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         switch (identifier!) {
         case "COMPLETE_TODO":
             ToDoList.sharedInstance.removeItem(toDoItem)
+            toDoItem.completed = true
+            CoreDataManager.sharedInstance.saveContext()
         case "REMIND":
             ToDoList.sharedInstance.scheduleReminderforItem(toDoItem)
         default: // switch statements must be exhaustive - this condition should never be met
