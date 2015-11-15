@@ -26,9 +26,8 @@ class Constants: NSObject {
     struct API {
         static let BASE_URL: String = "https://cluelist-api.herokuapp.com/api/"
         static let ACCESS_TOKEN: String = "iwoPb0w0Lj5axSGon8ssVNYDEvAsA4o4CgpNIGhmv9BP2BzAX7ETDcAjqLo3AY6w"
-        // uncomment these lines and update the ACCESS_TOKEN if you are running the API locally
+        // uncomment this line and update the ACCESS_TOKEN if you are running the API locally
         //static let BASE_URL: String = "http://localhost:3000/api/"
-        //static let ACCESS_TOKEN: String = "tY6apkFWNqaxiaUnyxmZi8gGccB1QiH0t2SFTbEHRoE60a1uSeswFLOSh0SKuhZX"
     }
     
     struct UIFonts {
@@ -42,10 +41,11 @@ class Constants: NSObject {
     
     struct UIColors {
         static let WHITE: String = "#ffffffff"
-        static let NAVIGATION_BAR: String = "#6F5499ff"
+        static let NAVIGATION_BAR: String = "#7461C2ff"
         static let TABLE_BG: String = "#eeeeeeff"
-        static let TOOLBAR_ACTIVE: String = "#ff0000ff"
+        static let TOOLBAR_ACTIVE: String = "#E54D42ff"
         static let TOOLBAR_ITEM: String = "#A1A1A1ff"
+        static let SECTION_HEADER: String = "#5B4BA0ff"
     }
     
     struct UIDimensions {

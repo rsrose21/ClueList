@@ -102,11 +102,13 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     //use the auto layout constraints to determine each cell's height
     //http://www.raywenderlich.com/87975/dynamic-table-view-cell-height-ios-8-swift
     func configureTableView() {
-        // TODO: set this from NSKeyedArchiver
+        // disable cell selection since we are using custom gestures
         tableView.allowsSelection = false
         
         // Self-sizing table view cells in iOS 8 require that the rowHeight property of the table view be set to the constant UITableViewAutomaticDimension
         tableView.rowHeight = UITableViewAutomaticDimension
+        
+        tableView.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
         
         // Self-sizing table view cells in iOS 8 are enabled when the estimatedRowHeight property of the table view is set to a non-zero value.
         // Setting the estimated row height prevents the table view from calling tableView:heightForRowAtIndexPath: for every row in the table on first load;

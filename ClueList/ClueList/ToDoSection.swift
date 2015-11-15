@@ -22,10 +22,10 @@ enum ToDoSection: String {
         switch self {
         case ToDo:              return "Left to do"
         case Done:              return "Done"
-        case HighPriority:      return "High priority"
-        case MediumPriority:    return "Medium priority"
-        case LowPriority:       return "Low priority"
-        case NoPriority:        return "Not prioritized"
+        case HighPriority:      return "High"
+        case MediumPriority:    return "Medium"
+        case LowPriority:       return "Low"
+        case NoPriority:        return "None"
         }
     }
 }

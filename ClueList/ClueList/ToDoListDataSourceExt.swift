@@ -76,7 +76,7 @@ extension ToDoListTableViewController {
         //recast your view as a UITableViewHeaderFooterView
         if let header = view as? UITableViewHeaderFooterView {
             header.contentView.backgroundColor = UIColor.whiteColor() //make the background color white
-            header.textLabel!.textColor = UIColor(red: 0/255, green: 181/255, blue: 229/255, alpha: 1.0) //make the text color light blue
+            header.textLabel!.textColor = UIColor(hexString: Constants.UIColors.SECTION_HEADER)
             header.textLabel!.text = header.textLabel!.text!.uppercaseString
             header.textLabel!.font = UIFont.boldSystemFontOfSize(18)
             header.textLabel!.frame = header.frame
