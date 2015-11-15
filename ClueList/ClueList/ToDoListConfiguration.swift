@@ -1,9 +1,10 @@
 //
 //  ToDoListConfiguration.swift
-//  ClueList
+//  Created for: http://www.iosnomad.com/blog/2014/8/6/swift-nsfetchedresultscontroller-trickery
 //
-//  Created by Ryan Rose on 10/25/15.
-//  Copyright © 2015 GE. All rights reserved.
+//  Created by Alek Åström on 2015-09-13.
+//  Copyright © 2015 Apps and Wonders. All rights reserved.
+//  https://github.com/MrAlek/Swift-NSFetchedResultsController-Trickery/blob/master/LICENSE
 //
 
 import Foundation
@@ -40,7 +41,7 @@ class ToDoListConfiguration: NSManagedObject {
         case .Simple:
             return [.ToDo, .Done]
         case .Prioritized:
-            return [.HighPriority, .MediumPriority, .LowPriority, .Done]
+            return [.HighPriority, .MediumPriority, .LowPriority, .NoPriority, .Done]
         }
     }
 }

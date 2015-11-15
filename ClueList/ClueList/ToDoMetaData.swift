@@ -1,15 +1,18 @@
 //
 //  ToDoMetaData.swift
 //  ClueList
+//  Based from: http://www.iosnomad.com/blog/2014/8/6/swift-nsfetchedresultscontroller-trickery
 //
-//  Created by Ryan Rose on 10/25/15.
-//  Copyright © 2015 GE. All rights reserved.
+//  Original Created by Alek Åström on 2015-09-13.
+//  Copyright © 2015 Apps and Wonders. All rights reserved.
+//  https://github.com/MrAlek/Swift-NSFetchedResultsController-Trickery/blob/master/LICENSE
 //
 
 import Foundation
 import CoreData
 
 enum ToDoPriority: Int {
+    case None = 0
     case Low = 1
     case Medium = 2
     case High = 3
@@ -54,6 +57,9 @@ class ToDoMetaData: NSManagedObject {
         case .LowPriority:
             toDo.completed = false
             toDo.priority = ToDoPriority.Low.rawValue
+        case .NoPriority:
+            toDo.completed = false
+            toDo.priority = ToDoPriority.None.rawValue
         }
         sectionIdentifier = section.rawValue
     }
@@ -66,6 +72,7 @@ class ToDoMetaData: NSManagedObject {
             return .ToDo
         } else {
             switch ToDoPriority(rawValue: toDo.priority.integerValue)! {
+            case .None:     return .NoPriority
             case .Low:      return .LowPriority
             case .Medium:   return .MediumPriority
             case .High:     return .HighPriority

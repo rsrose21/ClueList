@@ -34,8 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //change status bar color
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent
         
-        //set default list mode prior to any Core Data inserts
-        ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+        // set default list mode prior to any Core Data inserts
+        let defaults = NSUserDefaults.standardUserDefaults()
+        let mode = defaults.integerForKey(Constants.Data.APP_STATE)
+        if (ToDoListMode(rawValue: mode) != nil) {
+            ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = ToDoListMode(rawValue: mode)!
+        } else {
+            ToDoListConfiguration.defaultConfiguration(sharedContext).listMode = .Simple
+        }
         
         // register app to receive local notifications
         application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil))  // types are UIUserNotificationType members

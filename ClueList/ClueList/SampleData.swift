@@ -17,7 +17,7 @@ class DataHelper {
     }
     
     func seedDataStore() {
-        seedToDos()
+        //seedToDos()
         //seedFactoids()
     }
     

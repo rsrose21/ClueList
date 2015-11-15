@@ -1,10 +1,11 @@
 //
-//  ToDoSection.swift
-//  ClueList
-//  Maintains sort order of sections 
+//  ToDoMetaData.swift
+//  ClueList: maintains sort order of sections
+//  Based from: http://www.iosnomad.com/blog/2014/8/6/swift-nsfetchedresultscontroller-trickery
 //
-//  Created by Ryan Rose on 10/25/15.
-//  Copyright © 2015 GE. All rights reserved.
+//  Original Created by Alek Åström on 2015-09-13.
+//  Copyright © 2015 Apps and Wonders. All rights reserved.
+//  https://github.com/MrAlek/Swift-NSFetchedResultsController-Trickery/blob/master/LICENSE
 //
 
 import Foundation
@@ -15,6 +16,7 @@ enum ToDoSection: String {
     case MediumPriority = "12"
     case LowPriority = "13"
     case Done = "20"
+    case NoPriority = "5"
     
     var title: String {
         switch self {
@@ -23,6 +25,7 @@ enum ToDoSection: String {
         case HighPriority:      return "High priority"
         case MediumPriority:    return "Medium priority"
         case LowPriority:       return "Low priority"
+        case NoPriority:        return ""
         }
     }
 }

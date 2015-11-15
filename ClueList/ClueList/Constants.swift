@@ -19,6 +19,8 @@ class Constants: NSObject {
     
     struct Data {
         static let SEED_DB: Bool = false
+        static let DEBUG_LAYERS: Bool = false
+        static let APP_STATE: String = "listMode"
     }
     
     struct API {
@@ -41,9 +43,13 @@ class Constants: NSObject {
     struct UIColors {
         static let WHITE: String = "#ffffffff"
         static let NAVIGATION_BAR: String = "#6F5499ff"
-        static let DEBUG_LAYERS: Bool = false
         static let TABLE_BG: String = "#eeeeeeff"
         static let TOOLBAR_ACTIVE: String = "#ff0000ff"
         static let TOOLBAR_ITEM: String = "#A1A1A1ff"
+    }
+    
+    struct UIDimensions {
+        
+        static let TABLE_SECTION_HEIGHT: CGFloat = 20.0
     }
 }

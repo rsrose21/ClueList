@@ -18,12 +18,14 @@ class ToDoItem: NSManagedObject {
         return "ToDoItem"
     }
     
-    let DEFAULT_PRIORITY = 1
+    let DEFAULT_PRIORITY = 0
     
     // current selected random factoid displayed for this ToDoItem
     var factoid: String?
     
     var editing: Bool = false
+    
+    var requesting: Bool = false
     
     @NSManaged var id: String
     
@@ -124,10 +126,11 @@ class ToDoItem: NSManagedObject {
     
     func selectedPriority(priority: Int) -> ToDoPriority {
         switch priority {
-        case 0:  return .Low
-        case 1:  return .Medium
-        case 2:  return .High
-        default: return .Medium
+        case 0:  return .None
+        case 1:  return .Low
+        case 2:  return .Medium
+        case 3:  return .High
+        default: return .None
         }
     }
     
@@ -161,8 +164,9 @@ class ToDoItem: NSManagedObject {
                 for f in factoids {
                     if (f != item) {
                         factoid = f.text.htmlDecoded()
-
-                        return factoid
+                        if factoid != "" {
+                            return factoid
+                        }
                     }
                 }
             }

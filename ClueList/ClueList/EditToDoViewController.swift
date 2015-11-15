@@ -11,7 +11,12 @@ import UIKit
 import CoreData
 import EventKit
 
-class EditToDoViewController: UIViewController {
+//protocol for the delegate
+protocol EditToDoViewControllerDelegate {
+    func didSetReminder(item: ToDoItem)
+}
+
+class EditToDoViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet var textField: UITextField!
     @IBOutlet var priorityControl: UISegmentedControl!
@@ -27,10 +32,12 @@ class EditToDoViewController: UIViewController {
     }
     var todo: ToDoItem?
     
+    var delegate: EditToDoViewControllerDelegate! = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // hide date controls until permission is granted to access EventKit
-        dateControls.hidden = true
+
+        textField.delegate = self
         
         // update toolbar
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .Plain, target: self, action: "cancelButtonPressed")
@@ -45,6 +52,14 @@ class EditToDoViewController: UIViewController {
         eventStore = appDelegate!.eventStore
         
         mySwitch.addTarget(self, action: Selector("stateChanged:"), forControlEvents: UIControlEvents.ValueChanged)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        textField.text = todo!.text
+        textField.becomeFirstResponder()
+        // hide date controls until permission is granted to access EventKit
+        dateControls.hidden = true
         
         if (todo?.deadline != nil) {
             mySwitch.setOn(true, animated:true)
@@ -52,12 +67,9 @@ class EditToDoViewController: UIViewController {
             mySwitch.setOn(false, animated:true)
         }
         myDatePicker.hidden = !mySwitch.on
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        textField.text = todo!.text
-        textField.becomeFirstResponder()
+        
+        priorityControl.selectedSegmentIndex = todo!.priority as Int
+        
         //ask user permission to access calendar to set reminders
         checkCalendarAuthorizationStatus()
     }
@@ -104,7 +116,7 @@ class EditToDoViewController: UIViewController {
     func needPermissionView() {
         dispatch_async(dispatch_get_main_queue(), {
             // Create the alert controller
-            let alertController = UIAlertController(title: "Title", message: "Message", preferredStyle: .Alert)
+            let alertController = UIAlertController(title: "Alert", message: "This application needs access to your calendar in order to set reminders", preferredStyle: .Alert)
             
             // Create the actions
             let okAction = UIAlertAction(title: "Go to Settings", style: UIAlertActionStyle.Default) {
@@ -131,7 +143,7 @@ class EditToDoViewController: UIViewController {
     func createReminder(item: ToDoItem) {
         let reminder = EKReminder(eventStore: eventStore!)
         
-        reminder.title = textField.text!
+        reminder.title = item.text
         reminder.calendar = eventStore!.defaultCalendarForNewReminders()
         let date = myDatePicker.date
         let alarm = EKAlarm(absoluteDate: date)
@@ -143,13 +155,37 @@ class EditToDoViewController: UIViewController {
                 try self.eventStore!.saveReminder(reminder, commit: true)
                 //set the deadline date to the reminder date
                 item.deadline = date
-                CoreDataManager.sharedInstance.saveContext()
-                // create a corresponding local notification
-                ToDoList.sharedInstance.addItem(item)
+                try! item.managedObjectContext!.save()
+                // call the delegate method to update the parent tableview
+                self.delegate.didSetReminder(item)
             } catch {
                 let nserror = error as NSError
-                NSLog("Reminder failed with error \(nserror), \(nserror.userInfo)")
-                abort()
+                NSLog("Unable to add reminder: \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
+    
+    // removes a individual reminder from the event store: https://gist.github.com/mchirico/d072c4e38bda61040f91
+    func removeReminder(item: ToDoItem) {
+        // This lists every reminder
+        let predicate = eventStore!.predicateForRemindersInCalendars([])
+        eventStore!.fetchRemindersMatchingPredicate(predicate) { reminders in
+            for reminder in reminders! {
+                if reminder.title == item.text {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        do {
+                            try self.eventStore!.removeReminder(reminder, commit: true)
+                            // clear the deadline in the ToDoItem
+                            item.deadline = nil
+                            try! item.managedObjectContext!.save()
+                            // call the delegate method to update the parent tableview
+                            self.delegate.didSetReminder(item)
+                        } catch {
+                            let nserror = error as NSError
+                            NSLog("Unable to remove reminder: \(nserror), \(nserror.userInfo)")
+                        }
+                    }
+                }
             }
         }
     }
@@ -160,20 +196,43 @@ class EditToDoViewController: UIViewController {
     
     func saveButtonPressed() {
         guard let title = textField.text else {
-            presentViewController(UIAlertController(title: "Can't update Task", message: "Title can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
+            presentViewController(UIAlertController(title: "Can't update Task", message: "Task can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
             return
         }
         
-        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDoItem.entityName, inManagedObjectContext: sharedContext) as! ToDoItem
+        let toDo = todo as ToDoItem!
         toDo.text = title
+        if mySwitch.on {
+            createReminder(todo!)
+        } else {
+            // were any previous reminders set for this toDo?
+            if toDo.deadline != nil {
+                removeReminder(toDo)
+            }
+        }
         toDo.priority = toDo.selectedPriority(self.priorityControl.selectedSegmentIndex).rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(sharedContext)+1
         toDo.metaData.updateSectionIdentifier()
         CoreDataManager.sharedInstance.saveContext()
         
-        createReminder(todo!)
-        
         dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: UITextField Delegates
+    
+    /**
+     * Called when 'return' key pressed. return NO to ignore.
+     */
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    /**
+     * Called when the user click on the view (outside the UITextField).
+     */
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        textField.resignFirstResponder()
     }
     
 }

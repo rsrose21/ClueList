@@ -1,6 +1,7 @@
 //
 //  ToDoList.swift
-//  ClueList
+//  ClueList: Convenience class for handling local notifications
+//  Based on: http://jamesonquave.com/blog/local-notifications-in-ios-8-with-swift-part-2/
 //
 //  Created by Ryan Rose on 11/11/15.
 //  Copyright © 2015 GE. All rights reserved.
@@ -35,9 +36,6 @@ class ToDoList {
     }
     
     func addItem(item: ToDoItem) {
-        // persist a representation of this todo item in NSUserDefaults
-
-        
         // create a corresponding local notification
         let notification = UILocalNotification()
         notification.alertBody = "Todo Item \"\(item.text)\" Is Overdue" // text that will be displayed in the notification
