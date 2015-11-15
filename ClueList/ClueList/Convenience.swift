@@ -28,11 +28,11 @@ extension NetworkClient {
                     completionHandler(reload: false, error: error)
                     return
                 }
-                print(result)
+                
                 //find the clue and save to ToDo (clue used for highlighting)
                 if let clue = result["clue"].string {
                     todo.clue = clue
-                    
+                    // save the clue, if we have no factoids this identifies a successful API request was returned if a refresh is executed
                     CoreDataManager.sharedInstance.saveContext()
                 }
                 

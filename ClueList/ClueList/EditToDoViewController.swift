@@ -63,6 +63,10 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
         
         if (todo?.deadline != nil) {
             mySwitch.setOn(true, animated:true)
+            // set the datepicker value to the saved deadline date
+            if let unwrappedDate = todo?.deadline {
+                myDatePicker.setDate(unwrappedDate, animated: false)
+            }
         } else {
             mySwitch.setOn(false, animated:true)
         }

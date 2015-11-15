@@ -126,6 +126,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "refreshList:", name: UIContentSizeCategoryDidChangeNotification, object: nil)
         // listen for refresh events in case ToDos become overdue
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "refreshList", name: "TodoListShouldRefresh", object: nil)
+        // monitor network state changes
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("networkStatusChanged:"), name: ReachabilityStatusChangedNotification, object: nil)
+        Reach().monitorReachabilityChanges()
     }
     
     override func viewDidDisappear(animated: Bool) {
@@ -138,6 +141,18 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     // This function will be called when the Dynamic Type user setting changes (from the system Settings app)
     func refreshList() {
         tableView.reloadData()
+    }
+    
+    func networkStatusChanged(notification: NSNotification) {
+        let status = Reach().connectionStatus()
+        switch status {
+        case .Unknown, .Offline:
+            let message = "You are currently offline"
+            self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: Constants.Messages.NETWORK_ERROR)
+        default:
+            let userInfo = notification.userInfo
+            print(userInfo)
+        }
     }
     
     // MARK: - Actions
@@ -313,7 +328,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         //loop through the visible cells and select another random factoid to display
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
         for cell in visibleCells {
-            cell.titleLabel.text = cell.toDoItem!.refreshFactoid()
+            if cell.toDoItem!.clue != "" {
+                cell.titleLabel.text = cell.toDoItem!.refreshFactoid()
+            } else {
+                // no clue found - query API in case this ToDo was added when the device had no network access
+                getFactoids(cell)
+            }
         }
         //force a reload since content length may have changed
         tableView.reloadData()
@@ -416,7 +436,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     private func getFactoids(cell: ToDoCellTableViewCell) {
         // first test to see if we have a network connection before requesting data from the API
-        if Reachability.isConnectedToNetwork() == true {
+        let status = Reach().connectionStatus()
+        switch status {
+        case .Unknown, .Offline:
+            let message = "Make sure your device is connected to the internet."
+            self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: Constants.Messages.NETWORK_ERROR)
+        default:
             let indexPath = self.tableView.indexPathForCell(cell)
             let item = cell.toDoItem!
             item.requesting = true
@@ -424,11 +449,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
                 //we have a API response - hide the activity indicator
                 item.requesting = false
-                if let e = error {
+                if let nserror = error {
                     // display a toast message instead of a UIAlert in case mutliple requests fail resulting in multiple alerts the user needs to dismiss
-                    let title = "API Error", message = "Unable to download factoids"
+                    let title = "API Error", message = Constants.Messages.LOADING_DATA_FAILED
                     self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: title)
-                    print("configure cell getFactoids error: \(e)")
+                    // log the error
+                    NSLog("Error requesting factoids: \(nserror), \(nserror.userInfo)")
                 }
                 
                 // select a random factoid returned from API
@@ -442,9 +468,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
                 }
             })
-        } else {
-            let title = "No Internet Connection", message = "Make sure your device is connected to the internet."
-            self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: title)
         }
     }
     
