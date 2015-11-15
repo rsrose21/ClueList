@@ -33,7 +33,7 @@ class Constants: NSObject {
     
     struct UIFonts {
         static let BASE_FONT_SIZE: CGFloat = 12.0
-        static let HEADLINE_FONT_SIZE: CGFloat = BASE_FONT_SIZE + 2
+        static let HEADLINE_FONT_SIZE: CGFloat = BASE_FONT_SIZE + 4
         
         static let BODY_FONT: String = "Helvetica Neue"
         static let HEADLINE_FONT: String = "Helvetica Neue"
@@ -53,7 +53,7 @@ class Constants: NSObject {
         // and without making the type explicit these will be inferred to be type Double which is not compatible.
         static let TABLE_CELL_PADDING_TOP: CGFloat = 5.0
         static let TABLE_CELL_PADDING_RIGHT: CGFloat = 40.0
-        static let TABLE_CELL_PADDING_BOTTOM: CGFloat = 0.0
+        static let TABLE_CELL_PADDING_BOTTOM: CGFloat = 5.0
         static let TABLE_CELL_PADDING_LEFT: CGFloat = 40.0
         
         static let TABLE_SECTION_HEIGHT: CGFloat = 20.0

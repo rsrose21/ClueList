@@ -25,7 +25,7 @@ class NetworkClient: NSObject {
                     //send parsed JSON back to completion handler
                     completionHandler(result: json["results"])
                 case .Failure(let error):
-                    print("Request failed with error: \(error)")
+                    NSLog("Request failed with error: \(error)")
                     let json = JSON(self.formatError(error))
                     completionHandler(result: json)
                 }

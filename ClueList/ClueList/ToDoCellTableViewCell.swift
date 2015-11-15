@@ -284,7 +284,7 @@ class ToDoCellTableViewCell: UITableViewCell, UITextFieldDelegate, UIButtonDeleg
             do {
                 try attributedString.highlightStrings(word as String, fontName: Constants.UIFonts.HIGHLIGHT_FONT, fontSize: Constants.UIFonts.HEADLINE_FONT_SIZE)
             } catch {
-                print(error)
+                NSLog("Error highlighting text: \(error)")
             }
         }
         return attributedString

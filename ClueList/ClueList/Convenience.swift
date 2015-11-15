@@ -20,11 +20,10 @@ extension NetworkClient {
         if todo.factoids.count > 0 {
             completionHandler(reload: false, error: nil)
         } else {
-            print("Requesting factoids for: \(todo.text)")
+            
             let dictionary: [String: AnyObject] = ["terms": todo.text]
             self.taskForGETMethod("factoids/search", params: dictionary, completionHandler: { (result) in
                 if let error = result.error {
-                    print("getFactoids result error: \(error)")
                     completionHandler(reload: false, error: error)
                     return
                 }

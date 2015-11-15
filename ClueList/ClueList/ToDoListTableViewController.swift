@@ -149,9 +149,8 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         case .Unknown, .Offline:
             let message = "You are currently offline"
             self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: Constants.Messages.NETWORK_ERROR)
-        default:
-            let userInfo = notification.userInfo
-            print(userInfo)
+        default: break
+            // do nothing since we have network connectivity
         }
     }
     

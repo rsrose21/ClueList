@@ -44,8 +44,7 @@ class Factoid: NSManagedObject {
         id = NSUUID().UUIDString
         
         text = dictionary["text"] as! String
-
-        print(text)
+        // set up relationship to associated ToDoItem for Core Data
         self.todo = todo
     }
     

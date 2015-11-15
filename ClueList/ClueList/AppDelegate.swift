@@ -100,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         case "REMIND":
             ToDoList.sharedInstance.scheduleReminderforItem(toDoItem)
         default: // switch statements must be exhaustive - this condition should never be met
-            print("Error: unexpected notification action identifier!")
+            NSLog("Error: unexpected notification action identifier!")
         }
         completionHandler() // per developer documentation, app will terminate if we fail to call this
     }
