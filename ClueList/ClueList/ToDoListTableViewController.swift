@@ -22,8 +22,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     let segueIdentifier = "editToDoItem"
     
-    let PLACEHOLDER_TEXT = "Enter Task"
-    
     // Mark: CoreData properties
     
     var sharedContext: NSManagedObjectContext {

@@ -184,8 +184,10 @@ class EditToDoViewController: UIViewController, UITextFieldDelegate {
                             let nserror = error as NSError
                             NSLog("Unable to remove reminder: \(nserror), \(nserror.userInfo)")
                         }
+                    }
                 }
-            }}
+            }
+        }
     }
     
     func cancelButtonPressed() {

@@ -150,7 +150,7 @@ extension ToDoListTableViewController {
         // hide table section headers before adding and animating table cells
         hideSectionHeaders = true
         
-        let dictionary: [String: AnyObject?] = ["text": PLACEHOLDER_TEXT]
+        let dictionary: [String: AnyObject?] = ["text": Constants.Messages.PLACEHOLDER_TEXT]
         let toDoItem = ToDoItem(dictionary: dictionary, context: sharedContext)
         toDoItem.editing = true
         try! toDoItem.managedObjectContext!.save()
