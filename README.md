@@ -19,3 +19,8 @@ Other features include:
 
 ## Compatibility
 This repository's code works in XCode 7.0 with Swift 2.0
+
+## Instructions
+Update Data.SEED_DB to true in Constants.swift to seed the database with some default tasks or create your own.
+
+This app uses a custom API developed specifically for this capstone project. The API is hosted on Heroku but can be run locally as well [requires MySQL](https://github.com/rsrose21/ClueListApi/tree/master/datadata/cluelist-dump.sql). Update API.BASE_URL in Constants.swift to use local API.
