@@ -208,7 +208,6 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
-        //print(NSStringFromClass(touch.view!.classForCoder))
         // don't override the tap action if the target is a tableview control button
         if NSStringFromClass(touch.view!.classForCoder) == "UITableViewCellEditControl"{
             return false
@@ -257,9 +256,10 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             // save any updates to the ToDo
             try! editCell.toDoItem!.managedObjectContext!.save()
             // get some factoids for this updated ToDoItem from the API
-            getFactoids(editCell)
-            // refresh the tableview to show the activity indicator
-            tableView.reloadData()
+            getFactoids(editCell, completionHandler: { (success) in
+                // refresh the tableview to show the activity indicator
+                self.tableView.reloadData()
+            })
         }
     }
     
@@ -318,26 +318,49 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         // check whether the user pulled down far enough
         if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
+            //create a loading indicator to display as each ToDo downloads new factoids
+            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            placeHolderCell.textLabel!.hidden = true
+            placeHolderCell.addSubview(activityIndicator)
+            activityIndicator.frame = placeHolderCell.bounds
+            activityIndicator.startAnimating()
+            // maintain pull to refresh view until all async requests complete
+            self.tableView.contentInset = UIEdgeInsets(top: rowHeight, left: 0, bottom: 0, right: 0)
+         
             // add a new item
-            refreshFactoids()
+            refreshFactoids({ (completed) in
+                // return tableview to original position when all async requests are completed
+                if completed {
+                    // animate the tableView back to position
+                    UIView.animateWithDuration(0.3, animations: {
+                        self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                        //force a reload since content length may have changed
+                        self.tableView.reloadData()
+                        self.placeHolderCell.removeFromSuperview()
+                    })
+                }
+            })
+        } else {
+            pullDownInProgress = false
+            placeHolderCell.removeFromSuperview()
         }
-        pullDownInProgress = false
-        placeHolderCell.removeFromSuperview()
     }
     
-    func refreshFactoids() {
+    func refreshFactoids(completionHandler: (success: Bool) -> Void) {
         //loop through the visible cells and select another random factoid to display
         let visibleCells = tableView.visibleCells as! [ToDoCellTableViewCell]
+        var total = 0
+        var completed = false
         for cell in visibleCells {
-            if cell.toDoItem!.clue != "" {
-                cell.titleLabel.text = cell.toDoItem!.refreshFactoid()
-            } else {
-                // no clue found - query API in case this ToDo was added when the device had no network access
-                getFactoids(cell)
-            }
+            // request factoids for this cell and increment the counter
+            getFactoids(cell, completionHandler: { (success) in
+                total += 1
+                // did we get a response back for each cell queried?
+                completed = (total == self.tableView.visibleCells.count)
+                completionHandler(success: completed)
+            })
         }
-        //force a reload since content length may have changed
-        tableView.reloadData()
+        
     }
     
     // MARK: - Navigation
@@ -435,18 +458,20 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Private methods
     
-    private func getFactoids(cell: ToDoCellTableViewCell) {
+    private func getFactoids(cell: ToDoCellTableViewCell, completionHandler: (success: Bool) -> Void) {
         // first test to see if we have a network connection before requesting data from the API
         let status = Reach().connectionStatus()
         switch status {
         case .Unknown, .Offline:
             let message = "Make sure your device is connected to the internet."
             self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: Constants.Messages.NETWORK_ERROR)
+            completionHandler(success: false)
         default:
             let indexPath = self.tableView.indexPathForCell(cell)
             let item = cell.toDoItem!
             item.requesting = true
-            
+            item.deleteAll()
+            // Begin request
             NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
                 //we have a API response - hide the activity indicator
                 item.requesting = false
@@ -456,6 +481,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     self.view.makeToast(message: message, duration: HRToastDefaultDuration, position: HRToastPositionDefault, title: title)
                     // log the error
                     NSLog("Error requesting factoids: \(nserror), \(nserror.userInfo)")
+                    completionHandler(success: false)
                 }
                 
                 // select a random factoid returned from API
@@ -468,6 +494,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                     // reload individual table cell: http://stackoverflow.com/questions/26709537/reload-cell-data-in-table-view-with-swift
                     self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
                 }
+                completionHandler(success: true)
             })
         }
     }

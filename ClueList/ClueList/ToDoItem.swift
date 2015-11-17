@@ -177,4 +177,14 @@ class ToDoItem: NSManagedObject {
 
         return newFactoid
     }
+    
+    // remove all factoids from this ToDoItem
+    func deleteAll() {
+        let context:NSManagedObjectContext = self.managedObjectContext!
+        for f in factoids {
+            context.deleteObject(f as NSManagedObject)
+            try! context.save()
+        }
+
+    }
 }
