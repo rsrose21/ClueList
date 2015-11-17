@@ -283,6 +283,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     
     // a cell that is rendered as a placeholder to indicate where a new item is added
     let placeHolderCell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "PlaceHolderCell")
+    // create a loading indicator to display as each ToDo downloads new factoids
+    let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+    
     // indicates the state of this behavior
     var pullDownInProgress = false
     // table cell row heights are based on the cell's content so we use a static value here since we have no content
@@ -318,8 +321,7 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
     func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         // check whether the user pulled down far enough
         if pullDownInProgress && -scrollView.contentOffset.y > rowHeight {
-            //create a loading indicator to display as each ToDo downloads new factoids
-            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            // hide the text label and start animating the activity indicator
             placeHolderCell.textLabel!.hidden = true
             placeHolderCell.addSubview(activityIndicator)
             activityIndicator.frame = placeHolderCell.bounds
@@ -333,10 +335,12 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
                 if completed {
                     // animate the tableView back to position
                     UIView.animateWithDuration(0.3, animations: {
+                        self.activityIndicator.stopAnimating()
+                        self.placeHolderCell.textLabel!.hidden = false
                         self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                        self.placeHolderCell.removeFromSuperview()
                         //force a reload since content length may have changed
                         self.tableView.reloadData()
-                        self.placeHolderCell.removeFromSuperview()
                     })
                 }
             })
@@ -470,6 +474,9 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
             let indexPath = self.tableView.indexPathForCell(cell)
             let item = cell.toDoItem!
             item.requesting = true
+            // reset selected cached factoid so a new one is returned
+            item.factoid = nil
+            // remove all the saved factoids - new ones will be randomly returned from the API
             item.deleteAll()
             // Begin request
             NetworkClient.sharedInstance().getFactoids(item, completionHandler: { (reload, error) in
