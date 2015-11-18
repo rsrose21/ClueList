@@ -473,6 +473,11 @@ class ToDoListTableViewController: UIViewController, UITableViewDataSource, UITa
         default:
             let indexPath = self.tableView.indexPathForCell(cell)
             let item = cell.toDoItem!
+            // display a loading activity indicator for this individual cell
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            cell.accessoryView = indicator
+            indicator.startAnimating()
+            // flag this ToDo as a request in progress
             item.requesting = true
             // reset selected cached factoid so a new one is returned
             item.factoid = nil
